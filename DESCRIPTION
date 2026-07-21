@@ -1,0 +1,27 @@
+Package: replication.faircoop
+Title: Equitable Cooperation Deepens the Solution Space for High Ambition Pathways
+Version: 1.0.0
+Authors@R: person("Setu", "Pelz", email = "pelz@iiasa.ac.at", role = c("aut", "cre"))
+Description: Replication archive for the analysis of fair-share cooperation
+    scenarios built with the MESSAGEix-GLOBIOM-GAINS integrated assessment
+    model. Assembles per-scenario reporting workbooks into a single tidy
+    dataset and generates all code-based manuscript and supplementary figures.
+License: MIT
+Encoding: UTF-8
+Depends:
+    R (>= 4.0.0)
+Imports:
+    pacman,
+    dplyr,
+    tidyr,
+    ggplot2,
+    ggrepel,
+    egg,
+    here,
+    patchwork,
+    forcats,
+    stringr,
+    readxl,
+    readr,
+    scales,
+    writexl
