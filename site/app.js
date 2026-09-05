@@ -7,7 +7,7 @@
 
 const ROLE = {
   baseline: { colour: "#9a9a9a", dash: "5 3", width: 1.4, label: "Baseline, no new climate policy" },
-  source:   { colour: "#000000", dash: null,  width: 1.8, label: "Cost-optimal source scenario" },
+  source:   { colour: "#000000", dash: null,  width: 4.2, label: "Cost-optimal source scenario" }, // wide, so it shows under U where the two coincide
   U:        { colour: "#E69F00", dash: null,  width: 2.0, label: "Unlimited transfers (U)" },
   L:        { colour: "#0072B2", dash: null,  width: 2.0, label: "Lowest transfers (L)" },
 };
@@ -109,10 +109,10 @@ function ctl(label, node) {
   d.appendChild(l); d.appendChild(node);
   return d;
 }
-function dashSample(dash, colour = "currentColor") {
+function dashSample(dash, colour = "currentColor", width = 2) {
   const svg = document.createElementNS(SVGNS, "svg");
   svg.setAttribute("viewBox", "0 0 30 10");
-  const ln = el("line", { x1: 1, x2: 29, y1: 5, y2: 5, stroke: colour, "stroke-width": 2 }, svg);
+  const ln = el("line", { x1: 1, x2: 29, y1: 5, y2: 5, stroke: colour, "stroke-width": width }, svg);
   if (dash) ln.setAttribute("stroke-dasharray", dash);
   return svg;
 }
@@ -184,7 +184,7 @@ function buildLegend(series) {
   for (const x of series) {
     if (x.fam) continue;
     const li = document.createElement("span"); li.className = "li";
-    li.appendChild(dashSample(x.dash, x.colour));
+    li.appendChild(dashSample(x.dash, x.colour, x.width));
     li.appendChild(document.createTextNode(ROLE[x.s.role].label));
     host.appendChild(li); seen.add(x.s.role);
   }
