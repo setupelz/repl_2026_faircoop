@@ -19,7 +19,7 @@ const PRINCIPLE_RE = /^(ECPC|CAPC) \d{4}$/;
 const DIM_OPACITY = 0.14;
 const C_SMIP = "#1f7a8c", SMIP_DASH = "1.5 3.2", SMIP_W = 2.4; // ScenarioMIP-CMIP7 Low marker overlay
 
-const X_LO = 2020, X_HI = 2050, BASE_YEAR = 2025;
+const X_LO = 2020, X_HI = 2100, BASE_YEAR = 2025;
 const PANEL_W = 232, PANEL_H = 202, PANEL_GAP = 44;
 const M_L = 56, M_R = 10, M_T = 30, M_B = 26;
 const C_GRID = "#e2e2e2", C_ZERO = "#9a9a9a", C_MUTED = "#8a8a8a";
@@ -151,9 +151,9 @@ function buildControls() {
   }
   const drawer = document.createElement("details"); drawer.className = "drawer";
   drawer.open = state.families.size > 0;
-  drawer.innerHTML = `<summary>Add fair-share variants</summary><div class="chipgroups"></div>
-    <div class="note">The default pair, ECPC 2015 on SSP2, stays on. Each chip adds the unlimited and lowest
-    transfer corners of one variant; a greyed chip has no run under the chosen budget.</div>`;
+  drawer.innerHTML = `<summary>Change or add fair-share variants</summary><div class="chipgroups"></div>
+    <div class="note">The default pair, ${DEFAULT_FAMILY} on SSP2, is always on. Each other chip adds the unlimited and
+    lowest transfer corners of one variant; a greyed chip has no run under the chosen budget.</div>`;
   const groups = drawer.querySelector(".chipgroups");
   const principle = FAMILIES.filter(f => PRINCIPLE_RE.test(f));
   const sensit = FAMILIES.filter(f => !PRINCIPLE_RE.test(f));
@@ -161,6 +161,11 @@ function buildControls() {
     const g = document.createElement("div"); g.className = "chipgroup";
     g.innerHTML = `<span class="gl">${gl}</span><div class="chips"></div>`;
     const chips = g.querySelector(".chips");
+    if (gl === "Principle and start year") {
+      const d = document.createElement("span"); d.className = "chip on default"; d.title = "Always on";
+      d.appendChild(dashSample(null, ROLE.U.colour, 2)); d.appendChild(document.createTextNode(`${DEFAULT_FAMILY} (default, always on)`));
+      chips.appendChild(d);
+    }
     for (const f of fams) {
       const c = document.createElement("button"); c.className = "chip"; c.dataset.family = f;
       c.appendChild(dashSample(FAMILY_DASH[FAMILIES.indexOf(f) % FAMILY_DASH.length]));
@@ -267,7 +272,7 @@ function drawPanel(svg, p, x0, series) {
   const ov = overlayOn() ? overlaySeries(p.key) : [];
   const vals = drawn.flatMap(x => data[x.s.id].map(d => d[1])).concat(ov.map(d => d[1]));
   const [ymin, ymax] = vals.length ? axisLimits(vals) : [0, 1];
-  const px = d3.scaleLinear().domain([X_LO - 1.2, X_HI + 2.8]).range([M_L, M_L + PANEL_W]);
+  const px = d3.scaleLinear().domain([X_LO - 2, X_HI + 4]).range([M_L, M_L + PANEL_W]);
   const py = d3.scaleLinear().domain([ymin, ymax]).range([M_T + PANEL_H, M_T]);
 
   el("rect", { x: 0, y: 0, width: M_L + PANEL_W + M_R, height: M_T + PANEL_H + M_B, fill: "#ffffff" }, g);
@@ -282,7 +287,7 @@ function drawPanel(svg, p, x0, series) {
     el("text", { x: M_L - 5, y: py(t) + 3, "text-anchor": "end", "font-size": 8, fill: "#5c5c5c" }, g)
       .textContent = labels[i];
   });
-  for (const yr of [2020, 2030, 2040, 2050])
+  for (const yr of [2020, 2040, 2060, 2080, 2100])
     el("text", { x: px(yr), y: M_T + PANEL_H + 15, "text-anchor": "middle", "font-size": 8, fill: "#5c5c5c" }, g)
       .textContent = String(yr);
   el("line", { x1: px(BASE_YEAR), x2: px(BASE_YEAR), y1: M_T, y2: M_T + PANEL_H, stroke: C_ZERO,

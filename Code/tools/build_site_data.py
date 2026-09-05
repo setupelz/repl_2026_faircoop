@@ -39,9 +39,9 @@ OVERLAY = {
             "doi:10.5194/gmd-19-2627-2026. IAM quantification v0.2, Zenodo record 19825038.",
 }
 
-YEARS = list(range(2020, 2051, 5))
 CUM_YEARS = [2020, 2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060, 2070, 2080,
              2090, 2100]
+YEARS = list(CUM_YEARS)  # the cards run to 2100 on the model's own grid
 
 # AR6 GWP100 (IPCC AR6 WGI Table 7.15): CH4 27.9 (blended), N2O 273. F-gases
 # arrive already in CO2-equivalent. The model's own Emissions|Kyoto Gases row

@@ -50,6 +50,7 @@ details.howto[open] summary::before{content:"–"}
 .chip{border:1px solid var(--border); background:var(--surface); color:var(--text-dim); border-radius:99px; font:inherit; font-size:.78rem; padding:3px 10px; cursor:pointer; display:inline-flex; align-items:center; gap:6px}
 .chip.on{border-color:var(--text); color:var(--text); background:var(--surface2)}
 .chip:disabled{opacity:.4; cursor:not-allowed}
+.chip.default{cursor:default; background:var(--text); color:var(--bg); border-color:var(--text)}
 .chip svg{width:26px; height:8px; overflow:visible}
 .drawer .note{font-size:.74rem; color:var(--text-faint); padding-top:6px}
 /* ---------- legend ---------- */
