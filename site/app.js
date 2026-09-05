@@ -7,7 +7,7 @@
 
 const ROLE = {
   baseline: { colour: "#9a9a9a", dash: "5 3", width: 1.4, label: "Baseline, no new climate policy" },
-  source:   { colour: "#000000", dash: null,  width: 4.2, label: "Cost-optimal source scenario" }, // wide, so it shows under U where the two coincide
+  source:   { colour: "#000000", dash: null,  width: 4.2, label: "Cost-optimal source pathway" }, // wide, so it shows under U where the two coincide
   U:        { colour: "#E69F00", dash: null,  width: 2.0, label: "Unlimited transfers (U)" },
   L:        { colour: "#0072B2", dash: null,  width: 2.0, label: "Lowest transfers (L)" },
 };
@@ -42,6 +42,9 @@ Promise.all([
   readHash();
   buildControls();
   buildCards();
+  const fit = document.getElementById("ov-fit");
+  if (fit && OVERLAY && OVERLAY.fit && OVERLAY.fit.rms_annual_gt != null)
+    fit.textContent = `: annual CO2 to ${OVERLAY.fit.annual_to} within ${OVERLAY.fit.rms_annual_gt.toFixed(1)} Gt per year, cumulative CO2 over ${OVERLAY.fit.cum_from} to 2100 within ${Math.round(OVERLAY.fit.cum_gap_gt)} Gt`;
   render();
   window.addEventListener("hashchange", () => { readHash(); syncControls(); render(); });
 }).catch(err => {
@@ -328,7 +331,7 @@ function drawPanel(svg, p, x0, series) {
       const loc = pt.matrixTransform(g.getScreenCTM().inverse());
       const yr = ov.reduce((a, b) => Math.abs(px(b[0]) - loc.x) < Math.abs(px(a[0]) - loc.x) ? b : a);
       showTip(ev, `<b>${OVERLAY.label}</b><br>${regionLabel()}, ${yr[0]}: ${fmtNum(yr[1], p.unit)}` +
-        `<br><span style="opacity:.7">peak warming ${OVERLAY.pw67.toFixed(2)} °C (p67)</span>`);
+        `<br><span style="opacity:.7">peak warming ${OVERLAY.pw67.toFixed(2)} °C at a two-in-three chance</span>`);
     });
     hit.addEventListener("mouseleave", hideTip);
   }
@@ -374,7 +377,7 @@ function drawStrip(series) {
   const base = series.find(x => x.s.role === "baseline");
   host.innerHTML = `<h2>The same budget, every line</h2>
     <div class="sub">Cumulative World CO2, 2020 to 2100, for the pathways on this page. The budget of
-    ${budget.gt} Gt binds the emissions the fair-share rules cover; total CO2 lands within a few percent of it.
+    ${budget.gt} Gt binds the emissions the fair-share rules cover, so total CO2 lands within a few percent of it.
     ${base && CUM[base.s.id] != null ? `The baseline reaches ${Math.round(CUM[base.s.id]).toLocaleString()} Gt, off this scale.` : ""}</div>`;
   const W = 900, H = 74, L = 40, R = 40;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cumulative CO2 by pathway" });
@@ -428,9 +431,8 @@ function drawMultiples(series) {
   const nPairs = new Set(trio.filter(x => x.fam).map(x => x.fam)).size;
   host.innerHTML = `<div class="mhead"><div><h2>Where the pathways part ways</h2>
     <div class="sub">${panel.title} (${panel.unit}) in every region, ${META.budgets.find(b => b.id === state.budget).label}: the
-    cost-optimal source and the two transfer corners of the default fair-share pair${nPairs ? `, plus the ${nPairs} pair${nPairs > 1 ? "s" : ""} added in the drawer` : ""}.
-    Regions that must pay down a debt move first under lowest transfers; the others gain room. The drawer and the
-    transfers toggle apply here too.</div></div>
+    cost-optimal source pathway and the two transfer corners${nPairs ? ` of every pair on the page` : ` of the default fair-share pair`}.
+    Regions that must pay down a debt move first under lowest transfers; the others gain room.</div></div>
     <div class="ctl"><label>Indicator</label><select id="msel"></select></div></div>`;
   const sel = host.querySelector("#msel");
   for (const p of allPanels()) {
@@ -508,7 +510,7 @@ function openModal(doc) {
   <a href="https://github.com/setupelz/repl_2026_faircoop">github.com/setupelz/repl_2026_faircoop</a>.
   Licence: ${META.license}. Generated ${META.generated}.</div>
   ${OVERLAY ? `<h4>Reference run</h4>
-  <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why} ${OVERLAY.non_co2_note} ${OVERLAY.regional_note || ""} ${OVERLAY.cite}</div>` : ""}
+  <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why}${OVERLAY.fit && OVERLAY.fit.rms_annual_gt != null ? ` On the current data: annual CO2 to ${OVERLAY.fit.annual_to} within ${OVERLAY.fit.rms_annual_gt.toFixed(1)} Gt per year, cumulative CO2 over ${OVERLAY.fit.cum_from} to 2100 within ${Math.round(OVERLAY.fit.cum_gap_gt)} Gt.` : ""} ${OVERLAY.non_co2_note} ${OVERLAY.regional_note || ""} ${OVERLAY.cite}</div>` : ""}
   <h4>Cite this figure</h4>
   <div class="citebox">${META.cite_short}, '${doc.title}', from ${META.cite_tail}</div>`;
   m.querySelector("h3 button").onclick = closeModal;
