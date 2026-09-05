@@ -27,7 +27,7 @@ const SVGNS = "http://www.w3.org/2000/svg";
 
 const tip = document.getElementById("tip");
 let META, FIGS, CUM, FAMILIES, OVERLAY;
-const state = { budget: "2C", region: "World", transfers: "both", families: new Set(), overlay: false, mkey: "energy_co2" };
+const state = { budget: "2C", region: "World", transfers: "both", families: new Set(), overlay: false };
 
 /* ============ boot ============ */
 Promise.all([
@@ -62,7 +62,6 @@ function readHash() {
   if (["both", "U", "L"].includes(h.get("t"))) state.transfers = h.get("t");
   state.families = new Set((h.get("f") || "").split("|").filter(Boolean));
   state.overlay = h.get("o") === "1";
-  if (h.get("m")) state.mkey = h.get("m");
 }
 const overlayRegionOk = () => !!(OVERLAY && (state.region === OVERLAY.region || (OVERLAY.regional && OVERLAY.regional[state.region])));
 const overlayOn = () => !!(OVERLAY && state.overlay && state.budget === OVERLAY.budget && overlayRegionOk());
@@ -72,7 +71,6 @@ function writeHash() {
   h.set("b", state.budget); h.set("r", state.region); h.set("t", state.transfers);
   if (state.families.size) h.set("f", [...state.families].join("|"));
   if (state.overlay) h.set("o", "1");
-  if (state.mkey !== "energy_co2") h.set("m", state.mkey);
   history.replaceState(null, "", "#" + h.toString());
 }
 
@@ -382,7 +380,7 @@ function drawStrip(series) {
   const W = 900, H = 74, L = 40, R = 40;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cumulative CO2 by pathway" });
   const vals = pts.map(x => CUM[x.s.id]);
-  if (overlayOn() && state.region === OVERLAY.region && OVERLAY.cumulative != null) vals.push(OVERLAY.cumulative);
+  if (OVERLAY && state.overlay && state.budget === OVERLAY.budget && OVERLAY.cumulative != null) vals.push(OVERLAY.cumulative);
   const hi = Math.max(budget.gt, ...vals) * 1.06, lo = Math.min(budget.gt, ...vals) * 0.94;
   const sx = d3.scaleLinear().domain([lo, hi]).range([L, W - R]);
   const y = 40;
@@ -408,7 +406,7 @@ function drawStrip(series) {
       `<b>${x.label}</b><br>${fmtNum(CUM[x.s.id], "Gt CO2")} cumulative, 2020 to 2100`));
     dot.addEventListener("mouseleave", hideTip);
   }
-  if (overlayOn() && state.region === OVERLAY.region && OVERLAY.cumulative != null) {
+  if (OVERLAY && state.overlay && state.budget === OVERLAY.budget && OVERLAY.cumulative != null) {
     const dot = el("circle", { cx: sx(OVERLAY.cumulative), cy: y - 28, r: 4.2, fill: C_SMIP,
       stroke: "#ffffff", "stroke-width": 0.8 }, svg);
     dot.addEventListener("mousemove", ev => showTip(ev,
@@ -417,70 +415,6 @@ function drawStrip(series) {
       `${fmtNum(OVERLAY.head_from_source, "Gt")} for 2020 to ${OVERLAY.cum_years[0]} from the source pathway</span>`));
     dot.addEventListener("mouseleave", hideTip);
   }
-  host.appendChild(svg);
-}
-
-/* ============ small multiples: one indicator, every region ============ */
-const MW = 150, MH = 100, MM_L = 40, MM_R = 8, MM_T = 22, MM_B = 18, M_COLS = 6;
-function allPanels() { return FIGS.flatMap(d => d.panels.map(p => ({ ...p, fig: d.title }))); }
-function drawMultiples(series) {
-  const host = document.getElementById("multiples");
-  const panel = allPanels().find(p => p.key === state.mkey) || allPanels()[0];
-  const regions = META.regions.filter(r => !r.members && r.id !== "World");
-  const trio = series.filter(x => x.s.role !== "baseline");
-  const nPairs = new Set(trio.filter(x => x.fam).map(x => x.fam)).size;
-  host.innerHTML = `<div class="mhead"><div><h2>Where the pathways part ways</h2>
-    <div class="sub">${panel.title} (${panel.unit}) in every region, ${META.budgets.find(b => b.id === state.budget).label}: the
-    cost-optimal source pathway and the two transfer corners${nPairs ? ` of every pair on the page` : ` of the default fair-share pair`}.
-    Regions that must pay down a debt move first under lowest transfers; the others gain room.</div></div>
-    <div class="ctl"><label>Indicator</label><select id="msel"></select></div></div>`;
-  const sel = host.querySelector("#msel");
-  for (const p of allPanels()) {
-    const o = document.createElement("option"); o.value = p.key; o.textContent = `${p.fig}: ${p.title}`;
-    if (p.key === panel.key) o.selected = true; sel.appendChild(o);
-  }
-  sel.addEventListener("change", () => { state.mkey = sel.value; update(); });
-  const cellW = MM_L + MW + MM_R, cellH = MM_T + MH + MM_B;
-  const rows = Math.ceil(regions.length / M_COLS);
-  const svg = el("svg", { viewBox: `0 0 ${M_COLS * cellW} ${rows * cellH}`, role: "img",
-    "aria-label": `${panel.title} by region`, "class": "panelchart" });
-  regions.forEach((r, i) => {
-    const gx = (i % M_COLS) * cellW, gy = Math.floor(i / M_COLS) * cellH;
-    const g = el("g", { transform: `translate(${gx},${gy})` }, svg);
-    const data = panel.data[r.id] || {};
-    const drawn = trio.filter(x => data[x.s.id] && data[x.s.id].length > 1);
-    const vals = drawn.flatMap(x => data[x.s.id].map(d => d[1]));
-    const [ymin, ymax] = vals.length ? axisLimits(vals) : [0, 1];
-    const px = d3.scaleLinear().domain([X_LO - 1, X_HI + 1]).range([MM_L, MM_L + MW]);
-    const py = d3.scaleLinear().domain([ymin, ymax]).range([MM_T + MH, MM_T]);
-    el("text", { x: MM_L, y: 12, "font-size": 9.5, "font-weight": 700, fill: "#1a1a1a" }, g).textContent = r.label;
-    const ticks = py.ticks(3).filter(t => t >= ymin && t <= ymax), labels = tickLabels(ticks);
-    ticks.forEach((t, k) => {
-      el("line", { x1: MM_L, x2: MM_L + MW, y1: py(t), y2: py(t), stroke: t === 0 ? C_ZERO : C_GRID, "stroke-width": 0.7 }, g);
-      el("text", { x: MM_L - 4, y: py(t) + 2.5, "text-anchor": "end", "font-size": 7, fill: "#5c5c5c" }, g).textContent = labels[k];
-    });
-    for (const yr of [2020, 2035, 2050])
-      el("text", { x: px(yr), y: MM_T + MH + 11, "text-anchor": "middle", "font-size": 7, fill: "#5c5c5c" }, g).textContent = String(yr);
-    el("line", { x1: px(BASE_YEAR), x2: px(BASE_YEAR), y1: MM_T, y2: MM_T + MH, stroke: C_ZERO, "stroke-width": 0.7, "stroke-dasharray": "3 2.5" }, g);
-    el("line", { x1: MM_L, x2: MM_L, y1: MM_T, y2: MM_T + MH, stroke: "#1a1a1a", "stroke-width": 0.7 }, g);
-    el("line", { x1: MM_L, x2: MM_L + MW, y1: MM_T + MH, y2: MM_T + MH, stroke: "#1a1a1a", "stroke-width": 0.7 }, g);
-    const line = d3.line().x(d => px(d[0])).y(d => py(d[1]));
-    for (const x of drawn) {
-      const path = el("path", { d: line(data[x.s.id]), fill: "none", stroke: x.colour,
-        "stroke-width": x.s.role === "source" ? 3 : 1.7, "stroke-linecap": "round", "stroke-linejoin": "round",
-        "stroke-opacity": x.opacity, "class": "series" }, g);
-      if (x.dash) path.setAttribute("stroke-dasharray", x.dash);
-      const hit = path.cloneNode(); hit.setAttribute("stroke", "transparent"); hit.setAttribute("stroke-width", "8");
-      hit.removeAttribute("class"); g.appendChild(hit);
-      hit.addEventListener("mousemove", ev => {
-        const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
-        const loc = pt.matrixTransform(g.getScreenCTM().inverse());
-        const yr = data[x.s.id].reduce((a, b) => Math.abs(px(b[0]) - loc.x) < Math.abs(px(a[0]) - loc.x) ? b : a);
-        showTip(ev, `<b>${x.label}</b><br>${r.label}, ${yr[0]}: ${fmtNum(yr[1], panel.unit)}`);
-      });
-      hit.addEventListener("mouseleave", hideTip);
-    }
-  });
   host.appendChild(svg);
 }
 
@@ -549,6 +483,5 @@ function render() {
   const series = activeSeries();
   buildLegend(series);
   drawStrip(series);
-  drawMultiples(series);
   for (const doc of FIGS) drawCard(doc, series);
 }
