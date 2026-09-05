@@ -60,7 +60,7 @@ details.howto[open] summary::before{content:"–"}
 .strip .sub{font-size:.82rem; color:var(--text-dim); margin:2px 0 6px}
 .strip svg{width:100%; height:auto; display:block; background:#ffffff; border-radius:4px}
 /* ---------- grid ---------- */
-.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:18px; align-items:start; margin-top:8px}
+.grid{display:grid; grid-template-columns:1fr; gap:22px; align-items:start; margin-top:8px}
 @media (max-width:480px){ .grid{grid-template-columns:1fr} }
 .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px 10px; min-width:0}
 .card h2{font-weight:700; font-size:1.08rem; line-height:1.3}

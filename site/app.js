@@ -301,6 +301,7 @@ function drawCard(doc, series) {
   const h = M_T + PANEL_H + M_B;
   const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img", "aria-label": `${doc.title}, ${regionLabel()}`,
     "class": "panelchart" });
+  svg.style.maxWidth = Math.round(w * 1.5) + "px"; // one card per row: cap the upscale so a one-panel card stays in proportion
   doc.panels.forEach((p, i) => drawPanel(svg, p, i * (cellW + PANEL_GAP), series));
   host.appendChild(svg);
 }
