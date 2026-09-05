@@ -423,11 +423,13 @@ function drawMultiples(series) {
   const host = document.getElementById("multiples");
   const panel = allPanels().find(p => p.key === state.mkey) || allPanels()[0];
   const regions = META.regions.filter(r => !r.members && r.id !== "World");
-  const trio = series.filter(x => !x.fam && x.s.role !== "baseline");
+  const trio = series.filter(x => x.s.role !== "baseline");
+  const nPairs = new Set(trio.filter(x => x.fam).map(x => x.fam)).size;
   host.innerHTML = `<div class="mhead"><div><h2>Where the pathways part ways</h2>
     <div class="sub">${panel.title} (${panel.unit}) in every region, ${META.budgets.find(b => b.id === state.budget).label}: the
-    cost-optimal source and the two transfer corners of the default fair-share pair. Regions that must pay down a
-    debt move first under lowest transfers; the others gain room.</div></div>
+    cost-optimal source and the two transfer corners of the default fair-share pair${nPairs ? `, plus the ${nPairs} pair${nPairs > 1 ? "s" : ""} added in the drawer` : ""}.
+    Regions that must pay down a debt move first under lowest transfers; the others gain room. The drawer and the
+    transfers toggle apply here too.</div></div>
     <div class="ctl"><label>Indicator</label><select id="msel"></select></div></div>`;
   const sel = host.querySelector("#msel");
   for (const p of allPanels()) {
@@ -464,6 +466,7 @@ function drawMultiples(series) {
       const path = el("path", { d: line(data[x.s.id]), fill: "none", stroke: x.colour,
         "stroke-width": x.s.role === "source" ? 3 : 1.7, "stroke-linecap": "round", "stroke-linejoin": "round",
         "stroke-opacity": x.opacity, "class": "series" }, g);
+      if (x.dash) path.setAttribute("stroke-dasharray", x.dash);
       const hit = path.cloneNode(); hit.setAttribute("stroke", "transparent"); hit.setAttribute("stroke-width", "8");
       hit.removeAttribute("class"); g.appendChild(hit);
       hit.addEventListener("mousemove", ev => {
