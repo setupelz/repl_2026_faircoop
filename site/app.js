@@ -17,6 +17,7 @@ const DEFAULT_SETS = { "2C": "800fm_ecpc2015", "1.5C": "500fm_ecpc2015" };
 const DEFAULT_MODEL = "SSP_SSP2_v6.5_ES";
 const PRINCIPLE_RE = /^(ECPC|CAPC) \d{4}$/;
 const DIM_OPACITY = 0.14;
+const C_SMIP = "#1f7a8c", SMIP_DASH = "1.5 3.2", SMIP_W = 2.4; // ScenarioMIP-CMIP7 Low marker overlay
 
 const X_LO = 2020, X_HI = 2050, BASE_YEAR = 2025;
 const PANEL_W = 232, PANEL_H = 202, PANEL_GAP = 44;
@@ -25,16 +26,17 @@ const C_GRID = "#e2e2e2", C_ZERO = "#9a9a9a", C_MUTED = "#8a8a8a";
 const SVGNS = "http://www.w3.org/2000/svg";
 
 const tip = document.getElementById("tip");
-let META, FIGS, CUM, FAMILIES;
-const state = { budget: "2C", region: "World", transfers: "both", families: new Set() };
+let META, FIGS, CUM, FAMILIES, OVERLAY;
+const state = { budget: "2C", region: "World", transfers: "both", families: new Set(), overlay: false };
 
 /* ============ boot ============ */
 Promise.all([
   d3.json("data/meta.json"),
   d3.json("data/cumulative.json"),
+  d3.json("data/overlay.json").catch(() => null),
   ...["fig01", "fig02", "fig03", "fig04", "fig05", "fig06"].map(id => d3.json(`data/${id}.json`)),
-]).then(([meta, cum, ...figs]) => {
-  META = meta; CUM = cum; FIGS = figs;
+]).then(([meta, cum, overlay, ...figs]) => {
+  META = meta; CUM = cum; OVERLAY = overlay; FIGS = figs;
   FAMILIES = [...new Set(META.series.map(s => s.family).filter(f => f && f !== DEFAULT_FAMILY))]
     .sort((a, b) => (PRINCIPLE_RE.test(b) - PRINCIPLE_RE.test(a)) || a.localeCompare(b));
   readHash();
@@ -56,11 +58,14 @@ function readHash() {
   if (h.get("r")) state.region = h.get("r");
   if (["both", "U", "L"].includes(h.get("t"))) state.transfers = h.get("t");
   state.families = new Set((h.get("f") || "").split("|").filter(Boolean));
+  state.overlay = h.get("o") === "1";
 }
+const overlayOn = () => !!(OVERLAY && state.overlay && state.budget === OVERLAY.budget && state.region === OVERLAY.region);
 function writeHash() {
   const h = new URLSearchParams();
   h.set("b", state.budget); h.set("r", state.region); h.set("t", state.transfers);
   if (state.families.size) h.set("f", [...state.families].join("|"));
+  if (state.overlay) h.set("o", "1");
   history.replaceState(null, "", "#" + h.toString());
 }
 
@@ -132,6 +137,13 @@ function buildControls() {
   host.appendChild(ctl("Transfers", seg([["both", "Both corners"], ["U", "Unlimited only"], ["L", "Lowest only"]],
     state.transfers, v => { state.transfers = v; update(); })));
 
+  if (OVERLAY) {
+    const lab = document.createElement("label"); lab.className = "check"; lab.id = "overlay-ctl";
+    lab.innerHTML = `<input type="checkbox"> <span></span>`;
+    const cb = lab.querySelector("input");
+    cb.addEventListener("change", () => { state.overlay = cb.checked; update(); });
+    host.appendChild(ctl("Reference run", lab));
+  }
   const drawer = document.createElement("details"); drawer.className = "drawer";
   drawer.open = state.families.size > 0;
   drawer.innerHTML = `<summary>Add fair-share variants</summary><div class="chipgroups"></div>
@@ -167,6 +179,14 @@ function syncControls() {
     b.classList.toggle("on", b.dataset.val === cur);
   });
   host.querySelector("select").value = state.region;
+  const oc = document.getElementById("overlay-ctl");
+  if (oc) {
+    const ok = state.budget === OVERLAY.budget && state.region === OVERLAY.region;
+    oc.querySelector("input").checked = state.overlay; oc.querySelector("input").disabled = !ok;
+    oc.querySelector("span").textContent = ok ? OVERLAY.short
+      : `${OVERLAY.short} (World, 2 °C only)`;
+    oc.classList.toggle("off", !ok);
+  }
   host.querySelectorAll(".chip").forEach(c => {
     const f = c.dataset.family;
     const ok = familyAvailable(f, state.budget);
@@ -193,6 +213,12 @@ function buildLegend(series) {
     const li = document.createElement("span"); li.className = "li";
     li.appendChild(dashSample(FAMILY_DASH[FAMILIES.indexOf(f) % FAMILY_DASH.length]));
     li.appendChild(document.createTextNode(f + " pair"));
+    host.appendChild(li);
+  }
+  if (overlayOn()) {
+    const li = document.createElement("span"); li.className = "li";
+    li.appendChild(dashSample(SMIP_DASH, C_SMIP, SMIP_W));
+    li.appendChild(document.createTextNode(OVERLAY.label));
     host.appendChild(li);
   }
 }
@@ -234,7 +260,8 @@ function drawPanel(svg, p, x0, series) {
   const g = el("g", { transform: `translate(${x0},0)` }, svg);
   const data = p.data[state.region] || {};
   const drawn = series.filter(x => data[x.s.id] && data[x.s.id].length > 1);
-  const vals = drawn.flatMap(x => data[x.s.id].map(d => d[1]));
+  const ov = overlayOn() ? (OVERLAY.indicators[p.key] || []) : [];
+  const vals = drawn.flatMap(x => data[x.s.id].map(d => d[1])).concat(ov.map(d => d[1]));
   const [ymin, ymax] = vals.length ? axisLimits(vals) : [0, 1];
   const px = d3.scaleLinear().domain([X_LO - 1.2, X_HI + 2.8]).range([M_L, M_L + PANEL_W]);
   const py = d3.scaleLinear().domain([ymin, ymax]).range([M_T + PANEL_H, M_T]);
@@ -279,6 +306,20 @@ function drawPanel(svg, p, x0, series) {
       const yr = pts.reduce((a, b) => Math.abs(px(b[0]) - loc.x) < Math.abs(px(a[0]) - loc.x) ? b : a);
       showTip(ev, `<b>${x.label}</b><br>${regionLabel()}, ${yr[0]}: ${fmtNum(yr[1], p.unit)}` +
         `<br><span style="opacity:.7">${x.s.variant}</span>`);
+    });
+    hit.addEventListener("mouseleave", hideTip);
+  }
+  if (ov.length > 1) {
+    const path = el("path", { d: line(ov), fill: "none", stroke: C_SMIP, "stroke-width": SMIP_W,
+      "stroke-dasharray": SMIP_DASH, "stroke-linecap": "round", "class": "series overlay" }, g);
+    const hit = path.cloneNode(); hit.setAttribute("stroke", "transparent"); hit.setAttribute("stroke-width", "9");
+    hit.removeAttribute("stroke-dasharray"); hit.removeAttribute("class"); g.appendChild(hit);
+    hit.addEventListener("mousemove", ev => {
+      const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+      const loc = pt.matrixTransform(g.getScreenCTM().inverse());
+      const yr = ov.reduce((a, b) => Math.abs(px(b[0]) - loc.x) < Math.abs(px(a[0]) - loc.x) ? b : a);
+      showTip(ev, `<b>${OVERLAY.label}</b><br>World, ${yr[0]}: ${fmtNum(yr[1], p.unit)}` +
+        `<br><span style="opacity:.7">peak warming ${OVERLAY.pw67.toFixed(2)} °C (p67)</span>`);
     });
     hit.addEventListener("mouseleave", hideTip);
   }
@@ -328,6 +369,7 @@ function drawStrip(series) {
   const W = 900, H = 74, L = 40, R = 40;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cumulative CO2 by pathway" });
   const vals = pts.map(x => CUM[x.s.id]);
+  if (overlayOn() && OVERLAY.cumulative != null) vals.push(OVERLAY.cumulative);
   const hi = Math.max(budget.gt, ...vals) * 1.06, lo = Math.min(budget.gt, ...vals) * 0.94;
   const sx = d3.scaleLinear().domain([lo, hi]).range([L, W - R]);
   const y = 40;
@@ -351,6 +393,15 @@ function drawStrip(series) {
     if (x.fam) dot.setAttribute("stroke", "#1a1a1a");
     dot.addEventListener("mousemove", ev => showTip(ev,
       `<b>${x.label}</b><br>${fmtNum(CUM[x.s.id], "Gt CO2")} cumulative, 2020 to 2100`));
+    dot.addEventListener("mouseleave", hideTip);
+  }
+  if (overlayOn() && OVERLAY.cumulative != null) {
+    const dot = el("circle", { cx: sx(OVERLAY.cumulative), cy: y - 28, r: 4.2, fill: C_SMIP,
+      stroke: "#ffffff", "stroke-width": 0.8 }, svg);
+    dot.addEventListener("mousemove", ev => showTip(ev,
+      `<b>${OVERLAY.label}</b><br>${fmtNum(OVERLAY.cumulative, "Gt CO2")} cumulative, 2020 to 2100` +
+      `<br><span style="opacity:.7">${fmtNum(OVERLAY.cumulative_own, "Gt")} over ${OVERLAY.cum_years[0]} to 2100 in the release; ` +
+      `${fmtNum(OVERLAY.head_from_source, "Gt")} for 2020 to ${OVERLAY.cum_years[0]} from the source pathway</span>`));
     dot.addEventListener("mouseleave", hideTip);
   }
   host.appendChild(svg);
@@ -381,6 +432,8 @@ function openModal(doc) {
   <div class="srcblock">Scenario output of ${META.model} assembled by the replication archive,
   <a href="https://github.com/setupelz/repl_2026_faircoop">github.com/setupelz/repl_2026_faircoop</a>.
   Licence: ${META.license}. Generated ${META.generated}.</div>
+  ${OVERLAY ? `<h4>Reference run</h4>
+  <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why} ${OVERLAY.non_co2_note} ${OVERLAY.cite}</div>` : ""}
   <h4>Cite this figure</h4>
   <div class="citebox">${META.cite_short}, '${doc.title}', from ${META.cite_tail}</div>`;
   m.querySelector("h3 button").onclick = closeModal;
@@ -405,6 +458,10 @@ function downloadCSV(doc) {
         lines.push([p.title, x.label, x.s.scenario_set, x.s.model, x.s.variant, state.region, yr, v, p.unit]
           .map(c => `"${String(c).replace(/"/g, '""')}"`).join(","));
     }
+    if (overlayOn())
+      for (const [yr, v] of (OVERLAY.indicators[p.key] || []))
+        lines.push([p.title, OVERLAY.label, "ScenarioMIP-CMIP7", OVERLAY.model, OVERLAY.scenario, "World", yr, v, p.unit]
+          .map(c => `"${String(c).replace(/"/g, '""')}"`).join(","));
   }
   triggerDL(new Blob([lines.join("\n")], { type: "text/csv" }),
     `faircoop-${doc.id}-${state.region.replace(/\s+/g, "_")}-${state.budget}.csv`);
