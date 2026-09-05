@@ -94,6 +94,12 @@ def _sum(*cols):
 
 
 INDICATORS = {
+    "total_co2": (lambda w: w["Emissions|CO2"] / 1000.0, "Gt CO2/yr", "Total CO2 emissions",
+                  "Emissions|CO2, all sources including land use"),
+    "total_ghg": (lambda w: (w["Emissions|CO2"] + w["Emissions|CH4"] * GWP_CH4
+                             + w["Emissions|N2O"] / 1000.0 * GWP_N2O + w["Emissions|F-Gases"]) / 1000.0,
+                  "Gt CO2e/yr", "Total greenhouse-gas emissions",
+                  f"CO2 + CH4 x {GWP_CH4} + N2O x {GWP_N2O:.0f} + F-gases (AR6 GWP100)"),
     "renew_cap": (_sum("Capacity|Electricity|Solar", "Capacity|Electricity|Wind",
                        "Capacity|Electricity|Hydro", "Capacity|Electricity|Biomass",
                        "Capacity|Electricity|Geothermal"),
@@ -139,6 +145,9 @@ INDICATORS = {
 }
 
 FIGS = [
+    {"id": "fig00", "title": "Total CO2 and greenhouse-gas emissions",
+     "sub": "All CO2, including land use, and all greenhouse gases in CO2-equivalent, in Gt per year.",
+     "panels": [("total_co2", "Total CO2"), ("total_ghg", "Total greenhouse gases")]},
     {"id": "fig01", "title": "Renewable electricity capacity",
      "sub": "Installed capacity in GW: all renewables, wind and solar.",
      "panels": [("renew_cap", "All renewables"), ("wind_cap", "Wind"),
@@ -335,6 +344,8 @@ def build_overlay(csv: Path = OVERLAY_CSV, source_head=None) -> dict | None:
     for key, (fn, *_rest) in INDICATORS.items():
         if key == "non_co2":
             ser = (wide["Emissions|Kyoto Gases"] - wide["Emissions|CO2"]) / 1000.0
+        elif key == "total_ghg":
+            ser = wide["Emissions|Kyoto Gases"] / 1000.0
         else:
             ser = fn(wide)
         out[key] = [[int(y), _round(v)] for y, v in ser.items()
@@ -383,8 +394,8 @@ def build_overlay_regional(csv: Path = OVERLAY_REGIONAL_CSV) -> dict:
         ind = {}
         for key, (fn, *_rest) in INDICATORS.items():
             try:
-                ser = ((wide["Emissions|Kyoto Gases"] - wide["Emissions|CO2"]) / 1000.0
-                       if key == "non_co2" else fn(wide))
+                ser = ((wide["Emissions|Kyoto Gases"] - wide["Emissions|CO2"]) / 1000.0 if key == "non_co2"
+                       else wide["Emissions|Kyoto Gases"] / 1000.0 if key == "total_ghg" else fn(wide))
             except KeyError:
                 continue
             ind[key] = [[int(y), _round(v)] for y, v in ser.items() if y in YEARS and pd.notna(v)]
