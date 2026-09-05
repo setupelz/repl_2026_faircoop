@@ -182,3 +182,16 @@ def test_overlay_low_marker():
     assert got == pytest.approx(w["Primary Energy|Coal"], rel=1e-3)
     got = dict(o["indicators"]["non_co2"])[2040]
     assert got == pytest.approx((w["Emissions|Kyoto Gases"] - w["Emissions|CO2"]) / 1000, rel=1e-3)
+
+
+def test_overlay_regional_covers_regions_and_groups():
+    if not b.OVERLAY_REGIONAL_CSV.exists():
+        pytest.skip("regional overlay CSV not on disk")
+    r = b.build_overlay_regional()
+    assert set(r) == {x["id"] for x in b.REGIONS if x["id"] != "World"}
+    assert set(r["CHN"]) == set(b.INDICATORS)
+    d = pd.read_csv(b.OVERLAY_REGIONAL_CSV)
+    chn = d[(d.region == "CHN") & (d.variable == "Primary Energy|Coal")]["2040"].iloc[0]
+    assert dict(r["CHN"]["coal"])[2040] == pytest.approx(chn, rel=1e-3)
+    hi = sum(d[(d.region.isin(b.HIGHER)) & (d.variable == "Primary Energy|Coal")]["2040"])
+    assert dict(r["Higher responsibility"]["coal"])[2040] == pytest.approx(hi, rel=1e-3)

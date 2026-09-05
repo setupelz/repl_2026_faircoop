@@ -31,10 +31,10 @@ const state = { budget: "2C", region: "World", transfers: "both", families: new 
 
 /* ============ boot ============ */
 Promise.all([
-  d3.json("data/meta.json"),
-  d3.json("data/cumulative.json"),
-  d3.json("data/overlay.json").catch(() => null),
-  ...["fig01", "fig02", "fig03", "fig04", "fig05", "fig06"].map(id => d3.json(`data/${id}.json`)),
+  d3.json("data/meta.json?v=" + Date.now()),
+  d3.json("data/cumulative.json?v=" + Date.now()),
+  d3.json("data/overlay.json?v=" + Date.now()).catch(() => null),
+  ...["fig01", "fig02", "fig03", "fig04", "fig05", "fig06"].map(id => d3.json(`data/${id}.json?v=${Date.now()}`)),
 ]).then(([meta, cum, overlay, ...figs]) => {
   META = meta; CUM = cum; OVERLAY = overlay; FIGS = figs;
   FAMILIES = [...new Set(META.series.map(s => s.family).filter(f => f && f !== DEFAULT_FAMILY))]
@@ -61,7 +61,9 @@ function readHash() {
   state.overlay = h.get("o") === "1";
   if (h.get("m")) state.mkey = h.get("m");
 }
-const overlayOn = () => !!(OVERLAY && state.overlay && state.budget === OVERLAY.budget && state.region === OVERLAY.region);
+const overlayRegionOk = () => !!(OVERLAY && (state.region === OVERLAY.region || (OVERLAY.regional && OVERLAY.regional[state.region])));
+const overlayOn = () => !!(OVERLAY && state.overlay && state.budget === OVERLAY.budget && overlayRegionOk());
+const overlaySeries = key => state.region === OVERLAY.region ? (OVERLAY.indicators[key] || []) : ((OVERLAY.regional[state.region] || {})[key] || []);
 function writeHash() {
   const h = new URLSearchParams();
   h.set("b", state.budget); h.set("r", state.region); h.set("t", state.transfers);
@@ -183,10 +185,9 @@ function syncControls() {
   host.querySelector("select").value = state.region;
   const oc = document.getElementById("overlay-ctl");
   if (oc) {
-    const ok = state.budget === OVERLAY.budget && state.region === OVERLAY.region;
+    const ok = state.budget === OVERLAY.budget && overlayRegionOk();
     oc.querySelector("input").checked = state.overlay; oc.querySelector("input").disabled = !ok;
-    oc.querySelector("span").textContent = ok ? OVERLAY.short
-      : `${OVERLAY.short} (World, 2 °C only)`;
+    oc.querySelector("span").textContent = ok ? OVERLAY.short : `${OVERLAY.short} (2 °C only)`;
     oc.classList.toggle("off", !ok);
   }
   host.querySelectorAll(".chip").forEach(c => {
@@ -262,7 +263,7 @@ function drawPanel(svg, p, x0, series) {
   const g = el("g", { transform: `translate(${x0},0)` }, svg);
   const data = p.data[state.region] || {};
   const drawn = series.filter(x => data[x.s.id] && data[x.s.id].length > 1);
-  const ov = overlayOn() ? (OVERLAY.indicators[p.key] || []) : [];
+  const ov = overlayOn() ? overlaySeries(p.key) : [];
   const vals = drawn.flatMap(x => data[x.s.id].map(d => d[1])).concat(ov.map(d => d[1]));
   const [ymin, ymax] = vals.length ? axisLimits(vals) : [0, 1];
   const px = d3.scaleLinear().domain([X_LO - 1.2, X_HI + 2.8]).range([M_L, M_L + PANEL_W]);
@@ -326,7 +327,7 @@ function drawPanel(svg, p, x0, series) {
       const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
       const loc = pt.matrixTransform(g.getScreenCTM().inverse());
       const yr = ov.reduce((a, b) => Math.abs(px(b[0]) - loc.x) < Math.abs(px(a[0]) - loc.x) ? b : a);
-      showTip(ev, `<b>${OVERLAY.label}</b><br>World, ${yr[0]}: ${fmtNum(yr[1], p.unit)}` +
+      showTip(ev, `<b>${OVERLAY.label}</b><br>${regionLabel()}, ${yr[0]}: ${fmtNum(yr[1], p.unit)}` +
         `<br><span style="opacity:.7">peak warming ${OVERLAY.pw67.toFixed(2)} °C (p67)</span>`);
     });
     hit.addEventListener("mouseleave", hideTip);
@@ -378,7 +379,7 @@ function drawStrip(series) {
   const W = 900, H = 74, L = 40, R = 40;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cumulative CO2 by pathway" });
   const vals = pts.map(x => CUM[x.s.id]);
-  if (overlayOn() && OVERLAY.cumulative != null) vals.push(OVERLAY.cumulative);
+  if (overlayOn() && state.region === OVERLAY.region && OVERLAY.cumulative != null) vals.push(OVERLAY.cumulative);
   const hi = Math.max(budget.gt, ...vals) * 1.06, lo = Math.min(budget.gt, ...vals) * 0.94;
   const sx = d3.scaleLinear().domain([lo, hi]).range([L, W - R]);
   const y = 40;
@@ -404,7 +405,7 @@ function drawStrip(series) {
       `<b>${x.label}</b><br>${fmtNum(CUM[x.s.id], "Gt CO2")} cumulative, 2020 to 2100`));
     dot.addEventListener("mouseleave", hideTip);
   }
-  if (overlayOn() && OVERLAY.cumulative != null) {
+  if (overlayOn() && state.region === OVERLAY.region && OVERLAY.cumulative != null) {
     const dot = el("circle", { cx: sx(OVERLAY.cumulative), cy: y - 28, r: 4.2, fill: C_SMIP,
       stroke: "#ffffff", "stroke-width": 0.8 }, svg);
     dot.addEventListener("mousemove", ev => showTip(ev,
@@ -507,7 +508,7 @@ function openModal(doc) {
   <a href="https://github.com/setupelz/repl_2026_faircoop">github.com/setupelz/repl_2026_faircoop</a>.
   Licence: ${META.license}. Generated ${META.generated}.</div>
   ${OVERLAY ? `<h4>Reference run</h4>
-  <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why} ${OVERLAY.non_co2_note} ${OVERLAY.cite}</div>` : ""}
+  <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why} ${OVERLAY.non_co2_note} ${OVERLAY.regional_note || ""} ${OVERLAY.cite}</div>` : ""}
   <h4>Cite this figure</h4>
   <div class="citebox">${META.cite_short}, '${doc.title}', from ${META.cite_tail}</div>`;
   m.querySelector("h3 button").onclick = closeModal;
@@ -533,8 +534,8 @@ function downloadCSV(doc) {
           .map(c => `"${String(c).replace(/"/g, '""')}"`).join(","));
     }
     if (overlayOn())
-      for (const [yr, v] of (OVERLAY.indicators[p.key] || []))
-        lines.push([p.title, OVERLAY.label, "ScenarioMIP-CMIP7", OVERLAY.model, OVERLAY.scenario, "World", yr, v, p.unit]
+      for (const [yr, v] of overlaySeries(p.key))
+        lines.push([p.title, OVERLAY.label, "ScenarioMIP-CMIP7", OVERLAY.model, OVERLAY.scenario, state.region, yr, v, p.unit]
           .map(c => `"${String(c).replace(/"/g, '""')}"`).join(","));
   }
   triggerDL(new Blob([lines.join("\n")], { type: "text/csv" }),

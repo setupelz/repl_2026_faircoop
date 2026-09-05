@@ -22,6 +22,10 @@ OUT = ROOT / "site" / "data"
 # "SSP2 - Low Emissions"), World only: the nearest public MESSAGE run to the
 # 2 C source by annual CO2 to 2050. Public since 2026-09-01 (Zenodo 19825038).
 OVERLAY_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low.csv"
+# The same run at native R12 resolution, from the IIASA Scenario Explorer
+# (Code/tools/pull_scenariomip_regional.py): the model's own reporting, so its
+# World series differ slightly from the release's harmonised emissions above.
+OVERLAY_REGIONAL_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low_regional.csv"
 OVERLAY = {
     "id": "smip|SSP2-L", "budget": "2C", "region": "World",
     "label": "ScenarioMIP-CMIP7 Low marker (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12, SSP2)",
@@ -346,11 +350,47 @@ def build_overlay(csv: Path = OVERLAY_CSV, source_head=None) -> dict | None:
     if source_head is not None and yrs[0] > 2020:
         head = source_head(yrs[0])
     return {**OVERLAY, "model": str(d["model"].iloc[0]), "scenario": str(d["scenario"].iloc[0]),
-            "indicators": out, "cumulative": _round(cum + head),
+            "indicators": out, "regional": build_overlay_regional(),
+            "regional_note": "Regional series are the run's native reporting from the IIASA Scenario "
+                             "Explorer, mapped to this archive's regions; the World series come from the "
+                             "harmonised release, so the two bases differ slightly.",
+            "cumulative": _round(cum + head),
             "cumulative_own": _round(cum), "cum_years": [int(yrs[0]), int(yrs[-1])],
             "head_from_source": _round(head),
             "non_co2_note": "Non-CO2 for this run is Kyoto gases minus CO2, on the release's "
                             "own AR6 GWP100 basket."}
+
+
+def build_overlay_regional(csv: Path = OVERLAY_REGIONAL_CSV) -> dict:
+    """{region: {indicator: [[year, value], ...]}} for the 12 regions and the two
+    responsibility groups (summed from members before any ratio is formed)."""
+    if not csv.exists():
+        return {}
+    d = pd.read_csv(csv)
+    year_cols = [c for c in d.columns if c.isdigit()]
+    long = d[d["region"] != "World"].melt(id_vars=["region", "variable"], value_vars=year_cols,
+                                          var_name="year", value_name="value")
+    long["year"] = long["year"].astype(int)
+    long = long.dropna(subset=["value"])
+    frames = [long]
+    for reg in REGIONS:
+        if reg["group"]:
+            g = long[long["region"].isin(reg["group"])].groupby(["variable", "year"], as_index=False)["value"].sum()
+            g["region"] = reg["id"]; frames.append(g)
+    allr = pd.concat(frames, ignore_index=True)
+    out = {}
+    for region, g in allr.groupby("region"):
+        wide = g.pivot_table(index="year", columns="variable", values="value", aggfunc="first")
+        ind = {}
+        for key, (fn, *_rest) in INDICATORS.items():
+            try:
+                ser = ((wide["Emissions|Kyoto Gases"] - wide["Emissions|CO2"]) / 1000.0
+                       if key == "non_co2" else fn(wide))
+            except KeyError:
+                continue
+            ind[key] = [[int(y), _round(v)] for y, v in ser.items() if y in YEARS and pd.notna(v)]
+        out[region] = ind
+    return out
 
 
 def main(csv: Path = CSV, out: Path = OUT) -> None:

@@ -1,0 +1,24 @@
+{
+  "pulled": "2026-09-05T18:10:03+00:00",
+  "database": "IXSE_SSP_SUBMISSION",
+  "model": "MESSAGEix-GLOBIOM-GAINS 2.1-M-R12",
+  "scenario": "SSP2 - Low Emissions",
+  "version": 27,
+  "regions": [
+    "AFR",
+    "CHN",
+    "EEU",
+    "FSU",
+    "LAM",
+    "MEA",
+    "NAM",
+    "PAO",
+    "PAS",
+    "RCPA",
+    "SAS",
+    "WEU",
+    "World"
+  ],
+  "n_variables": 22,
+  "variables_missing": []
+}
