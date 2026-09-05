@@ -76,7 +76,7 @@ def test_group_regions_are_member_sums():
 def test_build_writes_expected_files_within_size(built):
     names = sorted(p.name for p in built.glob("*.json"))
     assert names == ["cumulative.json", "fig01.json", "fig02.json", "fig03.json",
-                     "fig04.json", "fig05.json", "fig06.json", "meta.json"]
+                     "fig04.json", "fig05.json", "fig06.json", "meta.json", "overlay.json"]
     sizes = {p.name: p.stat().st_size for p in built.glob("*.json")}
     assert all(s < 400_000 for s in sizes.values()), sizes
     assert sum(sizes.values()) < 2_500_000
@@ -161,3 +161,24 @@ def test_page_release_gate():
         if ref.startswith(("http://", "https://", "mailto:")):
             continue
         assert (SITE / ref.split("?")[0]).exists(), ref
+
+
+def test_overlay_low_marker():
+    """The ScenarioMIP Low marker overlay: every card indicator, World only,
+    cumulative CO2 that is lower than the 2 C source, values from the CSV."""
+    if not b.OVERLAY_CSV.exists():
+        pytest.skip("overlay CSV not on disk")
+    o = b.build_overlay(source_head=lambda y: 214.0 if y == 2025 else 0.0)
+    assert o["id"] == "smip|SSP2-L" and o["region"] == "World" and o["budget"] == "2C"
+    assert o["cum_years"][0] == 2025 and o["head_from_source"] == 214.0
+    assert set(o["indicators"]) == set(b.INDICATORS)
+    for key, pts in o["indicators"].items():
+        yrs = [y for y, _ in pts]
+        assert yrs == sorted(yrs) and yrs and min(yrs) >= 2020 and max(yrs) <= 2050, key
+    assert 500 < o["cumulative_own"] < 700 and 750 < o["cumulative"] < 850
+    d = pd.read_csv(b.OVERLAY_CSV)
+    w = d[d.year == 2040].set_index("variable")["value"]
+    got = dict(o["indicators"]["coal"])[2040]
+    assert got == pytest.approx(w["Primary Energy|Coal"], rel=1e-3)
+    got = dict(o["indicators"]["non_co2"])[2040]
+    assert got == pytest.approx((w["Emissions|Kyoto Gases"] - w["Emissions|CO2"]) / 1000, rel=1e-3)

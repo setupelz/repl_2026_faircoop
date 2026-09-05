@@ -18,6 +18,23 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 CSV = ROOT / "Data" / "scenario_set_reporting.csv"
 OUT = ROOT / "site" / "data"
+# The ScenarioMIP-CMIP7 Low marker (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,
+# "SSP2 - Low Emissions"), World only: the nearest public MESSAGE run to the
+# 2 C source by annual CO2 to 2050. Public since 2026-09-01 (Zenodo 19825038).
+OVERLAY_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low.csv"
+OVERLAY = {
+    "id": "smip|SSP2-L", "budget": "2C", "region": "World",
+    "label": "ScenarioMIP-CMIP7 Low marker (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12, SSP2)",
+    "short": "ScenarioMIP-CMIP7 Low marker",
+    "pw67": 1.94,
+    "why": "Nearest public MESSAGEix run to the 2 \u00b0C source on both counts: annual "
+           "CO2 to 2050 (root-mean-square gap 0.7 Gt per year) and cumulative CO2 over "
+           "2025 to 2100 (588 against 585 Gt). The marker's harmonised series starts in "
+           "2023, so its 2020 to 2025 segment on the strip is the source pathway's own.",
+    "cite": "van Vuuren, D.P., et al. (2026). The Scenario Model Intercomparison Project "
+            "for CMIP7 (ScenarioMIP-CMIP7). Geoscientific Model Development, 19, 2627, "
+            "doi:10.5194/gmd-19-2627-2026. IAM quantification v0.2, Zenodo record 19825038.",
+}
 
 YEARS = list(range(2020, 2051, 5))
 CUM_YEARS = [2020, 2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060, 2070, 2080,
@@ -304,6 +321,38 @@ def build_meta(series: pd.DataFrame) -> dict:
     }
 
 
+def build_overlay(csv: Path = OVERLAY_CSV, source_head=None) -> dict | None:
+    """The Low-marker overlay: card indicators plus cumulative CO2, World only.
+    Non-CO2 is Kyoto gases minus CO2 (the release carries no F-gas row)."""
+    if not csv.exists():
+        return None
+    d = pd.read_csv(csv)
+    wide = d.pivot_table(index="year", columns="variable", values="value", aggfunc="first")
+    out = {}
+    for key, (fn, *_rest) in INDICATORS.items():
+        if key == "non_co2":
+            ser = (wide["Emissions|Kyoto Gases"] - wide["Emissions|CO2"]) / 1000.0
+        else:
+            ser = fn(wide)
+        out[key] = [[int(y), _round(v)] for y, v in ser.items()
+                    if y in YEARS and pd.notna(v)]
+    co2 = wide["Emissions|CO2"].dropna()
+    yrs = [y for y in CUM_YEARS if y in co2.index]
+    vals = co2.loc[yrs].to_numpy() / 1000.0
+    cum = float(sum((yrs[i + 1] - yrs[i]) * (vals[i] + vals[i + 1]) / 2 for i in range(len(yrs) - 1)))
+    # Comparable to the strip's 2020 base: the missing 2020 to first-year segment
+    # is the source pathway's own, when the caller supplies it.
+    head = 0.0
+    if source_head is not None and yrs[0] > 2020:
+        head = source_head(yrs[0])
+    return {**OVERLAY, "model": str(d["model"].iloc[0]), "scenario": str(d["scenario"].iloc[0]),
+            "indicators": out, "cumulative": _round(cum + head),
+            "cumulative_own": _round(cum), "cum_years": [int(yrs[0]), int(yrs[-1])],
+            "head_from_source": _round(head),
+            "non_co2_note": "Non-CO2 for this run is Kyoto gases minus CO2, on the release's "
+                            "own AR6 GWP100 basket."}
+
+
 def main(csv: Path = CSV, out: Path = OUT) -> None:
     df = load(csv)
     series = series_table(df)
@@ -318,6 +367,17 @@ def main(csv: Path = CSV, out: Path = OUT) -> None:
         json.dumps(cumulative_co2(long, series), separators=(",", ":")))
     (out / "meta.json").write_text(
         json.dumps(build_meta(series), ensure_ascii=False, separators=(",", ":")))
+    src = long[(long["variable"] == "Emissions|CO2") & (long["region"] == "World")
+               & (long["scenario_set"] == "800fm_ecpc2015") & (long["model"] == "SSP_SSP2_v6.5_ES")
+               & (long["variant"] == "Source scenario")].set_index("year")["value"] / 1000.0
+
+    def source_head(first_year: int) -> float:
+        ys = [y for y in CUM_YEARS if 2020 <= y <= first_year]
+        return float(sum((ys[i + 1] - ys[i]) * (src[ys[i]] + src[ys[i + 1]]) / 2
+                         for i in range(len(ys) - 1)))
+    overlay = build_overlay(source_head=source_head)
+    (out / "overlay.json").write_text(
+        json.dumps(overlay, ensure_ascii=False, separators=(",", ":")))
     sizes = {p.name: p.stat().st_size for p in sorted(out.glob("*.json"))}
     shown = out.relative_to(ROOT) if out.is_relative_to(ROOT) else out
     print(f"wrote {len(sizes)} files to {shown} "

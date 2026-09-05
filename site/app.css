@@ -37,6 +37,8 @@ details.howto[open] summary::before{content:"–"}
 .seg button + button{border-left:1px solid var(--border)}
 .seg button.on{background:var(--text); color:var(--bg)}
 .ctl select{font:inherit; font-size:.85rem; padding:4px 8px; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); color:var(--text); max-width:280px}
+.check{display:inline-flex; align-items:center; gap:6px; font-size:.85rem; color:var(--text); cursor:pointer}
+.check.off{color:var(--text-faint); cursor:default}
 .drawer{flex-basis:100%}
 .drawer summary{cursor:pointer; font-size:.82rem; color:var(--text-dim); list-style:none}
 .drawer summary::before{content:"▸ "; color:var(--text-faint)}
