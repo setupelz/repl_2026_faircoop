@@ -75,7 +75,7 @@ def test_group_regions_are_member_sums():
 @needs_csv
 def test_build_writes_expected_files_within_size(built):
     names = sorted(p.name for p in built.glob("*.json"))
-    assert names == ["cumulative.json", "fig01.json", "fig02.json", "fig03.json",
+    assert names == ["cumulative.json", "fig00.json", "fig01.json", "fig02.json", "fig03.json",
                      "fig04.json", "fig05.json", "fig06.json", "meta.json", "overlay.json"]
     sizes = {p.name: p.stat().st_size for p in built.glob("*.json")}
     assert all(s < 400_000 for s in sizes.values()), sizes
@@ -126,6 +126,10 @@ def test_golden_derived_values_against_csv(built):
          + w["Emissions|F-Gases"]) / 1000, rel=1e-3)
     assert site("fig05", "coal_power") == pytest.approx(
         w["Secondary Energy|Electricity|Coal"] * 277.778, rel=1e-3)
+    assert site("fig00", "total_co2") == pytest.approx(w["Emissions|CO2"] / 1000, rel=1e-3)
+    assert site("fig00", "total_ghg") == pytest.approx(
+        (w["Emissions|CO2"] + w["Emissions|CH4"] * 27.9 + w["Emissions|N2O"] / 1000 * 273
+         + w["Emissions|F-Gases"]) / 1000, rel=1e-3)
 
 
 @needs_csv
