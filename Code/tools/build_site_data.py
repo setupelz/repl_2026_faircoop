@@ -31,10 +31,9 @@ OVERLAY = {
     "label": "ScenarioMIP-CMIP7 Low marker (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12, SSP2)",
     "short": "ScenarioMIP-CMIP7 Low marker",
     "pw67": 1.94,
-    "why": "Nearest public MESSAGEix run to the 2 \u00b0C source on both counts: annual "
-           "CO2 to 2050 (root-mean-square gap 0.7 Gt per year) and cumulative CO2 over "
-           "2025 to 2100 (588 against 585 Gt). The marker's harmonised series starts in "
-           "2023, so its 2020 to 2025 segment on the strip is the source pathway's own.",
+    "why": "The nearest public MESSAGEix run to the 2 \u00b0C source, on annual CO2 to 2050 "
+           "and on cumulative CO2 over 2025 to 2100. Its harmonised series starts in 2023, so "
+           "its 2020 to 2025 segment on the strip is the source pathway's own.",
     "cite": "van Vuuren, D.P., et al. (2026). The Scenario Model Intercomparison Project "
             "for CMIP7 (ScenarioMIP-CMIP7). Geoscientific Model Development, 19, 2627, "
             "doi:10.5194/gmd-19-2627-2026. IAM quantification v0.2, Zenodo record 19825038.",
@@ -416,6 +415,18 @@ def main(csv: Path = CSV, out: Path = OUT) -> None:
         return float(sum((ys[i + 1] - ys[i]) * (src[ys[i]] + src[ys[i + 1]]) / 2
                          for i in range(len(ys) - 1)))
     overlay = build_overlay(source_head=source_head)
+    if overlay:
+        # how close the marker sits to the source: generated, never typed into prose
+        ov = dict(overlay["indicators"].get("energy_co2", []))
+        co2 = pd.read_csv(OVERLAY_CSV); co2 = co2[co2["variable"] == "Emissions|CO2"].set_index("year")["value"] / 1000.0
+        years = [y for y in YEARS if y in co2.index and y in src.index]
+        rms = float((sum((co2[y] - src[y]) ** 2 for y in years) / len(years)) ** 0.5) if years else None
+        cum_years = [y for y in CUM_YEARS if y >= overlay["cum_years"][0]]
+        src_cum = float(sum((cum_years[i + 1] - cum_years[i]) * (src[cum_years[i]] + src[cum_years[i + 1]]) / 2
+                            for i in range(len(cum_years) - 1)))
+        overlay["fit"] = {"rms_annual_gt": _round(rms) if rms is not None else None,
+                          "cum_gap_gt": _round(abs(overlay["cumulative_own"] - src_cum)),
+                          "cum_from": overlay["cum_years"][0], "annual_to": years[-1] if years else None}
     (out / "overlay.json").write_text(
         json.dumps(overlay, ensure_ascii=False, separators=(",", ":")))
     sizes = {p.name: p.stat().st_size for p in sorted(out.glob("*.json"))}

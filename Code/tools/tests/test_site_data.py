@@ -176,6 +176,12 @@ def test_overlay_low_marker():
         yrs = [y for y, _ in pts]
         assert yrs == sorted(yrs) and yrs and min(yrs) >= 2020 and max(yrs) <= 2050, key
     assert 500 < o["cumulative_own"] < 700 and 750 < o["cumulative"] < 850
+
+
+def test_overlay_fit_numbers_are_generated(built):
+    o = json.loads((built / "overlay.json").read_text())
+    assert o["fit"]["rms_annual_gt"] is not None and 0 < o["fit"]["rms_annual_gt"] < 3
+    assert 0 <= o["fit"]["cum_gap_gt"] < 30
     d = pd.read_csv(b.OVERLAY_CSV)
     w = d[d.year == 2040].set_index("variable")["value"]
     got = dict(o["indicators"]["coal"])[2040]
