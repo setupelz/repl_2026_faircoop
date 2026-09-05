@@ -150,7 +150,7 @@ function buildControls() {
     host.appendChild(ctl("Reference run", lab));
   }
   const drawer = document.createElement("details"); drawer.className = "drawer";
-  drawer.open = state.families.size > 0;
+  drawer.open = false; // the bar floats, so the drawer stays folded until asked
   drawer.innerHTML = `<summary>Change or add fair-share variants</summary><div class="chipgroups"></div>
     <div class="note">The default pair, ${DEFAULT_FAMILY} on SSP2, is always on. Each other chip adds the unlimited and
     lowest transfer corners of one variant; a greyed chip has no run under the chosen budget.</div>`;
