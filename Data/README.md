@@ -1,6 +1,6 @@
 # Data
 
-Three files are tracked in git: `MANIFEST.md5`, `fairshare_allocations.csv` and `scenariomip_cmip7_message_ssp2_low.csv`. The
+Tracked in git: `MANIFEST.md5`, `fairshare_allocations.csv`, `scenariomip_cmip7_message_ssp2_low.csv` and `scenariomip_cmip7_message_ssp2_low_regional.csv` (with its manifest). The
 32 reporting workbooks and the assembled CSV are too large for git and are
 deposited on Zenodo alongside the paper (DOI added at deposit; available from the
 authors on request in the meantime, see `../CITATION.md`). Download them into this
@@ -43,3 +43,13 @@ World series of the ScenarioMIP-CMIP7 Low marker run (MESSAGEix-GLOBIOM-GAINS
 its cards, on the 2020 to 2100 grid. Extracted from the IAM quantification
 released on 2026-09-01 (van Vuuren et al. 2026, GMD 19, 2627; Zenodo record
 19825038, licence as stated there). Read by `../Code/tools/build_site_data.py`.
+
+## `scenariomip_cmip7_message_ssp2_low_regional.csv`
+
+The same run at native R12 resolution: the 22 explorer variables for World and
+the 12 MESSAGE regions, mapped to this archive's region codes, on the 2020 to
+2100 grid, as served by the IIASA Scenario Explorer (`IXSE_SSP_SUBMISSION`, run
+version in the `.manifest.json` beside it). Pulled by
+`../Code/tools/pull_scenariomip_regional.py` (needs the IIASA VPN and an
+`ixmp4 login` token). Native model reporting, so its World emissions differ
+slightly from the harmonised series in the file above.
