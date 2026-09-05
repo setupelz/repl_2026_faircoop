@@ -61,6 +61,10 @@ details.howto[open] summary::before{content:"–"}
 .strip h2{font-weight:700; font-size:1rem; line-height:1.3}
 .strip .sub{font-size:.82rem; color:var(--text-dim); margin:2px 0 6px}
 .strip svg{width:100%; height:auto; display:block; background:#ffffff; border-radius:4px}
+.multiples .mhead{display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap; margin-bottom:8px}
+.multiples .ctl{display:flex; flex-direction:column; gap:4px}
+.multiples .ctl label{font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; color:var(--text-faint)}
+.multiples select{font:inherit; font-size:.85rem; padding:4px 8px; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); color:var(--text); max-width:360px}
 /* ---------- grid ---------- */
 .grid{display:grid; grid-template-columns:1fr; gap:22px; align-items:start; margin-top:8px}
 @media (max-width:480px){ .grid{grid-template-columns:1fr} }
