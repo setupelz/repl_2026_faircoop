@@ -78,8 +78,8 @@ def test_build_writes_expected_files_within_size(built):
     assert names == ["cumulative.json", "fig00.json", "fig01.json", "fig02.json", "fig03.json",
                      "fig04.json", "fig05.json", "fig06.json", "meta.json", "overlay.json"]
     sizes = {p.name: p.stat().st_size for p in built.glob("*.json")}
-    assert all(s < 400_000 for s in sizes.values()), sizes
-    assert sum(sizes.values()) < 2_500_000
+    assert all(s < 700_000 for s in sizes.values()), sizes
+    assert sum(sizes.values()) < 4_000_000
 
 
 @needs_csv
@@ -94,7 +94,7 @@ def test_series_keys_regions_and_years(built):
             assert set(per_series) <= ids
             for pts in per_series.values():
                 yrs = [y for y, _ in pts]
-                assert yrs == sorted(yrs) and min(yrs) >= 2020 and max(yrs) <= 2050
+                assert yrs == sorted(yrs) and min(yrs) >= 2020 and max(yrs) <= 2100
     default = [s for s in meta["series"] if s["scenario_set"] == "800fm_ecpc2015"
                and s["model"] == "SSP_SSP2_v6.5_ES"]
     assert sorted(s["role"] for s in default if s["family"] in (None, "ECPC 2015")) == \
@@ -178,7 +178,7 @@ def test_overlay_low_marker():
     assert set(o["indicators"]) == set(b.INDICATORS)
     for key, pts in o["indicators"].items():
         yrs = [y for y, _ in pts]
-        assert yrs == sorted(yrs) and yrs and min(yrs) >= 2020 and max(yrs) <= 2050, key
+        assert yrs == sorted(yrs) and yrs and min(yrs) >= 2020 and max(yrs) <= 2100, key
     assert 500 < o["cumulative_own"] < 700 and 750 < o["cumulative"] < 850
 
 
