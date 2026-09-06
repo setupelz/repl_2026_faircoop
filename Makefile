@@ -37,6 +37,7 @@ si-figures: check-data
 # and serve locally. The JSON is committed because the CSV is not.
 site-data: check-data
 	uv run --with pandas python Code/tools/build_site_data.py
+	uv run --with pandas python Code/tools/build_paper_figs.py
 
 site-test:
 	uv run --with pandas --with pytest python -m pytest Code/tools/tests -q
