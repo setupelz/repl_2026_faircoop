@@ -39,15 +39,15 @@ and regenerated only when the SSP2 800 Gt workbooks change, with
 ## `scenariomip_cmip7_message_ssp2_low.csv`
 
 World series of the ScenarioMIP-CMIP7 Low marker run (MESSAGEix-GLOBIOM-GAINS
-2.1-M-R12, "SSP2 - Low Emissions"), the 22 variables the explorer overlays on
+2.1-M-R12, "SSP2 - Low Emissions"), the variables the explorer overlays on
 its cards, on the 2020 to 2100 grid. Extracted from the IAM quantification
 released on 2026-09-01 (van Vuuren et al. 2026, GMD 19, 2627; Zenodo record
 19825038, licence as stated there). Read by `../Code/tools/build_site_data.py`.
 
 ## `scenariomip_cmip7_message_ssp2_low_regional.csv`
 
-The same run at native R12 resolution: the 22 explorer variables for World and
-the 12 MESSAGE regions, mapped to this archive's region codes, on the 2020 to
+The same run at native R12 resolution: the explorer variables for World and
+the 12 MESSAGE regions (the renewable generation series are not yet in this pull), mapped to this archive's region codes, on the 2020 to
 2100 grid, as served by the IIASA Scenario Explorer (`IXSE_SSP_SUBMISSION`, run
 version in the `.manifest.json` beside it). Pulled by
 `../Code/tools/pull_scenariomip_regional.py` (needs the IIASA VPN and an
