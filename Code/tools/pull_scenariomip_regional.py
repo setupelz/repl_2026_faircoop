@@ -42,16 +42,12 @@ REGIONS = {  # explorer native name -> this archive's code
 }
 YEARS = [2020, 2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060, 2070, 2080, 2090, 2100]
 VARIABLES = [
-    "Capacity|Electricity|Solar", "Capacity|Electricity|Wind", "Capacity|Electricity|Hydro",
-    "Capacity|Electricity|Biomass", "Capacity|Electricity|Geothermal",
-    "Primary Energy", "GDP|PPP", "Final Energy", "Final Energy|Electricity",
+    "Secondary Energy|Electricity|Solar", "Secondary Energy|Electricity|Wind",
+    "Secondary Energy|Electricity|Hydro", "Secondary Energy|Electricity|Biomass",
+    "Secondary Energy|Electricity|Geothermal",
     "Primary Energy|Coal", "Primary Energy|Oil", "Primary Energy|Gas",
     "Emissions|CO2", "Emissions|CO2|Energy and Industrial Processes",
     "Emissions|CH4", "Emissions|N2O", "Emissions|Kyoto Gases",
-    "Secondary Energy|Electricity|Coal",
-    "Emissions|CO2|Energy|Demand|Industry", "Emissions|CO2|Industrial Processes",
-    "Emissions|CO2|Energy|Demand|Residential and Commercial",
-    "Emissions|CO2|Energy|Demand|Transportation",
 ]
 
 

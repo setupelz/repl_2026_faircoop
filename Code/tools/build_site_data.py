@@ -1,6 +1,6 @@
 """Build the explorer's JSON from Data/scenario_set_reporting.csv.
 
-Writes site/data/fig00.json to fig04.json (UNEP EGR 2026 Chapter 5
+Writes site/data/fig00.json, fig01.json, fig03.json and fig04.json (UNEP EGR 2026 Chapter 5
 ensemble indicators, redrawn from this paper's scenario set), cumulative.json
 (World cumulative CO2 2020 to 2100 per series) and meta.json (series, regions,
 units, citation). Run with `make site-data`; the JSON is committed because the
@@ -73,10 +73,9 @@ REGIONS = [
 REGION_IDS = [r["id"] for r in REGIONS]
 
 INPUT_VARS = [
-    "Capacity|Electricity|Solar", "Capacity|Electricity|Wind",
-    "Capacity|Electricity|Hydro", "Capacity|Electricity|Biomass",
-    "Capacity|Electricity|Geothermal",
-    "Primary Energy", "GDP|PPP", "Final Energy", "Final Energy|Electricity",
+    "Secondary Energy|Electricity|Solar", "Secondary Energy|Electricity|Wind",
+    "Secondary Energy|Electricity|Hydro", "Secondary Energy|Electricity|Biomass",
+    "Secondary Energy|Electricity|Geothermal",
     "Primary Energy|Coal", "Primary Energy|Oil", "Primary Energy|Gas",
     "Emissions|CO2", "Emissions|CO2|Energy and Industrial Processes",
     "Emissions|CH4", "Emissions|N2O", "Emissions|F-Gases",
@@ -95,21 +94,15 @@ INDICATORS = {
                              + w["Emissions|N2O"] / 1000.0 * GWP_N2O + w["Emissions|F-Gases"]) / 1000.0,
                   "Gt CO2e/yr", "Total greenhouse-gas emissions",
                   f"CO2 + CH4 x {GWP_CH4} + N2O x {GWP_N2O:.0f} + F-gases (AR6 GWP100)"),
-    "renew_cap": (_sum("Capacity|Electricity|Solar", "Capacity|Electricity|Wind",
-                       "Capacity|Electricity|Hydro", "Capacity|Electricity|Biomass",
-                       "Capacity|Electricity|Geothermal"),
-                  "GW", "Renewable electricity capacity",
-                  "Sum of solar, wind, hydro, biomass and geothermal capacity"),
-    "wind_cap": (lambda w: w["Capacity|Electricity|Wind"], "GW",
-                 "Wind capacity (onshore + offshore)", "Capacity|Electricity|Wind"),
-    "solar_cap": (lambda w: w["Capacity|Electricity|Solar"], "GW",
-                  "Solar PV capacity", "Capacity|Electricity|Solar"),
-    "intensity": (lambda w: w["Primary Energy"] / w["GDP|PPP"] * 1000.0,
-                  "MJ per US$ (2010 PPP)", "Primary energy intensity of GDP",
-                  "Primary Energy divided by GDP|PPP"),
-    "elec_share": (lambda w: w["Final Energy|Electricity"] / w["Final Energy"] * 100.0,
-                   "%", "Share of electricity in final energy",
-                   "Final Energy|Electricity divided by Final Energy"),
+    "renew_gen": (_sum("Secondary Energy|Electricity|Solar", "Secondary Energy|Electricity|Wind",
+                       "Secondary Energy|Electricity|Hydro", "Secondary Energy|Electricity|Biomass",
+                       "Secondary Energy|Electricity|Geothermal"),
+                  "EJ/yr", "Renewable electricity generation",
+                  "Sum of solar, wind, hydro, biomass and geothermal electricity generation"),
+    "wind_gen": (lambda w: w["Secondary Energy|Electricity|Wind"], "EJ/yr",
+                 "Wind electricity generation", "Secondary Energy|Electricity|Wind"),
+    "solar_gen": (lambda w: w["Secondary Energy|Electricity|Solar"], "EJ/yr",
+                  "Solar electricity generation", "Secondary Energy|Electricity|Solar"),
     "coal": (lambda w: w["Primary Energy|Coal"], "EJ/yr", "Coal supply",
              "Primary Energy|Coal"),
     "oil": (lambda w: w["Primary Energy|Oil"], "EJ/yr", "Oil supply",
@@ -130,15 +123,10 @@ FIGS = [
     {"id": "fig00", "title": "Total CO2 and greenhouse-gas emissions",
      "sub": "All CO2, including land use, and all greenhouse gases in CO2-equivalent, in Gt per year.",
      "panels": [("total_co2", "Total CO2"), ("total_ghg", "Total greenhouse gases")]},
-    {"id": "fig01", "title": "Renewable electricity capacity",
-     "sub": "Installed capacity in GW: all renewables, wind and solar.",
-     "panels": [("renew_cap", "All renewables"), ("wind_cap", "Wind"),
-                ("solar_cap", "Solar PV")]},
-    {"id": "fig02", "title": "Energy efficiency and electrification",
-     "sub": "Primary energy intensity of GDP and the share of electricity in "
-            "final energy.",
-     "panels": [("intensity", "Energy intensity of GDP"),
-                ("elec_share", "Electricity in final energy")]},
+    {"id": "fig01", "title": "Renewable electricity generation",
+     "sub": "Electricity generated from all renewables, wind and solar, in EJ per year.",
+     "panels": [("renew_gen", "All renewables"), ("wind_gen", "Wind"),
+                ("solar_gen", "Solar PV")]},
     {"id": "fig03", "title": "Fossil fuel supply",
      "sub": "Primary energy from coal, oil and gas, in EJ per year.",
      "panels": [("coal", "Coal supply"), ("oil", "Oil supply"), ("gas", "Gas supply")]},
