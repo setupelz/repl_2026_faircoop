@@ -5,8 +5,13 @@
 # GDP|PPP, Emissions|CO2/CH4/N2O), writes Data/fairshare_allocations.csv, and verifies
 # the shares against the model's reported Remaining-domestic budget at 2030.
 #
+# Re-run only when the scenario workbooks in Data/ change. Data/fairshare_allocations.csv
+# is tracked, so a normal reproduction does not need it regenerated. `make assemble` must
+# have run first: the verification step reads Data/scenario_set_reporting.csv.
+#
 # Run from the project root via the fair-shares venv:
 #   uv run --project <path-to-fair-shares-repo> python Code/tools/compute_fairshares.py
+#   uv run --project <fair-shares-repo> python Code/tools/compute_fairshares.py --version v6.5
 #
 # Method (traced to source, file:line):
 #   - ecpc: equal_per_capita_budget on annual-interpolated Population, allocation_year=start.
@@ -23,6 +28,9 @@
 #     (each model year weighted by its duration_period), NOT annual-trapezoidal.
 #     (fair_share_derived.py:cumulative_with_period_map / compute_global_cumulative_mtco2)
 
+import argparse
+import re
+import statistics
 from pathlib import Path
 
 import pandas as pd
@@ -43,18 +51,43 @@ CAPABILITY_WEIGHT = 1.0  # gamma for all capc cells (standalone_es_driver.py)
 C_TO_CO2 = 44.0 / 12.0
 
 # 12 MESSAGE geographic regions (World/GLB excluded from territorial shares)
-REGIONS = ["NAM", "WEU", "CHN", "EEU", "FSU", "MEA", "RCPA", "PAO", "LAM", "SAS", "PAS", "AFR"]
+REGIONS = ["NAM", "WEU", "CHN", "EEU", "FSU", "MEA", "RCPA", "PAO",
+           "LAM", "SAS", "PAS", "AFR"]
 
-# SSP2 800fm source xlsx per approach. These are the model's own reporting output
-# (scen.timeseries()), the exact source utils/scenario_extractors.py reads from.
-SOURCE_XLSX = {
-    "ecpc": DATA / "ES_SSP2_v6.5_800fm_ecpc_{yr}_tce_el.xlsx",
-    "pc_cap": DATA / "ES_SSP2_v6.5_800fm_pc_cap_{yr}_tce_el.xlsx",
-}
+# SSP2 800fm source xlsx per approach, named
+# "ES_SSP2_<version>_800fm_<approach>_<year>_tce_el.xlsx".
+# These are the model's own reporting output (scen.timeseries()), the exact source
+# utils/scenario_extractors.py reads from. The version is derived from the filenames so a
+# version bump needs no edit here, matching the R side (000_setup.R keeps it out of constants).
+SOURCE_XLSX_TEMPLATE = "ES_SSP2_{ver}_800fm_{approach}_{yr}_tce_el.xlsx"
 
-# Reporting-CSV variant labels per (approach, start_year), for verification.
-# Variant string for the unlimited-cooperation ("U.") domestic remaining budget.
-VARIANT_REMAINING = "Emissions|Allocation|Remaining domestic|Gt"
+# IAMC variable holding the unlimited-cooperation ("U.") domestic remaining budget,
+# read back from the reporting CSV for verification.
+REMAINING_VARIABLE = "Emissions|Allocation|Remaining domestic|Gt"
+
+
+def detect_model_version() -> str:
+    """Model version token (e.g. "v6.5") taken from the ecpc 1990 workbook filename.
+    Errors when none or several are present, so a mixed Data/ folder never runs."""
+    found = sorted(
+        {
+            m.group(1)
+            for p in DATA.glob("ES_SSP2_*_800fm_ecpc_1990_tce_el.xlsx")
+            if (m := re.search(r"ES_SSP2_(v[0-9]+\.[0-9]+)_800fm_", p.name))
+        }
+    )
+    if not found:
+        raise FileNotFoundError(
+            f"No ES_SSP2_<version>_800fm_ecpc_1990_tce_el.xlsx workbook in {DATA}"
+        )
+    if len(found) > 1:
+        raise ValueError(f"Several model versions in {DATA}: {', '.join(found)}")
+    return found[0]
+
+
+def source_xlsx(version: str, approach: str, start_year: int) -> Path:
+    """Path to one approach x start-year reporting workbook."""
+    return DATA / SOURCE_XLSX_TEMPLATE.format(ver=version, approach=approach, yr=start_year)
 
 
 def load_wide(xlsx: Path, variable: str) -> pd.DataFrame:
@@ -80,11 +113,12 @@ def covered_emissions_wide(xlsx: Path) -> pd.DataFrame:
 
 
 def expand_linear(wide: pd.DataFrame, start_year: int, end_year: int) -> pd.DataFrame:
-    """Annual linear interpolation over [start_year, end_year], str year columns —
-    matches fair_shares.expand_to_annual(method='linear') as called by the extractor."""
+    """Annual linear interpolation over [start_year, end_year], str year columns.
+    Matches fair_shares.expand_to_annual(method='linear') as the extractor calls it."""
     wide = wide.copy()
     wide.columns = [str(int(c)) for c in wide.columns]
-    annual = pd.DataFrame(index=wide.index, columns=[str(y) for y in range(start_year, end_year + 1)], dtype=float)
+    annual = pd.DataFrame(index=wide.index, dtype=float,
+                          columns=[str(y) for y in range(start_year, end_year + 1)])
     for c in wide.columns:
         if c in annual.columns:
             annual[c] = wide[c]
@@ -122,9 +156,9 @@ def cumulative_period_weighted(emiss_native: pd.DataFrame, start_year: int, end_
     return pd.Series(out)
 
 
-def compute_shares(approach: str, start_year: int) -> dict:
+def compute_shares(approach: str, start_year: int, version: str) -> dict:
     """Regional shares (sum to 1.0) for one approach, replicating the model's call path."""
-    xlsx = Path(str(SOURCE_XLSX[approach]).format(yr=start_year))
+    xlsx = source_xlsx(version, approach, start_year)
     if not xlsx.exists():
         raise FileNotFoundError(xlsx)
 
@@ -179,39 +213,36 @@ def verify(approach: str, start_year: int, shares: dict, reporting: pd.DataFrame
     """
     apptag = "ECPC" if approach == "ecpc" else "CAPC"
     scenset = f"800fm_{'ecpc' if approach == 'ecpc' else 'capc'}{start_year}"
-    uvar = f"U. SSP2-2C-{apptag}{start_year}"  # exact unlimited-coop plain variant (no CDR/Delay/DR suffix)
+    # exact unlimited-coop plain variant, no CDR/Delay/DR suffix
+    uvar = f"U. SSP2-2C-{apptag}{start_year}"
     sub = reporting[reporting["scenario_set"] == scenset]
 
     cov = sub[(sub["variable"] == "Emissions|Covered") & (sub["variant"] == uvar)]
-    rem = sub[(sub["variable"] == VARIANT_REMAINING) & (sub["variant"] == uvar)]
+    rem = sub[(sub["variable"] == REMAINING_VARIABLE) & (sub["variant"] == uvar)]
     year_cols = [c for c in reporting.columns if str(c).isdigit()]
     cov = cov.set_index("region")[year_cols]
     cov.columns = [str(c) for c in cov.columns]
     cov = cov.loc[[r for r in REGIONS if r in cov.index]].apply(pd.to_numeric, errors="coerce")
     rem = rem.set_index("region")
     if cov.empty or rem.empty:
-        return [f"    (no reported {uvar} rows found — skipped)"]
+        return [f"    (no reported {uvar} rows found, skipped)"]
 
-    grid = sorted(int(c) for c in cov.columns if cov[c].notna().any() and int(c) <= END_OF_BUDGET_YEAR)
+    grid = sorted(int(c) for c in cov.columns
+                  if cov[c].notna().any() and int(c) <= END_OF_BUDGET_YEAR)
     pw = period_weights_from_grid(grid)
     emiss_2030 = cumulative_period_weighted(cov, start_year, FIRSTMODELYEAR, pw)
 
     implied = []
-    detail = []
     for r in REGIONS:
         if r not in rem.index:
             continue
         rep30 = pd.to_numeric(rem.loc[r, "2030"], errors="coerce")
         if pd.isna(rep30):
             continue
-        gross = rep30 + emiss_2030[r]          # gross = reported_remaining + actual_emissions(start..2030)
-        gi = gross / shares[r]                  # model-implied global from this region
-        implied.append(gi)
-        if r in ("NAM", "CHN", "AFR"):
-            computed = shares[r] * (sum(c for c in implied) / len(implied)) - emiss_2030[r]
-            detail.append((r, computed, float(rep30)))
+        # gross = reported_remaining + actual_emissions(start..2030)
+        gross = rep30 + emiss_2030[r]
+        implied.append(gross / shares[r])      # model-implied global from this region
 
-    import statistics
     mean_g = statistics.fmean(implied)
     std_g = statistics.pstdev(implied)
     lines = [
@@ -219,7 +250,8 @@ def verify(approach: str, start_year: int, shares: dict, reporting: pd.DataFrame
         f"spread(std)={std_g:.0f} Gt ({100 * std_g / mean_g:.1f}%)  sum(shares)={sum(shares.values()):.4f}"
     ]
     for r in ("NAM", "CHN", "AFR"):
-        rep30 = pd.to_numeric(rem.loc[r, "2030"], errors="coerce") if r in rem.index else float("nan")
+        rep30 = (pd.to_numeric(rem.loc[r, "2030"], errors="coerce")
+                 if r in rem.index else float("nan"))
         computed = shares[r] * mean_g - emiss_2030[r]
         diff = computed - rep30
         lines.append(
@@ -229,9 +261,19 @@ def verify(approach: str, start_year: int, shares: dict, reporting: pd.DataFrame
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Compute regional gross fair-share carbon-budget shares (SSP2, 800fm)."
+    )
+    parser.add_argument(
+        "--version",
+        help="Model version token, e.g. v6.5. Derived from the Data/ filenames when omitted.",
+    )
+    args = parser.parse_args()
+    version = args.version or detect_model_version()
+
     records = []
     print("=" * 78)
-    print("FAIR-SHARE GROSS BUDGET SHARES (SSP2, 800fm) — replicating JustMIP model path")
+    print(f"FAIR-SHARE GROSS BUDGET SHARES (SSP2, 800fm, {version}), JustMIP model path")
     print("=" * 78)
 
     print(f"\nLoading reporting CSV for verification: {REPORTING_CSV.name} ...", flush=True)
@@ -240,13 +282,15 @@ def main():
     for approach in ["ecpc", "pc_cap"]:
         label_app = "ECPC" if approach == "ecpc" else "CAPC"
         for yr in START_YEARS:
-            shares = compute_shares(approach, yr)
+            shares = compute_shares(approach, yr, version)
             label = f"{label_app} {yr}"
             for r in REGIONS:
                 records.append({"approach": label, "region": r, "share_pct": shares[r] * 100.0})
             print(f"\n{label}:  sum={sum(shares.values()):.4f}")
-            print(f"    NAM={shares['NAM']*100:6.2f}%  CHN={shares['CHN']*100:6.2f}%  AFR={shares['AFR']*100:6.2f}%")
-            print("  VERIFY (gross = share*global; reported Remaining|Gt @2030 = gross - actual_emiss(start..2030)):")
+            print(f"    NAM={shares['NAM']*100:6.2f}%  CHN={shares['CHN']*100:6.2f}%  "
+              f"AFR={shares['AFR']*100:6.2f}%")
+            print("  VERIFY (gross = share*global; reported Remaining|Gt @2030"
+                  " = gross - actual_emiss(start..2030)):")
             for line in verify(approach, yr, shares, reporting):
                 print(line)
 

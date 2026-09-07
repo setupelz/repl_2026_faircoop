@@ -1,4 +1,16 @@
-# Data Sources and Citations
+# Citation, Data Sources and Licensing
+
+## The paper
+
+Pelz, S., Fricko, O., Riahi, K., Pachauri, S., Brutschin, E., Rogelj, J.,
+Krey, V., Johnstone, I., Vinca, A., Schleussner, C.-F., Kikstra, J. and
+Gidden, M.J. (2026). Equitable cooperation deepens the solution space for high
+ambition pathways. *Environmental Research Letters*. DOI: to be added at
+publication.
+
+## This archive
+
+Cite the archive by its Zenodo DOI (added at deposit) or via `CITATION.cff`.
 
 ## MESSAGEix-GLOBIOM-GAINS Scenario Data
 

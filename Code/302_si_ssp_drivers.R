@@ -24,8 +24,7 @@ drivers <- scenario_sets_raw %>%
          !grepl("dr", model), region %in% col_levels,
          variable %in% c("GDP|PPP", "Population", "Population|Urban")) %>%
   mutate(ssp = ifelse(grepl("SSP_SSP1", model), "SSP1", "SSP2")) %>%
-  pivot_longer(cols = matches("\\d{4}"), names_to = "year", values_to = "value") %>%
-  mutate(year = as.numeric(year)) %>%
+  prepare_long_format() %>%
   filter(year >= 2020, year <= 2100) %>%
   select(ssp, region, variable, year, value) %>%
   pivot_wider(names_from = variable, values_from = value) %>%
@@ -52,15 +51,15 @@ p_world <- ggplot(filter(drivers, region == "World"),
   facet_grid(driver ~ region, scales = "free_y", switch = "y") +
   scale_colour_manual(values = ssp_cols, name = NULL) +
   scale_x_continuous(breaks = xbreaks) +
-  scale_y_continuous(labels = scales::label_number()) +
+  scale_y_continuous(labels = label_number()) +
   labs(x = NULL, y = NULL) +
-  theme_publication(0.56) +
+  theme_publication() +
   theme(strip.placement = "outside", strip.background = element_blank(),
         plot.margin = margin(l = 4, r = 2, t = 2, b = 2),
         legend.position = "none")
 
 # Regional columns: y shared across regions within a row (regions comparable);
-# driver strips suppressed. switch/placement MUST match p_world exactly —
+# driver strips suppressed. switch/placement MUST match p_world exactly ,
 # patchwork aligning facet_grids with different strip structures inserts the
 # outside-strip row between panel and axis, detaching the x ticks.
 p_reg <- ggplot(filter(drivers, region != "World") %>% mutate(region = droplevels(region)),
@@ -69,9 +68,9 @@ p_reg <- ggplot(filter(drivers, region != "World") %>% mutate(region = droplevel
   facet_grid(driver ~ region, scales = "free_y", switch = "y") +
   scale_colour_manual(values = ssp_cols, name = NULL) +
   scale_x_continuous(breaks = xbreaks) +
-  scale_y_continuous(labels = scales::label_number()) +
+  scale_y_continuous(labels = label_number()) +
   labs(x = NULL, y = NULL) +
-  theme_publication(0.56) +
+  theme_publication() +
   theme(strip.placement = "outside", strip.background = element_blank(),
         strip.text.y = element_blank(),
         panel.spacing.x = unit(1.4, "lines"),
@@ -84,6 +83,4 @@ figure <- p_world + p_reg +
     subtitle = "SSP1 vs SSP2 socioeconomic drivers (PPP, constant 2010 US$), 2020–2100") &
   theme(legend.position = "top")
 
-ggsave(here("Manuscript", "Figures", "SI", "SI_Figure_2_SSP_Drivers.png"),
-  plot = figure, width = 11, height = 7, dpi = 300, bg = "white", units = "in"
-)
+save_figure(figure, "SI_Figure_2_SSP_Drivers.png", width = 11, height = 7, si = TRUE)
