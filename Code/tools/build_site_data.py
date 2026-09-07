@@ -1,6 +1,6 @@
 """Build the explorer's JSON from Data/scenario_set_reporting.csv.
 
-Writes site/data/fig00.json, fig01.json, fig03.json and fig04.json (UNEP EGR 2026 Chapter 5
+Writes site/data/fig00.json, fig01.json, fig03.json, fig04.json and fig05.json (UNEP EGR 2026 Chapter 5
 ensemble indicators, redrawn from this paper's scenario set), cumulative.json
 (World cumulative CO2 2020 to 2100 per series) and meta.json (series, regions,
 units, citation). Run with `make site-data`; the JSON is committed because the
@@ -79,6 +79,7 @@ INPUT_VARS = [
     "Primary Energy|Coal", "Primary Energy|Oil", "Primary Energy|Gas",
     "Emissions|CO2", "Emissions|CO2|Energy and Industrial Processes",
     "Emissions|CH4", "Emissions|N2O", "Emissions|F-Gases",
+    "Carbon Removal|Geological Storage", "Carbon Capture|Geological Storage",
 ]
 
 # Derived indicators: key -> (function of a wide frame with one column per
@@ -117,6 +118,14 @@ INDICATORS = {
                            + w["Emissions|F-Gases"]) / 1000.0,
                 "Gt CO2e/yr", "Total non-CO2 GHG emissions",
                 f"CH4 x {GWP_CH4} + N2O x {GWP_N2O:.0f} + F-gases (AR6 GWP100)"),
+    "cdr_geo": (lambda w: w["Carbon Removal|Geological Storage"] / 1000.0, "Gt CO2/yr",
+                "Carbon removal with geological storage",
+                "Carbon Removal|Geological Storage (bioenergy with CCS and direct air capture)"),
+    "ccs_geo": (lambda w: (w["Carbon Capture|Geological Storage"] - w["Carbon Removal|Geological Storage"]) / 1000.0,
+                "Gt CO2/yr", "CCS on fossil and industrial sources",
+                "Carbon Capture|Geological Storage minus Carbon Removal|Geological Storage"),
+    "storage_total": (lambda w: w["Carbon Capture|Geological Storage"] / 1000.0, "Gt CO2/yr",
+                      "Total geological carbon storage", "Carbon Capture|Geological Storage"),
 }
 
 FIGS = [
@@ -134,6 +143,11 @@ FIGS = [
      "sub": "CO2 from energy and industrial processes, and non-CO2 greenhouse "
             "gases in CO2 equivalent.",
      "panels": [("energy_co2", "Energy-system CO2"), ("non_co2", "Non-CO2 gases")]},
+    {"id": "fig05", "title": "Geological carbon storage",
+     "sub": "CO2 stored underground each year, in Gt: carbon removal (bioenergy with CCS and direct "
+            "air capture), CCS on fossil and industrial sources, and the total, which is their sum.",
+     "panels": [("cdr_geo", "Carbon removal"), ("ccs_geo", "CCS on fossil and industry"),
+                ("storage_total", "Total storage")]},
 ]
 
 BUDGETS = {"800fm": {"id": "2C", "label": "2 °C (800 Gt CO2)", "gt": 800},

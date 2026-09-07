@@ -53,6 +53,7 @@ def test_derived_indicators_on_synthetic_frame():
     ind = b.derive(pd.DataFrame(rows)).set_index("region").loc["NAM"]
     assert ind["non_co2"] == pytest.approx((300 * 27.9 + 10 * 273 + 1000) / 1000)
     assert ind["renew_gen"] == pytest.approx(5.0)
+    assert ind["storage_total"] == pytest.approx(ind["cdr_geo"] + ind["ccs_geo"])
 
 
 def test_group_regions_are_member_sums():
@@ -70,7 +71,7 @@ def test_group_regions_are_member_sums():
 def test_build_writes_expected_files_within_size(built):
     names = sorted(p.name for p in built.glob("*.json"))
     assert names == ["cumulative.json", "fig00.json", "fig01.json", "fig03.json",
-                     "fig04.json", "meta.json", "overlay.json"]
+                     "fig04.json", "fig05.json", "meta.json", "overlay.json"]
     sizes = {p.name: p.stat().st_size for p in built.glob("*.json")}
     assert all(s < 700_000 for s in sizes.values()), sizes
     assert sum(sizes.values()) < 4_000_000
@@ -188,10 +189,7 @@ def test_overlay_regional_covers_regions_and_groups():
         pytest.skip("regional overlay CSV not on disk")
     r = b.build_overlay_regional()
     assert set(r) == {x["id"] for x in b.REGIONS if x["id"] != "World"}
-    # the regional pull predates the renewable-generation indicators; until it is
-    # re-run over the VPN, those three are World-only
-    pending = {"renew_gen", "wind_gen", "solar_gen"}
-    assert set(r["CHN"]) == set(b.INDICATORS) - pending
+    assert set(r["CHN"]) == set(b.INDICATORS)
     d = pd.read_csv(b.OVERLAY_REGIONAL_CSV)
     chn = d[(d.region == "CHN") & (d.variable == "Primary Energy|Coal")]["2040"].iloc[0]
     assert dict(r["CHN"]["coal"])[2040] == pytest.approx(chn, rel=1e-3)

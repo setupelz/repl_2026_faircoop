@@ -64,6 +64,32 @@ MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricit
 MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2080,13998.2938896512
 MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2090,16462.20876178935
 MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2100,18814.5865469588
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2020,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2025,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2030,215.866076095951
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2035,234.1483209183622
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2040,422.7387432875943
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2045,750.0681384310593
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2050,1382.089651601484
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2055,2442.394400172571
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2060,3915.963578075344
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2070,7823.9160851364
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2080,10021.58560607076
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2090,10235.19495042824
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2100,11694.20945697339
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2020,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2025,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2030,27.501488949798933
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2035,64.67839123802963
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2040,153.30715185058983
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2045,291.1780901214997
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2050,532.8261679808934
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2055,1065.209096101983
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2060,1837.3996458780434
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2070,4212.397162182454
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2080,6315.346404148454
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2090,6813.28873842431
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2100,8399.23313395268
 MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2025,362.8211780995736
 MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2030,321.3199346035053
 MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2035,300.4834821263393
