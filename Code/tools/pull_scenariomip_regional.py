@@ -2,7 +2,7 @@
 "SSP2 - Low Emissions") at native R12 resolution from the IIASA Scenario
 Explorer, for the explorer's reference-run overlay.
 
-Writes Data/scenariomip_cmip7_message_ssp2_low_regional.csv: the 22 variables
+Writes Data/scenariomip_cmip7_message_ssp2_low_regional.csv: the variables
 the site cards use, World plus the 12 MESSAGE regions mapped to this archive's
 region codes, on the 2020 to 2100 grid, plus a small manifest with the run
 version. Values are the model's native reporting as served by the explorer
@@ -48,6 +48,8 @@ VARIABLES = [
     "Primary Energy|Coal", "Primary Energy|Oil", "Primary Energy|Gas",
     "Emissions|CO2", "Emissions|CO2|Energy and Industrial Processes",
     "Emissions|CH4", "Emissions|N2O", "Emissions|Kyoto Gases",
+    "Carbon Removal|Geological Storage", "Carbon Capture|Geological Storage",
+    "Carbon Sequestration|CCS|Fossil", "Carbon Sequestration|CCS|Industrial Processes",
 ]
 
 

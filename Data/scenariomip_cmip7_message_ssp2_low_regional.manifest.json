@@ -1,5 +1,5 @@
 {
-  "pulled": "2026-09-05T18:10:03+00:00",
+  "pulled": "2026-09-07T17:06:55+00:00",
   "database": "IXSE_SSP_SUBMISSION",
   "model": "MESSAGEix-GLOBIOM-GAINS 2.1-M-R12",
   "scenario": "SSP2 - Low Emissions",
@@ -19,6 +19,9 @@
     "WEU",
     "World"
   ],
-  "n_variables": 22,
-  "variables_missing": []
+  "n_variables": 15,
+  "variables_missing": [
+    "Carbon Sequestration|CCS|Fossil",
+    "Carbon Sequestration|CCS|Industrial Processes"
+  ]
 }
