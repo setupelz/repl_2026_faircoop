@@ -149,6 +149,16 @@ ragg needs the freetype, libpng, libtiff and libjpeg development packages
 Helvetica is a macOS font; elsewhere the system substitutes a metric-compatible
 sans (usually Nimbus Sans or Arial), which shifts text extents slightly.
 
+## AI use
+
+Claude Code (Anthropic) was used to refactor and document the analysis
+scripts, to build the figure code and the interactive explorer from the
+assembled scenario data, and to draft the archive's documentation. The
+scenario design, the model runs, the methods and the results are the authors'
+own. Every number in the paper and on the explorer is computed by the code in
+this archive from the deposited model output, and the authors reviewed and are
+responsible for all code and text.
+
 ## Citation and license
 
 Cite the paper above. To cite the archive itself, use `CITATION.cff` (GitHub
