@@ -147,7 +147,7 @@ function buildControls() {
     lab.innerHTML = `<input type="checkbox"> <span></span>`;
     const cb = lab.querySelector("input");
     cb.addEventListener("change", () => { state.overlay = cb.checked; update(); });
-    host.appendChild(ctl("Reference run", lab));
+    host.appendChild(ctl("Separate comparison run", lab));
   }
   const drawer = document.createElement("details"); drawer.className = "drawer";
   drawer.open = false; // the bar floats, so the drawer stays folded until asked
@@ -448,7 +448,7 @@ function openModal(doc) {
   <div class="srcblock">Scenario output of ${META.model} assembled by the replication archive,
   <a href="https://github.com/setupelz/repl_2026_faircoop">github.com/setupelz/repl_2026_faircoop</a>.
   Licence: ${META.license}. Generated ${META.generated}.</div>
-  ${OVERLAY ? `<h4>Reference run</h4>
+  ${OVERLAY ? `<h4>Separate comparison run</h4>
   <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why}${OVERLAY.fit && OVERLAY.fit.rms_annual_gt != null ? ` On the current data: annual CO2 to ${OVERLAY.fit.annual_to} within ${OVERLAY.fit.rms_annual_gt.toFixed(1)} Gt per year, cumulative CO2 over ${OVERLAY.fit.cum_from} to 2100 within ${Math.round(OVERLAY.fit.cum_gap_gt)} Gt.` : ""} ${OVERLAY.non_co2_note} ${OVERLAY.regional_note || ""} ${OVERLAY.cite}</div>` : ""}
   <h4>Cite this figure</h4>
   <div class="citebox">${META.cite_short}, '${doc.title}', from ${META.cite_tail}</div>`;
