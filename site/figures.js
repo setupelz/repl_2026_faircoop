@@ -71,23 +71,40 @@ function extent(vals, includeZero = true) {
 }
 
 /* ============ highlight state per figure ============ */
-/* pins accumulate: each click adds or removes one key; hover previews one more. */
+/* Pins accumulate. Keys belong to a dimension (the legend group that
+   introduced them, or the key itself for axis labels such as a region):
+   within a dimension pinned keys are alternatives, across dimensions they
+   combine, so "ECPC 1990" plus "lowest transfers" shows one approach at one
+   corner. Hovering previews one more key in its own dimension. */
 class Fig {
-  constructor(card) { this.card = card; this.h = null; this.pins = new Set(); }
+  constructor(card) { this.card = card; this.h = null; this.pins = new Map(); this.dimOf = {}; }
+  dim(k) { return this.dimOf[k] || "_" + k; }
   hover(k) { this.h = k; this.apply(); }
-  toggle(k) { if (this.pins.has(k)) this.pins.delete(k); else this.pins.add(k); this.apply(); }
+  toggle(k) {
+    const d = this.dim(k), set = this.pins.get(d) || new Set();
+    if (set.has(k)) set.delete(k); else set.add(k);
+    if (set.size) this.pins.set(d, set); else this.pins.delete(d);
+    this.apply();
+  }
   clear() { this.pins.clear(); this.h = null; this.apply(); }
+  active() {
+    const act = new Map([...this.pins].map(([d, v]) => [d, new Set(v)]));
+    if (this.h) { const d = this.dim(this.h); if (!act.has(d)) act.set(d, new Set()); act.get(d).add(this.h); }
+    return act;
+  }
   apply() {
-    const act = new Set(this.pins); if (this.h) act.add(this.h);
-    const any = act.size > 0;
+    const act = this.active(), any = act.size > 0;
+    const flat = new Set([...act.values()].flatMap(v => [...v]));
     for (const n of this.card.querySelectorAll("[data-k]")) {
-      const on = !any || n.dataset.k.split("|").some(k => act.has(k));
+      const ks = n.dataset.k.split("|");
+      const on = !any || [...act.values()].every(set => ks.some(k => set.has(k)));
       n.style.opacity = on ? (n.dataset.o || 1) : DIM;
     }
     for (const c of this.card.querySelectorAll(".fchip")) {
       if (c.classList.contains("clear")) { c.hidden = this.pins.size === 0; continue; }
-      c.classList.toggle("dim", any && !act.has(c.dataset.hk));
-      c.classList.toggle("pin", this.pins.has(c.dataset.hk));
+      if (!c.dataset.hk) continue;
+      c.classList.toggle("dim", any && !flat.has(c.dataset.hk));
+      c.classList.toggle("pin", (this.pins.get(this.dim(c.dataset.hk)) || new Set()).has(c.dataset.hk));
     }
   }
 }
@@ -183,14 +200,22 @@ function legendChip(fig, host, hk, label, sample) {
   const c = document.createElement("span"); c.className = "fchip"; c.dataset.hk = hk || "";
   if (sample) c.appendChild(sample);
   c.appendChild(document.createTextNode(label));
-  if (hk) {
+  if (hk && host.dataset.dim && !fig.dimOf[hk]) fig.dimOf[hk] = host.dataset.dim;
+  host.appendChild(c);
+  return c;
+}
+/* after drawing: a chip is clickable only if some mark on the figure carries its key */
+function armChips(fig) {
+  const keys = new Set([...fig.card.querySelectorAll("[data-k]")].flatMap(n => n.dataset.k.split("|")));
+  for (const c of fig.card.querySelectorAll(".fchip")) {
+    const hk = c.dataset.hk;
+    if (!hk) continue;
+    if (!keys.has(hk)) { c.dataset.hk = ""; c.classList.add("static"); continue; }
     c.addEventListener("mouseenter", () => fig.hover(hk));
     c.addEventListener("mouseleave", () => fig.hover(null));
     c.addEventListener("click", () => fig.toggle(hk));
     c.style.cursor = "pointer";
   }
-  host.appendChild(c);
-  return c;
 }
 function lineSample(colour, dash, width = 2.2) {
   const svg = el("svg", { viewBox: "0 0 30 12" }); svg.setAttribute("class", "ls");
@@ -209,7 +234,7 @@ function swatch(colour) {
   return svg;
 }
 function legendGroup(host, title) {
-  const g = document.createElement("div"); g.className = "flgroup";
+  const g = document.createElement("div"); g.className = "flgroup"; g.dataset.dim = title || "";
   if (title) { const t = document.createElement("span"); t.className = "flt"; t.textContent = title; g.appendChild(t); }
   host.appendChild(g);
   return g;
@@ -218,13 +243,14 @@ function legendGroup(host, title) {
 /* ============ cards ============ */
 function buildCard(f) {
   const card = document.createElement("div"); card.className = "card figcard"; card.id = f.id;
-  card.innerHTML = `<h2>Figure ${f.number}. ${f.title}</h2><div class="sub">${f.sub}</div>
-    <div class="flegend"></div><div class="figgrid"></div>${f.note ? `<div class="fnote">${f.note}</div>` : ""}`;
+  card.innerHTML = `<div class="fhead"><h2>Figure ${f.number}. ${f.title}</h2><div class="flegend"></div></div>
+    <div class="sub">${f.sub}</div><div class="figgrid"></div>${f.note ? `<div class="fnote">${f.note}</div>` : ""}`;
   const fig = new Fig(card);
   const host = card.querySelector(".figgrid"), leg = card.querySelector(".flegend");
   ({ fig2: drawFig2, fig3: drawFig3, fig4: drawFig4, fig5: drawFig5 })[f.id](f, fig, host, leg);
   const clr = document.createElement("button"); clr.className = "fchip clear"; clr.textContent = "show all"; clr.hidden = true;
   clr.addEventListener("click", () => fig.clear()); leg.appendChild(clr);
+  armChips(fig);
   card.appendChild(dataFoot(f));
   fig.apply();
   return card;
@@ -317,13 +343,13 @@ function dumbbells(fig, p, rows, opts) {
       const xs = pts.map(d => x(d.v));
       const sg = el("line", { x1: Math.min(...xs), x2: Math.max(...xs), y1: cy, y2: cy, stroke: it.colour, "stroke-width": 1.6,
         opacity: 0.5, "stroke-dasharray": it.dash || null }, g);
-      mark(fig, sg, it.keys, it.hk, null);
+      mark(fig, sg, [...it.keys, ...pts.map(d => d.s)], it.hk, null);
     }
     for (const d of pts) {
       const shape = d.s === "S" ? "X" : d.s === "U" ? shapeU : shapeL;
       const m = sym(g, shape, x(d.v), cy, it.colour, d.s === "S" ? it.colour : "#3a3a3a", { opacity: d.s === "U" ? (it.alphaU || 0.55) : 1 });
       const lab = d.s === "S" ? "Source" : d.s === "U" ? "unlimited transfers" : "lowest transfers";
-      mark(fig, m, it.keys, it.hk, () => `<b>${it.tipLabel || r.label}</b><br>${lab}: ${fmt(d.v, unit)}${it.tipExtra ? "<br><span style='opacity:.7'>" + it.tipExtra + "</span>" : ""}`);
+      mark(fig, m, [...it.keys, d.s], it.hk, () => `<b>${it.tipLabel || r.label}</b><br>${lab}: ${fmt(d.v, unit)}${it.tipExtra ? "<br><span style='opacity:.7'>" + it.tipExtra + "</span>" : ""}`);
     }
   }
   if (xlab) xlabel(p, xlab);
@@ -355,7 +381,7 @@ function stackedBars(fig, p, groups, opts) {
         const y0 = s.v > 0 ? up : down, y1 = y0 + s.v;
         if (s.v > 0) up = y1; else down = y1;
         const r = el("rect", { x: bx, y: Math.min(y(y0), y(y1)), width: w, height: Math.abs(y(y0) - y(y1)), fill: s.colour, stroke: "#ffffff", "stroke-width": 0.4 }, g);
-        mark(fig, r, b.keys, b.hk, () => `<b>${b.tipLabel}</b><br>${s.name}: ${fmt(s.v, unit)}${b.net != null ? `<br><span style="opacity:.7">net ${fmt(b.net, unit)}</span>` : ""}`);
+        mark(fig, r, [...b.keys, s.name], b.hk, () => `<b>${b.tipLabel}</b><br>${s.name}: ${fmt(s.v, unit)}${b.net != null ? `<br><span style="opacity:.7">net ${fmt(b.net, unit)}</span>` : ""}`);
       }
       if (b.net != null) {
         const m = sym(g, b.netShape || "L", bx + w / 2, y(b.net), b.netFill, b.netStroke || "#3a3a3a");
@@ -378,8 +404,8 @@ function drawFig2(f, fig, host, leg) {
   const g1 = legendGroup(leg, "Approach");
   for (const lab of labs) legendChip(fig, g1, lab, lab === "Source" ? "Source (≈ unlimited transfers)" : lab, lineSample(col[lab], dashOf(lab), lab === "Source" ? 2.6 : 2.2));
   const g2 = legendGroup(leg, "Corner");
-  legendChip(fig, g2, null, "unlimited transfers (U)", shapeSample("U", "#bdbdbd"));
-  legendChip(fig, g2, null, "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
+  legendChip(fig, g2, "U", "unlimited transfers (U)", shapeSample("U", "#bdbdbd"));
+  legendChip(fig, g2, "L", "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
 
   // a. CO2 trajectories, 2 x 3 facets
   const pa = panel(host, 12, FULL, 400, { l: 44, r: 8, t: 26, b: 22 }, "a  CO2 trajectories: fair-share variants at lowest transfers, and the Source pathway");
@@ -390,7 +416,7 @@ function drawFig2(f, fig, host, leg) {
     const sub = { svg: pa.svg, l: pa.l, r: pa.r, t: pa.t + mi * rowH, b: pa.t + (mi + 1) * rowH - 22, iw: pa.iw };
     const fs = facets(sub, 3, 30);
     const cells = grps.map(grp => ({ label: `${met}, ${grp === "World" ? "World" : grp === "Higher resp." ? "higher-responsibility regions" : "lower-responsibility regions"}`,
-      includeY: [0], series: labs.map(lab => ({ key: lab, colour: col[lab], dash: dashOf(lab), width: lab === "Source" ? 2.4 : 1.7, label: labelOf(lab),
+      includeY: [0], series: labs.map(lab => ({ key: lab, keys: [lab, lab === "Source" ? "S" : "L"], colour: col[lab], dash: dashOf(lab), width: lab === "Source" ? 2.4 : 1.7, label: labelOf(lab),
         pts: f.a.rows.filter(r => r.lab === lab && r.grp === grp && r.metric === met).map(r => ({ year: r.year, v: r.pct })).sort((a, b) => a.year - b.year) })) }));
     facetLines(fig, sub, fs, cells, { years, dashedZero: [-100], zeroLines: [0], labelYearsAt: [2030, 2050, 2070, 2100], tipUnit: "% vs 2020" });
   });
@@ -409,7 +435,7 @@ function drawFig2(f, fig, host, leg) {
   const pd = panel(host, 12, FULL, 230, { l: 44, r: 8, t: 26, b: 22 }, "d  Global benchmarks: fair-share variants at lowest transfers, and the Source pathway");
   const fs = facets(pd, 5, 26);
   const cellName = { "Coal": "Coal primary energy", "Gas": "Gas primary energy", "Oil": "Oil primary energy", "Renew.": "Solar and wind primary energy", "Elec. %": "Electricity share of final energy" };
-  const cells = f.d.carriers.map(car => ({ label: cellName[car], includeY: [0], series: labs.map(lab => ({ key: lab, colour: col[lab], dash: dashOf(lab), width: lab === "Source" ? 2.4 : 1.7, label: labelOf(lab),
+  const cells = f.d.carriers.map(car => ({ label: cellName[car], includeY: [0], series: labs.map(lab => ({ key: lab, keys: [lab, lab === "Source" ? "S" : "L"], colour: col[lab], dash: dashOf(lab), width: lab === "Source" ? 2.4 : 1.7, label: labelOf(lab),
     pts: f.d.rows.filter(r => r.lab === lab && r.carrier === car).map(r => ({ year: r.year, v: r.pct })).sort((a, b) => a.year - b.year) })) }));
   facetLines(fig, pd, fs, cells, { years, zeroLines: [], dashedZero: [0], labelYearsAt: [2030, 2060, 2100], tipUnit: "% vs 2020" });
   ylabel(pd, "Change vs 2020 (%)");
@@ -422,9 +448,9 @@ function drawFig3(f, fig, host, leg) {
   const g1 = legendGroup(leg, "Approach");
   for (const lab of f.rows.slice().reverse()) legendChip(fig, g1, lab, lab, swatch(pc[prinOf(lab)]));
   const g2 = legendGroup(leg, "Corner");
-  legendChip(fig, g2, null, "Source", shapeSample("X", null, "#3a3a3a"));
-  legendChip(fig, g2, null, "unlimited transfers (U)", shapeSample("U", "#bdbdbd"));
-  legendChip(fig, g2, null, "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
+  legendChip(fig, g2, "S", "Source", shapeSample("X", null, "#3a3a3a"));
+  legendChip(fig, g2, "U", "unlimited transfers (U)", shapeSample("U", "#bdbdbd"));
+  legendChip(fig, g2, "L", "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
   const g3 = legendGroup(leg, "Regions");
   legendChip(fig, g3, "Higher resp.", "higher responsibility", shapeSample("L", grpCol["Higher resp."]));
   legendChip(fig, g3, "World", "World", lineSample(worldCol, null));
@@ -452,9 +478,9 @@ function drawFig3(f, fig, host, leg) {
       const U = f.b.rows.find(r => r.lab === lab && r.state.startsWith("U")), L = f.b.rows.find(r => r.lab === lab && r.state.startsWith("L"));
       if (!U || !L) continue;
       const c = pc[prinOf(lab)];
-      mark(fig, el("line", { x1: x(U.dco2), x2: x(L.dco2), y1: y(U.paid), y2: y(L.paid), stroke: c, "stroke-width": 1.4, opacity: 0.5 }, g), [lab], lab, null);
+      mark(fig, el("line", { x1: x(U.dco2), x2: x(L.dco2), y1: y(U.paid), y2: y(L.paid), stroke: c, "stroke-width": 1.4, opacity: 0.5 }, g), [lab, "U", "L"], lab, null);
       for (const [d, s] of [[U, "U"], [L, "L"]])
-        mark(fig, sym(g, s, x(d.dco2), y(d.paid), c, "#3a3a3a", { opacity: s === "U" ? 0.7 : 1 }), [lab], lab,
+        mark(fig, sym(g, s, x(d.dco2), y(d.paid), c, "#3a3a3a", { opacity: s === "U" ? 0.7 : 1 }), [lab, s], lab,
           () => `<b>${lab}, ${s === "U" ? "unlimited" : "lowest"} transfers</b><br>Δ net CO2 from Source: ${fmt(d.dco2, "Gt")}<br>transfers paid: ${fmt(d.paid, "$tn NPV")}`);
       mark(fig, txt(g, x(L.dco2) + 7, y(L.paid) + 3, L.start, { "font-size": F.small, fill: c }), [lab], lab, null);
     }
@@ -484,7 +510,7 @@ function drawFig3(f, fig, host, leg) {
         if ([0.25, 1, 4].includes(t)) txt(g, xs(t), pcp.b + 13, `${t}×`, { "text-anchor": "middle" });
       }
       for (const r of f.c.rows.filter(r => r.lab === lab))
-        mark(fig, sym(g, "L", xs(r.ratio), yb(r.region), grpCol[r.grp], "#3a3a3a"), [lab, r.region, r.grp], lab,
+        mark(fig, sym(g, "L", xs(r.ratio), yb(r.region), grpCol[r.grp], "#3a3a3a"), [lab, r.region, r.grp, "L"], lab,
           () => `<b>${regFull(r.region)}, ${lab}</b><br>carbon price at lowest transfers: ${fmt(r.ratio, "× Source", 2)}`);
     });
     xlabel(pcp, f.c.xlab);
@@ -509,10 +535,10 @@ function drawFig3(f, fig, host, leg) {
         const x0 = r.delta > 0 ? pos : neg, x1 = x0 + r.delta;
         if (r.delta > 0) pos = x1; else neg = x1;
         mark(fig, el("rect", { x: Math.min(x(x0), x(x1)), y: cy - h / 2, width: Math.abs(x(x1) - x(x0)), height: h, fill: cc[cat], stroke: "#ffffff", "stroke-width": 0.4 }, g),
-          [lab, cat], lab, () => `<b>${lab}</b><br>${cat}: ${fmt(r.delta, "% of Source investment", 2)}`);
+          [lab, cat, "L"], lab, () => `<b>${lab}</b><br>${cat}: ${fmt(r.delta, "% of Source investment", 2)}`);
       }
       const n = f.d.net.find(n => n.lab === lab);
-      if (n) mark(fig, sym(g, "L", x(n.net), cy, pc[n.principle]), [lab], lab, () => `<b>${lab}</b><br>net change: ${fmt(n.net, "% of Source investment", 2)}`);
+      if (n) mark(fig, sym(g, "L", x(n.net), cy, pc[n.principle]), [lab, "L"], lab, () => `<b>${lab}</b><br>net change: ${fmt(n.net, "% of Source investment", 2)}`);
     }
     xlabel(pd, f.d.xlab);
     const g4 = legendGroup(leg, "Technology (panel d)");
@@ -528,8 +554,9 @@ function drawFig4(f, fig, host, leg) {
   legendChip(fig, g1, "FS-Lf.Trnsf-ALL", "transfers for any mitigation (ALL)", lineSample(cc["FS-Lf.Trnsf-ALL"], null));
   legendChip(fig, g1, "FS-Lf.Trnsf-CDR", "transfers for carbon removal only (CDR)", lineSample(cc["FS-Lf.Trnsf-CDR"], null));
   const g2 = legendGroup(leg, "Corner");
-  legendChip(fig, g2, "Unlimited", "unlimited transfers", shapeSample("U", "#bdbdbd"));
-  legendChip(fig, g2, "Lowest-f.", "lowest transfers", shapeSample("L", "#6a6a6a"));
+  legendChip(fig, g2, "U", "unlimited transfers", shapeSample("U", "#bdbdbd"));
+  legendChip(fig, g2, "L", "lowest transfers", shapeSample("L", "#6a6a6a"));
+  const TK = { "Unlimited": "U", "Lowest-f.": "L", "Source": "S" };
 
   // a. slopes ALL -> CDR
   const pa = panel(host, 6, HALF, 300, { l: 50, r: 10, t: 22, b: 30 }, "a  Cumulative change from Source, 2020 to 2100, lowest transfers");
@@ -549,9 +576,9 @@ function drawFig4(f, fig, host, leg) {
         const C = f.a.rows.find(r => r.grp === grp && r.component === comp && r.step.endsWith("CDR"));
         if (!A || !C) continue;
         mark(fig, el("line", { x1: x(cx[grp]), x2: x(cx[grp] + 1), y1: y(A.gt), y2: y(C.gt), stroke: wf[comp], "stroke-width": 1.6 }, g), ["FS-Lf.Trnsf-ALL", "FS-Lf.Trnsf-CDR", comp], null, null);
-        mark(fig, sym(g, "L", x(cx[grp]), y(A.gt), "#ffffff", wf[comp], { "stroke-width": 1.4 }), ["FS-Lf.Trnsf-ALL", comp], "FS-Lf.Trnsf-ALL",
+        mark(fig, sym(g, "L", x(cx[grp]), y(A.gt), "#ffffff", wf[comp], { "stroke-width": 1.4 }), ["FS-Lf.Trnsf-ALL", comp, "L"], "FS-Lf.Trnsf-ALL",
           () => `<b>${comp}, ${grp}</b><br>transfers for any mitigation: ${fmt(A.gt, "Gt vs Source")}`);
-        mark(fig, sym(g, "L", x(cx[grp] + 1), y(C.gt), wf[comp], wf[comp]), ["FS-Lf.Trnsf-CDR", comp], "FS-Lf.Trnsf-CDR",
+        mark(fig, sym(g, "L", x(cx[grp] + 1), y(C.gt), wf[comp], wf[comp]), ["FS-Lf.Trnsf-CDR", comp, "L"], "FS-Lf.Trnsf-CDR",
           () => `<b>${comp}, ${grp}</b><br>transfers for carbon removal only: ${fmt(C.gt, "Gt vs Source")}`);
       }
     }
@@ -582,7 +609,7 @@ function drawFig4(f, fig, host, leg) {
         for (const r of rs.slice().reverse()) {
           if (r.share <= 0) continue;
           const y0 = acc, y1 = acc + r.share / total; acc = y1;
-          mark(fig, el("rect", { x: bx, y: y(y1), width: w, height: y(y0) - y(y1), fill: dc[r.comp], stroke: "#ffffff", "stroke-width": 0.5 }, g), [sc, tier, r.comp], sc,
+          mark(fig, el("rect", { x: bx, y: y(y1), width: w, height: y(y0) - y(y1), fill: dc[r.comp], stroke: "#ffffff", "stroke-width": 0.5 }, g), [sc, TK[tier], r.comp], sc,
             () => `<b>${SCOPE_LABEL[sc]}, ${CORNER_LABEL[tier]}</b><br>${r.comp}: ${fmt(r.share * 100, "% of the debt", 1)} (${fmt(r.gt, "Gt", 0)})`);
         }
       });
@@ -604,7 +631,7 @@ function drawFig4(f, fig, host, leg) {
     const combos = [["Source", "Source"], ["FS-Lf.Trnsf-ALL", "Unlimited"], ["FS-Lf.Trnsf-ALL", "Lowest-f."], ["FS-Lf.Trnsf-CDR", "Unlimited"], ["FS-Lf.Trnsf-CDR", "Lowest-f."]];
     const cells = f.c.panels.map(pn => ({ label: pn === "World" ? "World" : pn.replace(" resp.", "-responsibility regions"), includeY: pn === "World" ? [0, f.c.cap] : [0],
       series: combos.flatMap(([sc, tier]) => ["total", "novel"].map(kind => ({
-        key: sc, keys: [sc, tier], hk: sc, colour: cc[sc], dash: tier === "Unlimited" ? "6 4" : null, width: kind === "novel" ? 1.8 : 1.8, opacity: kind === "novel" ? 1 : 0.28,
+        key: sc, keys: [sc, TK[tier]], hk: sc, colour: cc[sc], dash: tier === "Unlimited" ? "6 4" : null, width: kind === "novel" ? 1.8 : 1.8, opacity: kind === "novel" ? 1 : 0.28,
         label: `${SCOPE_LABEL[sc]}${sc === "Source" ? "" : ", " + CORNER_LABEL[tier]}${kind === "total" ? " (novel CDR + CCS)" : ""}`,
         pts: f.c.rows.filter(r => r.kind === kind && r.panel === pn && r.scope === sc && r.tier === tier).map(r => ({ year: r.year, v: r.gt })).sort((a, b) => a.year - b.year) }))),
       extra: pn === "World" ? (g, x, y) => {
@@ -621,7 +648,7 @@ function drawFig4(f, fig, host, leg) {
     const groups = P.regions.map(reg => ({ label: regLab(reg), hk: reg, bars: ["ALL", "CDR"].map(sc => {
       const key = sc === "ALL" ? "FS-Lf.Trnsf-ALL" : "FS-Lf.Trnsf-CDR";
       const n = f.d.net.find(n => n.region === reg && n.scope === sc);
-      return { keys: [key, reg], hk: key, dx: sc === "ALL" ? -0.19 : 0.19, tipLabel: `${regFull(reg)}, transfers for ${sc === "ALL" ? "any mitigation" : "carbon removal only"}`,
+      return { keys: [key, reg, "L"], hk: key, dx: sc === "ALL" ? -0.19 : 0.19, tipLabel: `${regFull(reg)}, transfers for ${sc === "ALL" ? "any mitigation" : "carbon removal only"}`,
         segs: f.d.levers.map(lv => ({ name: lv, v: (f.d.rows.find(r => r.region === reg && r.scope === sc && r.lever === lv) || {}).contrib || 0, colour: lc[lv] })),
         net: n ? n.net : null, netFill: sc === "ALL" ? "#ffffff" : "#2a2a2a", netStroke: sc === "ALL" ? "#3a3a3a" : "#ffffff" };
     }) }));
@@ -654,9 +681,9 @@ function drawFig5(f, fig, host, leg) {
   const g1 = legendGroup(leg, "Budget");
   for (const b of f.budgets) legendChip(fig, g1, b, b, swatch(bc[b]));
   const g2 = legendGroup(leg, "Corner");
-  legendChip(fig, g2, null, "Source (and unlimited transfers in c)", shapeSample("X", null, "#3a3a3a"));
-  legendChip(fig, g2, null, "unlimited transfers (U)", shapeSample("U", "#bdbdbd"));
-  legendChip(fig, g2, null, "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
+  legendChip(fig, g2, "S", "Source (and unlimited transfers in c)", shapeSample("X", null, "#3a3a3a"));
+  legendChip(fig, g2, "U", "unlimited transfers (U)", shapeSample("U", "#bdbdbd"));
+  legendChip(fig, g2, "L", "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
   const g3 = legendGroup(leg, "Lever (panel a)");
   for (const lv of f.a.levers) legendChip(fig, g3, lv, lv, swatch(lc[lv]));
   legendChip(fig, g3, "2 °C", "net, 2 °C", shapeSample("L", "#ffffff"));
@@ -687,7 +714,7 @@ function drawFig5(f, fig, host, leg) {
   {
     const fs = facets(pcp, 3, 30);
     const cells = f.c.groups.map(grp => ({ label: grp === "World" ? "World" : grp.replace(" resp.", "-responsibility regions"), includeY: [0],
-      series: f.budgets.flatMap(b => ["Source", "Lowest-f. (L)"].map(st => ({ key: b, keys: [b, st], hk: b, colour: bc[b], dash: st === "Source" ? "5 4" : null, width: 1.8,
+      series: f.budgets.flatMap(b => ["Source", "Lowest-f. (L)"].map(st => ({ key: b, keys: [b, st === "Source" ? "S" : "L"], hk: b, colour: bc[b], dash: st === "Source" ? "5 4" : null, width: 1.8,
         shape: st === "Source" ? "X" : "L", label: `${b}, ${st === "Source" ? "Source" : "lowest transfers"}`,
         pts: f.c.rows.filter(r => r.bud === b && r.state === st && r.grp === grp).map(r => ({ year: r.year, v: r.pct })).sort((a, b2) => a.year - b2.year) }))) }));
     facetLines(fig, pcp, fs, cells, { years: [2030, 2050], zeroLines: [0], labelYearsAt: [2030, 2040, 2050], markerAt: [2035, 2050], tipUnit: "% vs 2020" });
