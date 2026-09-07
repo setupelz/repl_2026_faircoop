@@ -18,8 +18,8 @@ tbl <- inv %>%
       grepl("^500fm", scenario_set) ~ "500 Gt (1.5C)"
     ),
     principle = ifelse(grepl("ecpc", scenario_set), "ECPC", "CAPC"),
-    start = stringr::str_extract(scenario_set, "1990|2015|2025"),
-    SSP = stringr::str_extract(model, "SSP[0-9]"),
+    start = str_extract(scenario_set, "1990|2015|2025"),
+    SSP = str_extract(model, "SSP[0-9]"),
     # 1% discount only in the dr1p sensitivity model; everything else default 5%
     discount_rate = ifelse(grepl("dr1p", model), "1%", "5% (default)"),
     # transfer tier from the variant prefix
@@ -46,7 +46,7 @@ tbl <- inv %>%
          tier, scope, delay, discount_rate, model)
 
 dir.create(here("Manuscript", "Tables"), showWarnings = FALSE, recursive = TRUE)
-readr::write_csv(tbl, here("Manuscript", "Tables", "SI_Table_1_Scenarios.csv"))
+write_csv(tbl, here("Manuscript", "Tables", "SI_Table_1_Scenarios.csv"))
 
 # ---------------------------------------------------------------------------
 # Coverage summary: which (budget, principle, start) blocks exist, and confirm
@@ -70,5 +70,5 @@ caveat <- tibble::tibble(
     paste(sort(unique(tbl$scenario_set[tbl$SSP == "SSP1"])), collapse = ", ")
   )
 )
-cat("\nCaveat check — sets where each special dimension appears:\n")
+cat("\nCaveat check, sets where each special dimension appears:\n")
 print(caveat, width = 200)

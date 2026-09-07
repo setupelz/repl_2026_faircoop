@@ -4,29 +4,33 @@
 # the figures use: scenario_set_reporting.csv (tidy wide-IAMC, one row per
 # model x scenario_set x variant x region x variable).
 #
-# Labels are parsed from each workbook's own Model/Scenario strings, so adding a
-# scenario just means dropping its workbook in Data/ and re-running.
+# Labels are parsed from each workbook's own Model/Scenario strings. Adding a
+# scenario means dropping its workbook in Data/ and re-running, provided its
+# budget token is already in the temp recode in step 3 (README, "Scenario
+# naming").
 #
 # Run: Rscript Code/100_assemble.R
 
-# =============================================================================
-# 1. PACKAGES
-# =============================================================================
+# --- 1. Packages -------------------------------------------------------------
 
 suppressWarnings(suppressMessages({
   library(pacman)
   p_load(dplyr, tidyr, readxl, readr, stringr, here)
 }))
 
-# =============================================================================
-# 2. READ EVERY WORKBOOK ONCE  (keyed by its own Model | Scenario)
-# =============================================================================
+# --- 2. Read every workbook once, keyed by its own Model | Scenario ----------
 
 data_dir <- here("Data")
 
 xlsx_files <- list.files(data_dir, pattern = "\\.xlsx$", full.names = TRUE)
-xlsx_files <- xlsx_files[!str_starts(basename(xlsx_files), fixed("~$"))]      # Excel lock files
-xlsx_files <- xlsx_files[!str_starts(basename(xlsx_files), "scenario_set_")]  # our own outputs
+xlsx_files <- xlsx_files[!str_starts(basename(xlsx_files), fixed("~$"))]  # Excel lock files
+
+# The workbooks are not in git, so an empty Data/ is the state of a fresh clone.
+if (length(xlsx_files) == 0) {
+  stop("No reporting workbooks (*.xlsx) in ", data_dir, ". Download the 32 ",
+       "workbooks from the Zenodo deposit into Data/ before running ",
+       "`make assemble`; see the Data availability section of README.md.")
+}
 
 cat("Reading workbooks from", data_dir, "\n")
 
@@ -35,17 +39,36 @@ for (f in xlsx_files) {
   d <- read_xlsx(f, sheet = "data")
   d <- rename(d, model = Model, scenario = Scenario, region = Region,
               variable = Variable, unit = Unit)
+  # A workbook is labelled entirely by its first row, so it must hold one pair.
+  if (n_distinct(d$model) != 1L || n_distinct(d$scenario) != 1L) {
+    stop(basename(f), " holds more than one Model/Scenario pair (",
+         n_distinct(d$model), " models, ", n_distinct(d$scenario), " scenarios). ",
+         "Every workbook must report a single model run.")
+  }
   key <- paste(d$model[1], d$scenario[1], sep = " | ")
+  if (!is.null(books[[key]])) {
+    stop("Two workbooks report the same Model | Scenario key: ", key,
+         ". The second (", basename(f), ") would silently overwrite the first.")
+  }
   books[[key]] <- d
   cat(sprintf("  read  %-24s %-42s %6d rows\n", d$model[1], d$scenario[1], nrow(d)))
 }
 
-# Year columns, taken from the data (1990, 1995, ... 2110). Same in every book.
+# Year columns, taken from the data (1990, 1995, ... 2110).
 year_cols <- grep("^[0-9]{4}$", names(books[[1]]), value = TRUE)
+# A workbook with extra years would lose them silently at the select() in step 6.
+grid_mismatch <- names(books)[vapply(
+  books,
+  function(d) !identical(grep("^[0-9]{4}$", names(d), value = TRUE), year_cols),
+  logical(1)
+)]
+if (length(grid_mismatch) > 0) {
+  stop("Year grid differs from the first workbook in: ",
+       paste(grid_mismatch, collapse = "; "),
+       ". All workbooks must share one year grid.")
+}
 
-# =============================================================================
-# 3. PARSE EACH WORKBOOK'S Model + Scenario INTO LABELS
-# =============================================================================
+# --- 3. Parse each workbook's Model + Scenario into labels -------------------
 #
 # One `meta` row per workbook. role = baseline / source (bare budget) / alloc
 # (<budget>_<principle>_<start>_<trade>[_delay2040][_limited]). Allocation rows
@@ -79,7 +102,7 @@ meta <- meta %>%
 
     # --- allocation labelling (only meaningful where role == "alloc") --------
     budget    = str_extract(file_scenario, "^[0-9]+fm"),
-    temp      = recode(budget, "800fm" = "2C", "500fm" = "1.5C", "1000fm" = "2C"),
+    temp      = recode(budget, "800fm" = "2C", "500fm" = "1.5C"),
     principle = case_when(
       str_detect(file_scenario, "pc_cap") ~ "capc",
       str_detect(file_scenario, "ecpc")   ~ "ecpc",
@@ -106,13 +129,18 @@ meta <- meta %>%
       TRUE                 ~ ""
     ),
     variant = paste0(step, ". ", ssp, "-", temp, "-",
-                     toupper(set_principle), set_start, modifier),
-    coop = if_else(is_cdr, "Only novel CDR", "All covered emissions")
+                     toupper(set_principle), set_start, modifier)
   )
 
-# =============================================================================
-# 4. ONE "STAMP" PER (WORKBOOK x SCENARIO SET)
-# =============================================================================
+# recode() passes an unknown budget through unchanged, which would put the raw
+# token where the figures expect "2C" / "1.5C" and drop the scenario silently.
+unknown_budget <- setdiff(na.omit(meta$budget), c("800fm", "500fm"))
+if (length(unknown_budget) > 0) {
+  stop("Unrecognised budget token(s): ", paste(unknown_budget, collapse = ", "),
+       ". Add each to the `temp` recode above before assembling.")
+}
+
+# --- 4. One "stamp" per (workbook x scenario set) ---------------------------
 #
 # A stamp = write workbook `key` into the figure data as (model, scenario_set,
 # variant). Allocation -> one stamp. Source/Baseline -> one per set sharing its
@@ -125,47 +153,23 @@ alloc_sets <- meta %>%
 
 alloc_stamps <- meta %>%
   filter(role == "alloc") %>%
-  transmute(key, model, scenario_set, variant, coop)
+  transmute(key, model, scenario_set, variant)
 
 source_stamps <- meta %>%
   filter(role == "source") %>%
   select(key, model, budget) %>%
   inner_join(alloc_sets, by = c("model", "budget")) %>%
-  transmute(key, model, scenario_set, variant = "Source scenario",
-            coop = NA_character_)
+  transmute(key, model, scenario_set, variant = "Source scenario")
 
 baseline_stamps <- meta %>%
   filter(role == "baseline") %>%
   select(key, model) %>%
   inner_join(distinct(alloc_sets, model, scenario_set), by = "model") %>%
-  transmute(key, model, scenario_set, variant = "Baseline",
-            coop = NA_character_)
+  transmute(key, model, scenario_set, variant = "Baseline")
 
 stamps <- bind_rows(alloc_stamps, source_stamps, baseline_stamps)
 
-# =============================================================================
-# 5. POINT SHAPES PER VARIANT
-# =============================================================================
-#
-# Source = 4, Baseline = 20. U. (unlimited) get open shapes (render hollow),
-# L. (lowest-feasible) get filled shapes 21-25 (take the fill aesthetic, render
-# solid). Assigned by sorted variant name so it is deterministic.
-
-open_shapes   <- c(0, 1, 2, 5, 6, 15, 17, 3, 7, 8, 9, 10)
-filled_shapes <- c(21, 22, 23, 24, 25)
-
-u_variants <- sort(unique(stamps$variant[str_starts(stamps$variant, "U.")]))
-l_variants <- sort(unique(stamps$variant[str_starts(stamps$variant, "L.")]))
-
-shape_map <- c("Baseline" = 20L, "Source scenario" = 4L)
-shape_map[u_variants] <- open_shapes[seq_along(u_variants)]
-shape_map[l_variants] <- filled_shapes[(seq_along(l_variants) - 1) %% length(filled_shapes) + 1]
-
-stamps$shape <- unname(shape_map[stamps$variant])
-
-# =============================================================================
-# 6. APPLY THE STAMPS AND STACK INTO ONE TABLE
-# =============================================================================
+# --- 5. Apply the stamps and stack into one table ---------------------------
 
 parts <- list()
 for (i in seq_len(nrow(stamps))) {
@@ -174,33 +178,40 @@ for (i in seq_len(nrow(stamps))) {
     mutate(
       model = s$model,
       scenario_set = s$scenario_set,
-      variant = s$variant,
-      shape = s$shape,
-      cooperation_emissions = s$coop
+      variant = s$variant
     ) %>%
-    select(model, scenario_set, variant, shape, cooperation_emissions,
-           region, variable, unit, all_of(year_cols))
+    select(model, scenario_set, variant, region, variable, unit, all_of(year_cols))
 }
 
-reporting <- bind_rows(parts) %>%
-  # figure key is one row per (model, scenario_set, variant, region, variable)
+# The figures key on one row per (model, scenario_set, variant, region,
+# variable). A few variables arrive split across two rows under two unit
+# spellings ("Mt / a" and "Mt/yr"), one row holding the model years and the
+# other 2020 and 2025, so keeping the first row drops the other row's years.
+# Only steel production, Trade and Emissions|Covered|Source are affected and no
+# figure or table reads them, so the split is reported below, not repaired.
+reporting <- bind_rows(parts)
+split_rows <- reporting %>%
+  count(model, scenario_set, variant, region, variable) %>%
+  filter(n > 1)
+reporting <- reporting %>%
   distinct(model, scenario_set, variant, region, variable, .keep_all = TRUE)
 
-# =============================================================================
-# 7. WRITE THE FILE THE FIGURES READ
-# =============================================================================
+# --- 6. Write the file the figures read -------------------------------------
 
 # The reporting table is CSV because at full scenario count the wide frame
 # exceeds Excel's ~1.05M-row sheet cap; readr (a 000_setup.R dependency) reads it.
 write_csv(reporting, file.path(data_dir, "scenario_set_reporting.csv"))
 
-# =============================================================================
-# 8. SUMMARY
-# =============================================================================
+# --- 7. Summary --------------------------------------------------------------
 
 cat(sprintf("\nwrote scenario_set_reporting.csv   %d rows x %d cols\n",
             nrow(reporting), ncol(reporting)))
-cat(sprintf("wrote scenario_set_variant.xlsx    %d variants\n", nrow(variant_defs)))
+
+if (nrow(split_rows) > 0) {
+  cat(sprintf("kept the first of %d split unit-spelling row pairs, in: %s\n",
+              nrow(split_rows),
+              paste(sort(unique(split_rows$variable)), collapse = ", ")))
+}
 
 cat("\nvariants assembled per scenario set:\n")
 reporting %>%

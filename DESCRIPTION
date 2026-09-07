@@ -6,22 +6,22 @@ Description: Replication archive for the analysis of fair-share cooperation
     scenarios built with the MESSAGEix-GLOBIOM-GAINS integrated assessment
     model. Assembles per-scenario reporting workbooks into a single tidy
     dataset and generates all code-based manuscript and supplementary figures.
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 Depends:
-    R (>= 4.0.0)
+    R (>= 4.2)
 Imports:
     pacman,
     dplyr,
     tidyr,
     ggplot2,
-    ggrepel,
+    ragg,
     egg,
     here,
     patchwork,
-    forcats,
     stringr,
     readxl,
+    tibble,
     readr,
     scales,
     writexl
