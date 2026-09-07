@@ -159,12 +159,13 @@ def test_page_release_gate():
     assert files, "site/ has no page files yet"
     for p in files:
         assert "embargo" not in p.read_text(errors="ignore").lower(), p
-    html = (SITE / "index.html").read_text()
-    assert re.search(r'<meta\s+name="robots"\s+content="noindex', html)
-    for ref in re.findall(r'(?:href|src)="([^"#][^"]*)"', html):
-        if ref.startswith(("http://", "https://", "mailto:")):
-            continue
-        assert (SITE / ref.split("?")[0]).exists(), ref
+    for page in ("index.html", "explorer.html"):
+        html = (SITE / page).read_text()
+        assert re.search(r'<meta\s+name="robots"\s+content="noindex', html)
+        for ref in re.findall(r'(?:href|src)="([^"#][^"]*)"', html):
+            if ref.startswith(("http://", "https://", "mailto:")):
+                continue
+            assert (SITE / ref.split("?")[0]).exists(), ref
 
 
 def test_overlay_low_marker():
