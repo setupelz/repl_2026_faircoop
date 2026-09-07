@@ -4,7 +4,7 @@
    scripts. Nothing is recomputed here beyond scales. Every mark carries the
    keys it belongs to (an approach, a cooperation scope, a budget, a region);
    hovering a mark or a legend chip dims everything on that figure that does
-   not share the key, and a click pins it. */
+   not share the key; clicks pin keys and accumulate, so several can be compared. */
 
 const SVGNS = "http://www.w3.org/2000/svg";
 const tip = document.getElementById("tip");
@@ -71,18 +71,24 @@ function extent(vals, includeZero = true) {
 }
 
 /* ============ highlight state per figure ============ */
+/* pins accumulate: each click adds or removes one key; hover previews one more. */
 class Fig {
-  constructor(card) { this.card = card; this.h = null; this.pin = null; }
+  constructor(card) { this.card = card; this.h = null; this.pins = new Set(); }
   hover(k) { this.h = k; this.apply(); }
-  toggle(k) { this.pin = this.pin === k ? null : k; this.apply(); }
+  toggle(k) { if (this.pins.has(k)) this.pins.delete(k); else this.pins.add(k); this.apply(); }
+  clear() { this.pins.clear(); this.h = null; this.apply(); }
   apply() {
-    const k = this.pin || this.h;
+    const act = new Set(this.pins); if (this.h) act.add(this.h);
+    const any = act.size > 0;
     for (const n of this.card.querySelectorAll("[data-k]")) {
-      const on = !k || n.dataset.k.split("|").includes(k);
+      const on = !any || n.dataset.k.split("|").some(k => act.has(k));
       n.style.opacity = on ? (n.dataset.o || 1) : DIM;
     }
-    for (const c of this.card.querySelectorAll(".fchip"))
-      c.classList.toggle("dim", !!k && c.dataset.hk !== k), c.classList.toggle("pin", this.pin === c.dataset.hk);
+    for (const c of this.card.querySelectorAll(".fchip")) {
+      if (c.classList.contains("clear")) { c.hidden = this.pins.size === 0; continue; }
+      c.classList.toggle("dim", any && !act.has(c.dataset.hk));
+      c.classList.toggle("pin", this.pins.has(c.dataset.hk));
+    }
   }
 }
 function mark(fig, node, keys, hk, tipFn) {
@@ -217,6 +223,8 @@ function buildCard(f) {
   const fig = new Fig(card);
   const host = card.querySelector(".figgrid"), leg = card.querySelector(".flegend");
   ({ fig2: drawFig2, fig3: drawFig3, fig4: drawFig4, fig5: drawFig5 })[f.id](f, fig, host, leg);
+  const clr = document.createElement("button"); clr.className = "fchip clear"; clr.textContent = "show all"; clr.hidden = true;
+  clr.addEventListener("click", () => fig.clear()); leg.appendChild(clr);
   card.appendChild(dataFoot(f));
   fig.apply();
   return card;
