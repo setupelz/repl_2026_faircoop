@@ -1,6 +1,6 @@
 """Build the explorer's JSON from Data/scenario_set_reporting.csv.
 
-Writes site/data/fig01.json to fig06.json (the six UNEP EGR 2026 Chapter 5
+Writes site/data/fig00.json to fig04.json (UNEP EGR 2026 Chapter 5
 ensemble indicators, redrawn from this paper's scenario set), cumulative.json
 (World cumulative CO2 2020 to 2100 per series) and meta.json (series, regions,
 units, citation). Run with `make site-data`; the JSON is committed because the
@@ -48,7 +48,6 @@ YEARS = list(CUM_YEARS)  # the cards run to 2100 on the model's own grid
 # is not used: it is mis-scaled by a factor of 100 from 2020 onward.
 GWP_CH4 = 27.9
 GWP_N2O = 273.0
-EJ_TO_TWH = 277.778
 
 HIGHER = ["NAM", "WEU", "CHN", "EEU", "FSU", "MEA", "RCPA", "PAO"]
 LOWER = ["LAM", "PAS", "SAS", "AFR"]
@@ -81,10 +80,6 @@ INPUT_VARS = [
     "Primary Energy|Coal", "Primary Energy|Oil", "Primary Energy|Gas",
     "Emissions|CO2", "Emissions|CO2|Energy and Industrial Processes",
     "Emissions|CH4", "Emissions|N2O", "Emissions|F-Gases",
-    "Secondary Energy|Electricity|Coal",
-    "Emissions|CO2|Energy|Demand|Industry", "Emissions|CO2|Industrial Processes",
-    "Emissions|CO2|Energy|Demand|Residential and Commercial",
-    "Emissions|CO2|Energy|Demand|Transportation",
 ]
 
 # Derived indicators: key -> (function of a wide frame with one column per
@@ -129,19 +124,6 @@ INDICATORS = {
                            + w["Emissions|F-Gases"]) / 1000.0,
                 "Gt CO2e/yr", "Total non-CO2 GHG emissions",
                 f"CH4 x {GWP_CH4} + N2O x {GWP_N2O:.0f} + F-gases (AR6 GWP100)"),
-    "coal_power": (lambda w: w["Secondary Energy|Electricity|Coal"] * EJ_TO_TWH,
-                   "TWh/yr", "Coal electricity generation",
-                   "Secondary Energy|Electricity|Coal"),
-    "industry_co2": (lambda w: (w["Emissions|CO2|Energy|Demand|Industry"]
-                                + w["Emissions|CO2|Industrial Processes"]) / 1000.0,
-                     "Gt CO2/yr", "Industry emissions (direct)",
-                     "Emissions|CO2|Energy|Demand|Industry + Emissions|CO2|Industrial Processes"),
-    "buildings_co2": (lambda w: w["Emissions|CO2|Energy|Demand|Residential and Commercial"] / 1000.0,
-                      "Gt CO2/yr", "Buildings emissions (direct)",
-                      "Emissions|CO2|Energy|Demand|Residential and Commercial"),
-    "transport_co2": (lambda w: w["Emissions|CO2|Energy|Demand|Transportation"] / 1000.0,
-                      "Gt CO2/yr", "Transport CO2 emissions (all modes)",
-                      "Emissions|CO2|Energy|Demand|Transportation"),
 }
 
 FIGS = [
@@ -164,13 +146,6 @@ FIGS = [
      "sub": "CO2 from energy and industrial processes, and non-CO2 greenhouse "
             "gases in CO2 equivalent.",
      "panels": [("energy_co2", "Energy-system CO2"), ("non_co2", "Non-CO2 gases")]},
-    {"id": "fig05", "title": "Coal-fired electricity",
-     "sub": "Electricity generated from coal, in TWh per year.",
-     "panels": [("coal_power", "Coal electricity generation")]},
-    {"id": "fig06", "title": "Emissions by demand sector",
-     "sub": "Direct CO2 from industry, buildings and transport, in Gt per year.",
-     "panels": [("industry_co2", "Industry"), ("buildings_co2", "Buildings"),
-                ("transport_co2", "Transport")]},
 ]
 
 BUDGETS = {"800fm": {"id": "2C", "label": "2 °C (800 Gt CO2)", "gt": 800},
