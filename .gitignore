@@ -1,0 +1,44 @@
+# Local tooling (not part of the replication archive)
+CLAUDE.md
+.claude/
+planning/
+
+# Model reporting data — large; cluster-fetched workbooks + assembled output.
+# Data/MANIFEST.md5 (tracked) carries checksums of the workbooks; regenerate
+# the CSV with Code/100_assemble.R.
+Data/*.xlsx
+Data/scenario_set_reporting.csv
+
+# R environment
+renv/library/
+renv/staging/
+.Rhistory
+.Rdata
+.RDataTmp
+.Rproj.user/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Secrets
+.env
+.env.*
+credentials/
+*.pem
+*.key
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Office lock files
+~$*
+**/~$*
+
+# Temporary files
+*.tmp
+*.bak
