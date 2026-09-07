@@ -46,9 +46,7 @@ def test_derived_indicators_on_synthetic_frame():
     vals = {"Primary Energy": 500.0, "GDP|PPP": 100000.0, "Final Energy": 400.0,
             "Final Energy|Electricity": 100.0, "Emissions|CH4": 300.0,
             "Emissions|N2O": 10000.0, "Emissions|F-Gases": 1000.0,
-            "Secondary Energy|Electricity|Coal": 36.0,
-            "Emissions|CO2|Energy|Demand|Industry": 6000.0,
-            "Emissions|CO2|Industrial Processes": 2000.0}
+            }
     for v in b.INPUT_VARS:
         rows.append({"scenario_set": "800fm_ecpc2015", "model": "m", "variant": "Baseline",
                      "region": "NAM", "variable": v, "year": 2030, "value": vals.get(v, 1.0)})
@@ -56,8 +54,6 @@ def test_derived_indicators_on_synthetic_frame():
     assert ind["intensity"] == pytest.approx(5.0)
     assert ind["elec_share"] == pytest.approx(25.0)
     assert ind["non_co2"] == pytest.approx((300 * 27.9 + 10 * 273 + 1000) / 1000)
-    assert ind["coal_power"] == pytest.approx(36 * 277.778)
-    assert ind["industry_co2"] == pytest.approx(8.0)
     assert ind["renew_cap"] == pytest.approx(5.0)
 
 
@@ -76,7 +72,7 @@ def test_group_regions_are_member_sums():
 def test_build_writes_expected_files_within_size(built):
     names = sorted(p.name for p in built.glob("*.json"))
     assert names == ["cumulative.json", "fig00.json", "fig01.json", "fig02.json", "fig03.json",
-                     "fig04.json", "fig05.json", "fig06.json", "meta.json", "overlay.json"]
+                     "fig04.json", "meta.json", "overlay.json"]
     sizes = {p.name: p.stat().st_size for p in built.glob("*.json")}
     assert all(s < 700_000 for s in sizes.values()), sizes
     assert sum(sizes.values()) < 4_000_000
@@ -124,8 +120,6 @@ def test_golden_derived_values_against_csv(built):
     assert site("fig04", "non_co2") == pytest.approx(
         (w["Emissions|CH4"] * 27.9 + w["Emissions|N2O"] / 1000 * 273
          + w["Emissions|F-Gases"]) / 1000, rel=1e-3)
-    assert site("fig05", "coal_power") == pytest.approx(
-        w["Secondary Energy|Electricity|Coal"] * 277.778, rel=1e-3)
     assert site("fig00", "total_co2") == pytest.approx(w["Emissions|CO2"] / 1000, rel=1e-3)
     assert site("fig00", "total_ghg") == pytest.approx(
         (w["Emissions|CO2"] + w["Emissions|CH4"] * 27.9 + w["Emissions|N2O"] / 1000 * 273
