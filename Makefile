@@ -32,6 +32,7 @@ si-figures: check-data
 	Rscript Code/307_si_equivalence.R
 	Rscript Code/308_si_scenario_table.R
 	Rscript Code/309_si_text_numbers.R
+	Rscript Code/310_si_consumption_check.R
 
 # Interactive explorer (site/): rebuild its JSON from the assembled CSV, test,
 # and serve locally. The JSON is committed because the CSV is not.

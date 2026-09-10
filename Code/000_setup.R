@@ -40,7 +40,7 @@ reg_labs <- c(NAM = "N. America", WEU = "W. Europe", CHN = "China", EEU = "E. Eu
               LAM = "Latin Am.", PAS = "SE Asia", SAS = "S. Asia", AFR = "Sub-Sahara")
 
 # R12 responsibility groups. Lower-responsibility order is LAM, PAS, SAS, AFR
-# everywhere (unified Sept 2026, SI Figure 1 previously had SAS before PAS).
+# everywhere.
 higher_resp <- c("NAM", "WEU", "CHN", "EEU", "FSU", "MEA", "RCPA", "PAO")
 lower_resp  <- c("LAM", "PAS", "SAS", "AFR")
 # All 12 geographic regions, and the region rows on the regional panels of
@@ -71,12 +71,10 @@ approach_cols <- c("ECPC 1990" = "#08519C", "ECPC 2015" = "#3182BD",
 # Facet order for the approach-facetted panels: by start year, ECPC then CAPC.
 approach_facet_order <- c("ECPC 1990", "CAPC 1990", "ECPC 2015", "ECPC 2015*",
                           "CAPC 2015", "ECPC 2025", "CAPC 2025")
-# Approach row order. Figure 2 puts the delay row above ECPC 2015, Figure 3 and
-# SI Figure 6 put it below; both orders are in the published figures.
-lab_levels_fig2 <- c("CAPC 2025", "ECPC 2025", "CAPC 2015", "ECPC 2015*",
-                     "ECPC 2015", "CAPC 1990", "ECPC 1990")
-lab_levels_fig3 <- c("CAPC 2025", "ECPC 2025", "CAPC 2015", "ECPC 2015",
-                     "ECPC 2015*", "CAPC 1990", "ECPC 1990")
+# Approach row order for the dumbbell panels (Figures 2, 3, SI Figure 6),
+# bottom to top: ECPC 1990 on top, the delay row directly below ECPC 2015.
+approach_row_order <- c("CAPC 2025", "ECPC 2025", "CAPC 2015", "ECPC 2015*",
+                        "ECPC 2015", "CAPC 1990", "ECPC 1990")
 
 # Canonical variant label order: Source, then the two cooperation corners.
 variant_label_order <- c("Source", "Unlimited (U)", "Lowest-f. (L)")
@@ -122,7 +120,7 @@ inv_tech_cat <- c(
   "Investment|Energy Supply|Extraction|Gas" = "Gas",
   "Investment|Energy Supply|Electricity|Oil" = "Oil",
   "Investment|Energy Supply|Extraction|Oil" = "Oil",
-  "Investment|Energy Supply|CO2 Transport and Storage" = "CO2 storage",
+  "Investment|Energy Supply|CO2 Transport and Storage" = "CO₂ storage",
   "Investment|Energy Supply|Liquids" = "Other energy",
   "Investment|Energy Supply|Heat" = "Other energy",
   "Investment|Energy Supply|Extraction|Uranium" = "Other energy",
@@ -132,9 +130,9 @@ inv_tech_cat <- c(
 # --- 3. Helper functions -----------------------------------------------------
 
 # The main SSP2 frame before any figure-specific filtering: SSP2 only, and the
-# discount-rate sensitivity models dropped (they carry a "dr" tag in `model`).
+# discount-rate sensitivity model dropped (model tag "_dr1p").
 main_ssp2 <- function(sets = NULL) {
-  d <- scenario_sets_raw %>% filter(grepl("SSP_SSP2", model), !grepl("dr", model))
+  d <- scenario_sets_raw %>% filter(grepl("SSP_SSP2", model), !grepl("_dr1p$", model))
   if (is.null(sets)) {
     return(d)
   }
@@ -147,17 +145,23 @@ pct_vs <- function(value, year, base = 2020) {
   (value / value[year == base] - 1) * 100
 }
 
-# Source / Unlimited / Lowest-f. label from the variant string.
-create_scenario_label <- function(variant) {
-  factor(
-    case_when(
-      variant == "Source scenario" ~ "Source",
-      grepl("U\\.", variant) ~ "Unlimited (U)",
-      grepl("L\\.", variant) ~ "Lowest-f. (L)",
-      TRUE ~ "Other"
-    ),
-    levels = variant_label_order
+# Source / Unlimited / Lowest-f. label from the variant string. Any other
+# variant stops the script. Baseline is labelled "Baseline" only when
+# baseline = TRUE (the consumption-vs-baseline tables); everywhere else the
+# caller filters it out first.
+create_scenario_label <- function(variant, baseline = FALSE) {
+  lab <- case_when(
+    variant == "Source scenario" ~ "Source",
+    grepl("^U\\. ", variant) ~ "Unlimited (U)",
+    grepl("^L\\. ", variant) ~ "Lowest-f. (L)",
+    baseline & variant == "Baseline" ~ "Baseline",
+    TRUE ~ NA_character_
   )
+  if (anyNA(lab)) {
+    stop("create_scenario_label: unlabelled variant(s): ",
+         paste(unique(variant[is.na(lab)]), collapse = ", "))
+  }
+  factor(lab, levels = c(variant_label_order, if (baseline) "Baseline"))
 }
 
 # Wide IAMC year columns to one row per year, year numeric.
@@ -172,13 +176,14 @@ prepare_long_format <- function(scenario_sets) {
 }
 
 # Main SSP2 scenario frame in long format, one row per scenario-region-variable-
-# year, with state, principle and start columns. Drops the CDR-scope and
+# year, with state, principle and start columns. Drops the Baseline (no
+# Source/U/L state; fig 3a fetches it directly) and the CDR-scope and
 # cooperation-delay variants, which the figures add back where they need them.
 # delay = TRUE appends the ECPC2015 delay variant as start "2015*", with the
 # shared ECPC2015 Source relabelled to match so lab_of() gives "ECPC 2015*".
 load_scenarios <- function(sets = grid_sets, delay = FALSE) {
   main <- main_ssp2(sets) %>%
-    filter(!grepl("CDR|Delay", variant)) %>%
+    filter(!grepl("CDR|Delay", variant), variant != "Baseline") %>%
     prepare_long_format() %>%
     mutate(state = create_scenario_label(variant),
            principle = ifelse(grepl("ecpc", scenario_set), "ECPC", "CAPC"),
@@ -205,9 +210,9 @@ load_delay_scenarios <- function() {
 }
 
 # Trapezoidal cumulative integral of a value series over its sampled years, for
-# SMOOTH trajectories (emissions, energy) so cumulative CO2 matches the model
-# budget. NAs count as 0, fewer than two points gives 0. Do NOT use on lumpy or
-# discrete series, see step_integral.
+# smooth trajectories (emissions, energy) so cumulative CO2 matches the model
+# budget. NAs count as 0, fewer than two points gives 0. Lumpy or discrete
+# series take step_integral instead.
 trapz_integral <- function(value, year) {
   v <- ifelse(is.na(value), 0, value)
   o <- order(year)
@@ -220,7 +225,7 @@ trapz_integral <- function(value, year) {
 }
 
 # Step (rectangle) cumulative integral, sum(value * period). For piecewise-
-# constant or LUMPY series such as interregional transfers traded in discrete
+# constant or lumpy series such as interregional transfers traded in discrete
 # years, where trapezoidal interpolation between a zero and a spike year halves
 # isolated spikes and distorts the volume. First period = gap to the next
 # sample. NAs count as 0.
@@ -316,6 +321,21 @@ save_figure <- function(plot, file, width, height, si = FALSE) {
   invisible(path)
 }
 
+# Data behind one panel, as CSV beside the figure: Manuscript/Figures/<fig>-data/
+# <panel>.csv (SI figures under SI/). Factors are written as text. Every figure
+# script calls this for each plotted frame just before save_figure().
+save_fig_data <- function(df, fig, panel, si = FALSE) {
+  dir <- if (si) {
+    here("Manuscript", "Figures", "SI", paste0(fig, "-data"))
+  } else {
+    here("Manuscript", "Figures", paste0(fig, "-data"))
+  }
+  dir.create(dir, showWarnings = FALSE, recursive = TRUE)
+  write_csv(df %>% ungroup() %>% mutate(across(where(is.factor), as.character)),
+            file.path(dir, paste0(panel, ".csv")))
+  invisible(df)
+}
+
 # --- 4. Data loading ---------------------------------------------------------
 
 # readr compact col-type string, in file-column order: years numeric ("d"),
@@ -365,3 +385,50 @@ if (length(model_version_tokens) > 1) {
     "). All workbooks in Data/ must come from a single model run."
   )
 }
+
+# --- 6. Consumption: correct for excluded emissions --------------------------
+
+# MACRO's regional Consumption in every fair-share variant carries the value of
+# the region's excluded (LULUCF) emissions at the source-scenario carbon price.
+# The variants hold excluded emissions to their source behaviour by pricing them
+# at the global level; the regional cost accounting that MACRO receives nets that
+# price against each region's own excluded emissions, although no region pays
+# or receives it. A net-sink region therefore reports lower consumption, and a
+# net-emitter region higher, by price x excluded emissions, and the World row
+# inherits the sum. The Source and Baseline runs carry no such price and are
+# unaffected. Consumption is corrected here, once, at data load, so that every
+# figure and table reports mitigation costs and transfers only:
+#   Consumption_corrected = Consumption - Price|Carbon(source, World)
+#                                        x Emissions|CO2|AFOLU / 1e3
+# (US$/t x Mt/yr / 1e3 = billion US$/yr). Code/310_si_consumption_check.R
+# quantifies the correction and cross-checks it against GDP|MER, which is free
+# of the term. The original series is kept as "Consumption|Uncorrected".
+correct_consumption_excluded <- function(raw) {
+  yrs <- names(raw)[grepl("^\\d{4}$", names(raw))]
+  price <- raw %>%
+    filter(variable == "Price|Carbon", variant == "Source scenario", region == "World") %>%
+    select(model, scenario_set, all_of(yrs)) %>%
+    pivot_longer(all_of(yrs), names_to = "year", values_to = "price")
+  afolu <- raw %>%
+    filter(variable == "Emissions|CO2|AFOLU") %>%
+    select(model, scenario_set, variant, region, all_of(yrs)) %>%
+    pivot_longer(all_of(yrs), names_to = "year", values_to = "afolu")
+  cons <- raw %>% filter(variable == "Consumption")
+  adj <- cons %>%
+    filter(!variant %in% c("Source scenario", "Baseline")) %>%
+    pivot_longer(all_of(yrs), names_to = "year", values_to = "value") %>%
+    left_join(price, by = c("model", "scenario_set", "year")) %>%
+    left_join(afolu, by = c("model", "scenario_set", "variant", "region", "year")) %>%
+    mutate(value = value - price * afolu / 1e3) %>%
+    select(-price, -afolu) %>%
+    pivot_wider(names_from = year, values_from = value)
+  # Every corrected row must have found its price and AFOLU series.
+  stopifnot(nrow(adj) == nrow(cons %>% filter(!variant %in% c("Source scenario", "Baseline"))))
+  bind_rows(
+    raw %>% filter(variable != "Consumption"),
+    cons %>% mutate(variable = "Consumption|Uncorrected"),
+    cons %>% filter(variant %in% c("Source scenario", "Baseline")),
+    adj
+  )
+}
+scenario_sets_raw <- correct_consumption_excluded(scenario_sets_raw)
