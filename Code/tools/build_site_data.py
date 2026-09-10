@@ -43,8 +43,7 @@ OVERLAY = {
            "release starts in 2023, so for 2020 to 2025 the cumulative CO2 figure uses our source "
            "scenario, which follows the same history before the first model timestep in 2030; "
            "regional series are the model's native reporting rather than the "
-           "harmonised release; and we recompute non-CO2 as the release's total greenhouse gases "
-           "minus CO2 (AR6 GWP100). "
+           "harmonised release. "
            + DEFER + ".",
     "cite": "Cite: " + CITE + ".",
 }
