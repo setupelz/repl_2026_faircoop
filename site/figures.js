@@ -244,7 +244,7 @@ function legendGroup(host, title) {
 function buildCard(f) {
   const card = document.createElement("div"); card.className = "card figcard"; card.id = f.id;
   card.innerHTML = `<div class="fhead"><h2>Figure ${f.number}. ${f.title}</h2><div class="flegend"></div></div>
-    <div class="sub">${f.sub}</div><div class="figgrid"></div>${f.note ? `<div class="fnote">${f.note}</div>` : ""}`;
+    <div class="sub">${f.sub.replace(/\((?:[a-e])\)/g, m => `<b>${m}</b>`)}</div><div class="figgrid"></div>${f.note ? `<div class="fnote">${f.note}</div>` : ""}`;
   const fig = new Fig(card);
   const host = card.querySelector(".figgrid"), leg = card.querySelector(".flegend");
   ({ fig2: drawFig2, fig3: drawFig3, fig4: drawFig4, fig5: drawFig5 })[f.id](f, fig, host, leg);
