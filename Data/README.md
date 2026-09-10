@@ -42,8 +42,16 @@ and regenerated only when the SSP2 800 Gt workbooks change, with
 World series of the ScenarioMIP-CMIP7 Low marker run (MESSAGEix-GLOBIOM-GAINS
 2.1-M-R12, "SSP2 - Low Emissions"), the variables the explorer overlays on
 its cards, on the 2020 to 2100 grid. Extracted from the IAM quantification
-released on 2026-09-01 (van Vuuren et al. 2026, GMD 19, 2627; Zenodo record
-19825038, licence as stated there). Read by `../Code/tools/build_site_data.py`.
+v0.2 released on 2026-09-01 (Riahi, van Vuuren et al., Scenario data of the
+ScenarioMIP Pathways for CMIP7, doi:10.5281/zenodo.22296051; licence as stated
+there; overview paper Riahi, van Vuuren et al., in preparation; model
+documentation Fricko et al., forthcoming). Shown on the explorer for
+orientation only and marked with an asterisk there, since the explorer
+adjusts the series (2020 to 2025 filled from the source pathway, regional
+series from native reporting, non-CO2 recomputed); the scenario data of
+record is the IIASA ScenarioMIP explorer,
+https://scenariomip.apps.ece.iiasa.ac.at/. Read by
+`../Code/tools/build_site_data.py`.
 
 ## `scenariomip_cmip7_message_ssp2_low_regional.csv`
 
