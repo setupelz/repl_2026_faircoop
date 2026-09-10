@@ -71,7 +71,7 @@ def test_group_regions_are_member_sums():
 def test_build_writes_expected_files_within_size(built):
     names = sorted(p.name for p in built.glob("*.json"))
     assert names == ["cumulative.json", "fig00.json", "fig01.json", "fig03.json",
-                     "fig04.json", "fig05.json", "figtr.json", "meta.json", "overlay.json"]
+                     "fig04.json", "fig05.json", "meta.json", "overlay.json"]
     sizes = {p.name: p.stat().st_size for p in built.glob("*.json")}
     assert all(s < 700_000 for s in sizes.values()), sizes
     assert sum(sizes.values()) < 4_000_000
