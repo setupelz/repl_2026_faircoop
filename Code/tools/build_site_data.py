@@ -20,23 +20,31 @@ CSV = ROOT / "Data" / "scenario_set_reporting.csv"
 OUT = ROOT / "site" / "data"
 # The ScenarioMIP-CMIP7 Low marker (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,
 # "SSP2 - Low Emissions"), World only: the nearest public MESSAGE run to the
-# 2 C source by annual CO2 to 2050. Public since 2026-09-01 (Zenodo 19825038).
+# 2 C source by annual CO2 to 2050, shown for orientation. Scenario data:
+# doi:10.5281/zenodo.22296051 (IAM quantification v0.2, 2026-09-01). The
+# series drawn here are adjusted (see OVERLAY["why"]), so the page marks the
+# run with an asterisk and points to the IIASA ScenarioMIP explorer.
 OVERLAY_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low.csv"
 # The same run at native R12 resolution, from the IIASA Scenario Explorer
 # (Code/tools/pull_scenariomip_regional.py): the model's own reporting, so its
 # World series differ slightly from the release's harmonised emissions above.
 OVERLAY_REGIONAL_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low_regional.csv"
+CITE = ('Riahi, K., van Vuuren, D.P., et al. (in preparation). Overview of the Socioeconomic, Emissions and Land Use Futures of the ScenarioMIP-CMIP7 Pathways. Scenario data: Riahi, K., van Vuuren, D.P., et al., Socioeconomic, Emissions and Land Use Futures, the ScenarioMIP Pathways for CMIP7, doi:10.5281/zenodo.22296051. Model documentation: Fricko et al. (forthcoming). Full list: https://scenariomip.apps.ece.iiasa.ac.at/documentation')
+DEFER = ('For the scenario data itself, use the IIASA ScenarioMIP explorer at https://scenariomip.apps.ece.iiasa.ac.at/')
 OVERLAY = {
     "id": "smip|SSP2-L", "budget": "2C", "region": "World",
-    "label": "ScenarioMIP-CMIP7 Low marker (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12, SSP2)",
-    "short": "ScenarioMIP-CMIP7 Low marker",
+    "label": "ScenarioMIP-CMIP7 Low marker* (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12, SSP2)",
+    "short": "ScenarioMIP-CMIP7 Low marker*",
     "pw67": 1.94,
-    "why": "The nearest public MESSAGEix run to the 2 \u00b0C source, on annual CO2 to 2050 "
-           "and on cumulative CO2 over 2025 to 2100. Its harmonised series starts in 2023, so "
-           "its 2020 to 2025 segment on the strip is the source pathway's own.",
-    "cite": "van Vuuren, D.P., et al. (2026). The Scenario Model Intercomparison Project "
-            "for CMIP7 (ScenarioMIP-CMIP7). Geoscientific Model Development, 19, 2627, "
-            "doi:10.5194/gmd-19-2627-2026. IAM quantification v0.2, Zenodo record 19825038.",
+    "why": "Shown for orientation only: it is the nearest public MESSAGEix pathway to the 2 \u00b0C "
+           "source, on annual CO2 to 2050 and on cumulative CO2 over 2025 to 2100, so a reader can "
+           "place the paper's scenarios against a published CMIP7 pathway from the same model. "
+           "* The series drawn here are not the ScenarioMIP series as reported: the harmonised "
+           "release starts in 2023, so the 2020 to 2025 segment on the strip is the source "
+           "pathway's own; regional series are the model's native reporting rather than the "
+           "harmonised release; and non-CO2 is recomputed on the release's own basket. "
+           + DEFER + ".",
+    "cite": "Cite: " + CITE + ".",
 }
 
 # Transfers are discounted as in the paper: 5% per year to a 2025 base, each
