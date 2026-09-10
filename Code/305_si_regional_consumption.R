@@ -1,12 +1,11 @@
 # 305_si_regional_consumption.R -----------------------------------------------
 #
-# SI Figure 5: per-region welfare outcomes across the seven fair-share approaches
-# (SSP2 2C, 800fm). Main Fig 3a shows the cumulative consumption change vs NoPol aggregated
-# to two responsibility blocs; Fig 5b shows per-region transfers and SI1 shows
-# per-region allocations, but no figure shows per-region WELFARE. This fills that
-# gap: for every region, the cumulative Δ Consumption vs NoPol under Source, FS
-# unlimited transfers and FS lowest-f. transfers, with the U -> Lf dumbbell making
-# the tier-shift redistribution visible region by region.
+# SI Figure 5: per-region consumption outcomes across the seven fair-share
+# approaches (SSP2 2C, 800fm), the regional resolution of main Fig 3a (which
+# aggregates to the two responsibility blocs): for every region, the cumulative
+# Δ Consumption vs NoPol under Source, FS unlimited transfers and FS lowest-f.
+# transfers, with the U -> Lf dumbbell showing the tier-shift redistribution
+# region by region.
 #
 # Method copied from Fig 3a (cons_grp), computed per region instead of per bloc:
 # Consumption, 2026-2100, period-weighted annuity NPV (period_npv, base 2025).
@@ -39,8 +38,8 @@ cons_reg <- cons_reg %>% left_join(base_reg, by = "region") %>%
 
 # Factors: facet order by start year (approach_facet_order); regions higher-resp
 # block first (NAM top), reversed for the y axis; colour by responsibility group
-# (grp_fill). Principle is constant within a facet, so a group encoding is the
-# only one that carries information across the region rows.
+# (grp_fill). Principle is constant within a facet, so the group encoding is
+# what carries information across the region rows.
 cons_reg <- cons_reg %>%
   mutate(grp = factor(ifelse(region %in% higher_resp, "Higher resp.", "Lower resp."),
                       levels = c("Higher resp.", "Lower resp.")),
@@ -99,4 +98,5 @@ p <- ggplot(cons_reg, aes(xplot, region)) +
         plot.subtitle = element_text(size = 7 / FIG_SCALE),
         plot.caption = element_text(size = 6 / FIG_SCALE))
 
+save_fig_data(cons_reg, "si5", "consumption_pct_vs_nopol_by_region", si = TRUE)
 save_figure(p, "SI_Figure_5_Regional_Consumption.png", width = 10, height = 5.2, si = TRUE)

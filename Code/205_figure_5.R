@@ -10,8 +10,8 @@
 #      both budgets, the financial counterpart of a's physical reallocation.
 #   c  Net CO2 relative to 2020 (World / Higher / Lower), Source vs lowest-f.,
 #      through 2050 with 2035/2050 benchmark markers. Unlimited omitted: it is
-#      physically indistinguishable from Source (group-level |U - Source| <= 1.2 Gt
-#      cumulative, < 0.6% of totals; v6.5 run, July 2026; demonstrated in SI Fig. 7).
+#      physically indistinguishable from Source (SI Figure 7 and the maxima
+#      printed by 307_si_equivalence.R).
 #   d  Per-region carbon price dumbbells on the common numeraire (x 2 C Source);
 #      vertical lines mark each budget's uniform price.
 
@@ -23,7 +23,7 @@ bud_lvls <- c("2 °C", "1.5 °C")
 bud_cols <- c("2 °C" = "#E69F00", "1.5 °C" = "#0072B2")  # Okabe-Ito, CB-safe
 
 both <- main_ssp2(c("800fm_ecpc2015", "500fm_ecpc2015")) %>%
-  filter(!grepl("Delay|CDR", variant)) %>%
+  filter(!grepl("Delay|CDR", variant), variant != "Baseline") %>%
   prepare_long_format() %>%
   mutate(state = create_scenario_label(variant),
          bud = factor(ifelse(grepl("500", scenario_set), "1.5 °C", "2 °C"),
@@ -72,7 +72,7 @@ p_realloc <- ggplot(remix, aes(xpos, contrib, fill = lever)) +
                                            colour = c("grey30", "white"),
                                            size = 2.1, stroke = 0.4))) +
   scale_x_continuous(breaks = seq_along(all_regions), labels = reg_labs[all_regions]) +
-  labs(x = NULL, y = "Δ from Source / FS-U.Trnsf. (Gt CO2)",
+  labs(x = NULL, y = "Δ from Source / FS-U.Trnsf. (Gt CO₂)",
        subtitle = "Components of FS lowest-f. net-emissions Δ, 2020–2100") +
   theme_publication() +
   theme(legend.position = "inside", legend.position.inside = c(0.02, 0.97),
@@ -142,7 +142,7 @@ bench <- both %>%
   mutate(grp = factor(grp, levels = c("World", "Higher", "Lower")),
          state = factor(state, levels = c("Source", "Lowest-f. (L)")))
 
-# rel. base stays 2020 (pct above), but nothing is DRAWN before 2030.
+# Relative base stays 2020 (pct above); drawing starts at 2030.
 p_bench <- ggplot(bench %>% filter(year >= 2030), aes(year, pct, colour = bud, linetype = state)) +
   geom_hline(yintercept = 0, colour = "grey75", linewidth = 0.3) +
   geom_line(linewidth = 0.5) +
@@ -159,7 +159,7 @@ p_bench <- ggplot(bench %>% filter(year >= 2030), aes(year, pct, colour = bud, l
   scale_shape_manual(values = c("Source" = 4, "Lowest-f. (L)" = 25), guide = "none") +
   scale_x_continuous(breaks = c(2030, 2040, 2050),
                      guide = guide_axis(check.overlap = TRUE)) +
-  labs(x = NULL, y = "Net CO2 vs 2020 (%)") +
+  labs(x = NULL, y = "Net CO₂ vs 2020 (%)") +
   theme_publication() +
   theme(legend.position = "bottom", legend.margin = margin(0, 0, 0, 0),
         panel.spacing = unit(1.4, "lines"),
@@ -225,4 +225,10 @@ figure_5 <- p_realloc_el + free(p_fin) + p_bench + p_price +
   plot_annotation(tag_levels = "a",
                   theme = theme(legend.position = "bottom"))
 
+save_fig_data(remix, "fig5", "a_lever_components_gt")
+save_fig_data(renet, "fig5", "a_net_gt")
+save_fig_data(fin, "fig5", "b_transfers_tn_npv")
+save_fig_data(bench, "fig5", "c_net_co2_pct_vs_2020")
+save_fig_data(cp, "fig5", "d_carbon_price_ratio")
+save_fig_data(unif, "fig5", "d_uniform_price_ratio")
 save_figure(figure_5, "205_figure_5.png", width = 10, height = 8.2)

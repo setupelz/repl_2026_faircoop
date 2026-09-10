@@ -59,7 +59,7 @@ p_world <- ggplot(filter(drivers, region == "World"),
         legend.position = "none")
 
 # Regional columns: y shared across regions within a row (regions comparable);
-# driver strips suppressed. switch/placement MUST match p_world exactly ,
+# driver strips suppressed. switch/placement must match p_world exactly:
 # patchwork aligning facet_grids with different strip structures inserts the
 # outside-strip row between panel and axis, detaching the x ticks.
 p_reg <- ggplot(filter(drivers, region != "World") %>% mutate(region = droplevels(region)),
@@ -83,4 +83,5 @@ figure <- p_world + p_reg +
     subtitle = "SSP1 vs SSP2 socioeconomic drivers (PPP, constant 2010 US$), 2020–2100") &
   theme(legend.position = "top")
 
+save_fig_data(drivers, "si2", "drivers", si = TRUE)
 save_figure(figure, "SI_Figure_2_SSP_Drivers.png", width = 11, height = 7, si = TRUE)

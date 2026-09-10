@@ -1,8 +1,8 @@
 # 301_si_allocations.R ---------------------------------------------------------
 #
 # SI Figure 1: regional fair-share allocations across the six approaches shown
-# in Figure 2
-# (ECPC and per-capita-cap, responsibility start 1990/2015/2025; SSP2, 800fm).
+# in Figure 2 (ECPC and per-capita-cap, responsibility start 1990/2015/2025;
+# SSP2, 800fm).
 #   top:    each region's gross fair-share of the global budget (sums to 100%),
 #           recomputed with the fair-shares library (Data/fairshare_allocations.csv)
 #   bottom: allocation remaining at the first model step (2030). Native fraction:
@@ -27,7 +27,7 @@ alloc <- read_csv(here("Data", "fairshare_allocations.csv"), show_col_types = FA
   mutate(region = factor(region, levels = reg_order),
          approach = factor(approach, levels = approach_levels_nodelay))
 
-# Remaining allocation from 2026: year == 2030 is the FIRST model step, whose 5-yr
+# Remaining allocation from 2026: year == 2030 is the first model step, whose 5-yr
 # period starts 2026, so the reported value is the budget left from 2026 onward
 # (native fraction: 1 = untouched, 0 = consumed, -1 = twice the fair share).
 # CAPC drives a few high-emitters far below the floor; those are drawn as open
@@ -87,4 +87,6 @@ p <- p_alloc / p_remain + plot_layout(guides = "collect", heights = c(1, 1.15)) 
   plot_annotation(title = "Fair-share allocation by region across approaches (SSP2 2C, 800fm)") &
   theme(legend.position = "right")
 
+save_fig_data(alloc, "si1", "top_fair_share_pct", si = TRUE)
+save_fig_data(remain, "si1", "bottom_remaining_2030", si = TRUE)
 save_figure(p, "SI_Figure_1_Allocations.png", width = 11, height = 7, si = TRUE)

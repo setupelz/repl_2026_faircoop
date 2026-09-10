@@ -20,7 +20,7 @@ variants  <- c("Source scenario",
                "U. SSP2-2C-ECPC2015", "U. SSP2-2C-ECPC2015-CDR")
 coop_cols <- c("Source" = "grey55", "FS-Lf.Trnsf-ALL" = "#1B9E77", "FS-Lf.Trnsf-CDR" = "#D95F02")
 panel_lvls <- c("World", "Higher resp.", "Lower resp.")
-comp_order <- c("Net CO2", "Gross CO2", "BECCS", "DACCS")
+comp_order <- c("Net CO₂", "Gross CO₂", "BECCS", "DACCS")
 novel_cdr <- c("Carbon Sequestration|CCS|Biomass", "Carbon Sequestration|CCS|Direct Air Capture")
 
 grpf <- function(r) case_when(r == "World" ~ "World",
@@ -39,7 +39,7 @@ tier_of <- function(v) factor(case_when(v == "Source scenario" ~ "Source",
 # Each metric's cumulative change from source at the two cooperation steps; the
 # ALL->CDR slope shows how far restricting cooperation to CDR moves it. Net CO2
 # stays ~flat (CDR is retiming), gross does the work, novel CDR is small.
-wfv <- c(`Net CO2` = "Emissions|CO2", `Gross CO2` = "Gross Emissions|CO2",
+wfv <- c(`Net CO₂` = "Emissions|CO2", `Gross CO₂` = "Gross Emissions|CO2",
          BECCS = "Carbon Sequestration|CCS|Biomass",
          DACCS = "Carbon Sequestration|CCS|Direct Air Capture")
 base <- main_ssp2("800fm_ecpc2015") %>%
@@ -56,7 +56,7 @@ wf <- base %>% group_by(scenario, grp, quantity, year) %>%
   pivot_wider(names_from = scenario, values_from = gt) %>%
   mutate(d1 = `FS-Lf.Trnsf-ALL` - Source, d2 = `FS-Lf.Trnsf-CDR` - `FS-Lf.Trnsf-ALL`,
          component = factor(quantity, levels = comp_order))
-wf_cols <- c("Net CO2" = "#542788", "Gross CO2" = "#01665E",
+wf_cols <- c("Net CO₂" = "#542788", "Gross CO₂" = "#01665E",
              "BECCS" = "#8C510A", "DACCS" = "#DFC27D")
 
 # left edge of each region cluster
@@ -84,7 +84,7 @@ p_wf <- ggplot(wf_slope, aes(x, gt, colour = component)) +
   coord_cartesian(ylim = c(-340, 340)) +
   # full form overflows the strip at this panel width; token form matches d's subtitle
   facet_wrap(~"Δ from Src./FS.U.") +
-  labs(x = NULL, y = "Gt CO2") +
+  labs(x = NULL, y = "Gt CO₂") +
   theme_publication() +
   guides(shape = guide_legend(order = 1, override.aes = list(
            fill = c("white", "grey30"), colour = "grey30", size = 2, stroke = 0.5)),
@@ -152,7 +152,7 @@ cred_cdr <- lo_cdr %>% filter(variant != "Source scenario") %>%
   # and would then move volume between the "in Source" and "added" bars.
   mutate(existing_frac = pmin(pmax(lo_src / cred_total, 0), 1))
 
-debt_lvls <- c("Dom. gross reduction", "Dom. Geo.CDR",
+debt_lvls <- c("Dom. reductions (residual)", "Dom. Geo.CDR",
                "Trf. Geo.CDR (added)", "Trf. Geo.CDR (in Source)",
                "Trf. ALL")
 decomp_d <- transfer %>%
@@ -160,7 +160,7 @@ decomp_d <- transfer %>%
   left_join(cred_cdr, by = c("scope", "tier")) %>%
   mutate(
     `Dom. Geo.CDR`             = dom_cdr,
-    `Dom. gross reduction`     = debt_tot - transfer - dom_cdr,
+    `Dom. reductions (residual)` = debt_tot - transfer - dom_cdr,
     `Trf. Geo.CDR (in Source)` = ifelse(scope == "FS-Lf.Trnsf-CDR",
                                         transfer * existing_frac, 0),
     `Trf. Geo.CDR (added)`     = ifelse(scope == "FS-Lf.Trnsf-CDR",
@@ -180,7 +180,7 @@ decomp_d <- transfer %>%
 # Overlapping concepts reuse the lever palette (gross = teal, geo/novel CDR =
 # tan) so one thing has one colour across figs 4-5; transfer-specific components
 # keep their own hues. NOT 4b-blue -> 5a: #0072B2 is fig 5's 1.5 C budget colour.
-debt_cols <- c("Dom. gross reduction" = "#01665E", "Dom. Geo.CDR" = "#DFC27D",
+debt_cols <- c("Dom. reductions (residual)" = "#01665E", "Dom. Geo.CDR" = "#DFC27D",
                "Trf. Geo.CDR (added)" = "#D55E00", "Trf. Geo.CDR (in Source)" = "#999999",
                "Trf. ALL" = "#CC79A7")
 
@@ -256,7 +256,7 @@ p_su <- ggplot(cdr_su, aes(year, gt)) +
                                  "FS-Lf.Trnsf-CDR" = "FS Trnsf. CDR"),
                       guide = guide_legend(order = 2)) +
   scale_x_continuous(breaks = path_xbreaks, labels = path_xlabels) +
-  labs(x = NULL, y = "Novel CDR (Gt CO2/yr)") +
+  labs(x = NULL, y = "Novel CDR (Gt CO₂/yr)") +
   theme_publication() +
   theme(panel.spacing = unit(0.6, "lines"),
         legend.position = "inside",
@@ -309,7 +309,7 @@ p_mix <- ggplot(cmix, aes(xpos, contrib, fill = lever)) +
                        fill = c("white", "grey15"), colour = c("grey30", "white"),
                        size = 2.1, stroke = 0.4))) +
   scale_x_continuous(breaks = seq_along(all_regions), labels = reg_labs[all_regions]) +
-  labs(x = NULL, y = "Gt CO2",
+  labs(x = NULL, y = "Gt CO₂",
        subtitle = "Components of FS lowest-f. net-emissions Δ from Src./FS.U.") +
   theme_publication() +
   guides(fill = guide_legend(ncol = 2, order = 1)) +
@@ -325,9 +325,9 @@ p_mix <- ggplot(cmix, aes(xpos, contrib, fill = lever)) +
 # 2026-2100). Transfers use fig 2b's definition, each region's Transfers|Finance
 # period-weighted annuity NPV (period_npv, base 2025), summed over net-recipient
 # regions. Gross positive region-year flows would double-count regions whose
-# flows flip sign over time under unlimited transfers (41.7 vs 11.8 $tn for
-# ALL-U; v6.5 run, July 2026). Facets stacked vertically so each strip title gets the full panel
-# width (side-by-side would clip, as in a).
+# flows flip sign over time under unlimited transfers. Facets stacked
+# vertically so each strip title gets the full panel width (side-by-side would
+# clip, as in a).
 tre <- main_ssp2("800fm_ecpc2015") %>%
   filter(variant %in% setdiff(variants, "Source scenario"),
          variable == "Transfers|Finance", region %in% all_regions) %>%
@@ -395,4 +395,11 @@ figure_4 <- row_a / free(p_su, side = "r") /
   plot_layout(heights = c(1, 1, 1)) +
   plot_annotation(tag_levels = "a")
 
+save_fig_data(wf_slope, "fig4", "a_cumulative_delta_gt")
+save_fig_data(decomp_d %>% mutate(debt_gt = debt_tot), "fig4", "b_overdraft_shares")
+save_fig_data(cdr_su, "fig4", "c_novel_cdr_gt_per_yr")
+save_fig_data(tot_su, "fig4", "c_total_injection_gt_per_yr")
+save_fig_data(cmix, "fig4", "d_lever_components_gt")
+save_fig_data(cnet, "fig4", "d_net_gt")
+save_fig_data(tot, "fig4", "e_regime_totals")
 save_figure(figure_4, "204_figure_4.png", width = 9, height = 10.5)

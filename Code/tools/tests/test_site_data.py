@@ -144,13 +144,17 @@ def test_cumulative_co2_same_within_budget(built):
 
 
 def test_page_release_gate():
+    """Released state: indexable, no preview wording, the article DOI on every
+    page, and every local link resolving inside site/."""
     files = [p for p in SITE.rglob("*") if p.suffix in (".html", ".js", ".css", ".json")]
     assert files, "site/ has no page files yet"
     for p in files:
         assert "embargo" not in p.read_text(errors="ignore").lower(), p
     for page in ("index.html", "explorer.html"):
         html = (SITE / page).read_text()
-        assert re.search(r'<meta\s+name="robots"\s+content="noindex', html)
+        assert not re.search(r'<meta\s+name="robots"\s+content="noindex', html)
+        assert "Preview" not in html
+        assert "10.1088/1748-9326/aea34d" in html
         for ref in re.findall(r'(?:href|src)="([^"#][^"]*)"', html):
             if ref.startswith(("http://", "https://", "mailto:")):
                 continue

@@ -79,23 +79,23 @@ INV_TECH_CAT = {
     "Investment|Energy Supply|Extraction|Gas": "Gas",
     "Investment|Energy Supply|Electricity|Oil": "Oil",
     "Investment|Energy Supply|Extraction|Oil": "Oil",
-    "Investment|Energy Supply|CO2 Transport and Storage": "CO2 storage",
+    "Investment|Energy Supply|CO2 Transport and Storage": "CO₂ storage",
     "Investment|Energy Supply|Liquids": "Other energy",
     "Investment|Energy Supply|Heat": "Other energy",
     "Investment|Energy Supply|Extraction|Uranium": "Other energy",
     "Investment|Energy Supply|Electricity|Other": "Other energy",
     "Investment|Energy Supply|Other": "Other energy"}
-CAT_LEVELS = ["Solar", "Wind", "Batteries", "Transmission", "Other clean", "CO2 storage",
+CAT_LEVELS = ["Solar", "Wind", "Batteries", "Transmission", "Other clean", "CO₂ storage",
               "Other energy", "Oil", "Gas", "Coal"]
 CAT_COLS = {"Solar": "#F0E442", "Wind": "#56B4E9", "Batteries": "#CC79A7", "Transmission": "#E69F00",
-            "Other clean": "#009E73", "CO2 storage": "#882255", "Other energy": "#DDCC77",
+            "Other clean": "#009E73", "CO₂ storage": "#882255", "Other energy": "#DDCC77",
             "Oil": "#8C510A", "Gas": "#999999", "Coal": "#1A1A1A"}
 
 COOP_COLS = {"Source": "#8c8c8c", "FS-Lf.Trnsf-ALL": "#1B9E77", "FS-Lf.Trnsf-CDR": "#D95F02"}
-WF_COLS = {"Net CO2": "#542788", "Gross CO2": "#01665E", "BECCS": "#8C510A", "DACCS": "#DFC27D"}
-DEBT_LVLS = ["Dom. gross reduction", "Dom. Geo.CDR", "Trf. Geo.CDR (added)",
+WF_COLS = {"Net CO₂": "#542788", "Gross CO₂": "#01665E", "BECCS": "#8C510A", "DACCS": "#DFC27D"}
+DEBT_LVLS = ["Dom. reductions (residual)", "Dom. Geo.CDR", "Trf. Geo.CDR (added)",
              "Trf. Geo.CDR (in Source)", "Trf. ALL"]
-DEBT_COLS = {"Dom. gross reduction": "#01665E", "Dom. Geo.CDR": "#DFC27D",
+DEBT_COLS = {"Dom. reductions (residual)": "#01665E", "Dom. Geo.CDR": "#DFC27D",
              "Trf. Geo.CDR (added)": "#D55E00", "Trf. Geo.CDR (in Source)": "#999999",
              "Trf. ALL": "#CC79A7"}
 BUD_COLS = {"2 °C": "#E69F00", "1.5 °C": "#0072B2"}
@@ -238,7 +238,7 @@ def figure_2(long) -> dict:
     e = both[both["region"].isin(["World"] + ALL_REGIONS)
              & both["variable"].isin(["Emissions|CO2", "Gross Emissions|CO2"])
              & both["year"].between(2020, 2100)].copy()
-    e["metric"] = np.where(e["variable"].str.contains("Gross"), "Gross CO2", "Net CO2")
+    e["metric"] = np.where(e["variable"].str.contains("Gross"), "Gross CO₂", "Net CO₂")
     e["grp"] = grp_of(e["region"])
     src = e[(e["state"] == "Source") & (e["scenario_set"] == "800fm_ecpc2015")].assign(lab="Source")
     e = pd.concat([e[e["state"] == "Lowest-f. (L)"], src])
@@ -304,7 +304,7 @@ def figure_2(long) -> dict:
                "the source pathway physically. Hover or click an approach to follow it across the panels.",
         "note": "* ECPC 2015 with a ten-year delay before transfers begin.",
         "approaches": APPROACH_LEVELS, "rows_b": LAB_LEVELS_FIG2,
-        "a": {"title": "CO2 trajectories", "ylab": "Change vs 2020 (%)",
+        "a": {"title": "CO₂ trajectories", "ylab": "Change vs 2020 (%)",
               "rows": rows(a, ["lab", "grp", "metric", "year", "pct"])},
         "b": {"title": "Fair-share transfers", "xlab": "Trillion US$ (2025 NPV)",
               "rows": rows(b, ["lab", "state", "coop"])},
@@ -346,7 +346,7 @@ def figure_3(long) -> dict:
            & sl["state"].isin(["Source"] + CORNERS) & sl["year"].between(2020, 2100)]
     n = n.groupby(["principle", "start", "state", "year"], as_index=False)["value"].sum()
     n = n.groupby(["principle", "start", "state"]).apply(
-        lambda x: step_integral(x["value"], x["year"]) / MT_TO_GT).rename("co2").reset_index()
+        lambda x: trapz_integral(x["value"], x["year"]) / MT_TO_GT).rename("co2").reset_index()
     src = n[n["state"] == "Source"][["principle", "start", "co2"]].rename(columns={"co2": "src"})
     nd = n[n["state"].isin(CORNERS)].merge(src, on=["principle", "start"])
     nd["dco2"] = nd["co2"] - nd["src"]
@@ -391,13 +391,13 @@ def figure_3(long) -> dict:
         "a": {"title": "Consumption vs no new policy", "xlab": "MER, NPV 2026 to 2100 (%)",
               "rows": rows(a, ["lab", "principle", "grp", "state", "pct"])},
         "b": {"title": "Domestic effort vs transfers, higher-responsibility regions",
-              "xlab": "Δ net CO2 from Source (Gt)", "ylab": "Transfers paid ($tn NPV, MER)",
+              "xlab": "Δ net CO₂ from Source (Gt)", "ylab": "Transfers paid ($tn NPV, MER)",
               "rows": rows(b, ["lab", "principle", "start", "state", "dco2", "paid"])},
         "c": {"title": "Regional carbon price, lowest transfers",
               "xlab": "Carbon price relative to Source (1× = Source and unlimited transfers)",
               "rows": rows(c, ["lab", "region", "grp", "ratio"])},
         "d": {"title": "World energy investment, lowest transfers vs Source",
-              "xlab": "Δ % energy investment vs Source (2026 to 2100 NPV)", "cats": CAT_LEVELS,
+              "xlab": "Change vs Source, as % of total Source energy-supply investment (2026 to 2100 NPV)", "cats": CAT_LEVELS,
               "rows": rows(w, ["lab", "principle", "cat", "delta"]),
               "net": rows(net, ["lab", "principle", "net"])},
     }
@@ -415,7 +415,7 @@ def figure_4(long) -> dict:
     lvar = ["Source scenario", "L. SSP2-2C-ECPC2015", "L. SSP2-2C-ECPC2015-CDR"]
 
     # a. cumulative change from source, ALL then CDR, by group
-    wfv = {"Emissions|CO2": "Net CO2", "Gross Emissions|CO2": "Gross CO2",
+    wfv = {"Emissions|CO2": "Net CO₂", "Gross Emissions|CO2": "Gross CO₂",
            "Carbon Sequestration|CCS|Biomass": "BECCS", "Carbon Sequestration|CCS|Direct Air Capture": "DACCS"}
     w = d0[d0["variant"].isin(lvar) & d0["variable"].isin(wfv) & d0["region"].isin(["World"] + ALL_REGIONS)
            & d0["year"].between(2020, 2100)].copy()
@@ -461,7 +461,7 @@ def figure_4(long) -> dict:
     dc = tr.merge(dom, on=["scope", "tier"]).merge(cred, on=["scope", "tier"])
     is_cdr = dc["scope"] == "FS-Lf.Trnsf-CDR"
     dc["Dom. Geo.CDR"] = dc["dom_cdr"]
-    dc["Dom. gross reduction"] = debt_tot - dc["transfer"] - dc["dom_cdr"]
+    dc["Dom. reductions (residual)"] = debt_tot - dc["transfer"] - dc["dom_cdr"]
     dc["Trf. Geo.CDR (in Source)"] = np.where(is_cdr, dc["transfer"] * dc["existing_frac"], 0)
     dc["Trf. Geo.CDR (added)"] = np.where(is_cdr, dc["transfer"] * (1 - dc["existing_frac"]), 0)
     dc["Trf. ALL"] = np.where(~is_cdr, dc["transfer"], 0)
@@ -515,16 +515,16 @@ def figure_4(long) -> dict:
         "title": "Restricting cooperation to carbon removal",
         "sub": "SSP2, the 2 °C budget, ECPC 2015. Transfers may pay for any mitigation (ALL) or only "
                "for geological carbon removal (CDR). Hover or click a cooperation scope to follow it.",
-        "a": {"title": "Cumulative change from Source, 2020 to 2100", "ylab": "Gt CO2",
-              "components": ["Net CO2", "Gross CO2", "BECCS", "DACCS"], "groups": ["World", "Higher resp.", "Lower resp."],
+        "a": {"title": "Cumulative change from Source, 2020 to 2100", "ylab": "Gt CO₂",
+              "components": ["Net CO₂", "Gross CO₂", "BECCS", "DACCS"], "groups": ["World", "Higher resp.", "Lower resp."],
               "rows": rows(a, ["grp", "component", "step", "gt"])},
         "b": {"title": "How the higher-responsibility carbon debt is cleared", "ylab": "Share of the debt",
               "debt_gt": r4(debt_tot), "comps": DEBT_LVLS, "rows": rows(b, ["scope", "tier", "comp", "gt", "share"])},
-        "c": {"title": "Novel carbon removal, annual", "ylab": "Novel CDR (Gt CO2/yr)", "cap": INJECTION_CAP_GT,
+        "c": {"title": "Novel carbon removal, annual", "ylab": "Novel CDR (Gt CO₂/yr)", "cap": INJECTION_CAP_GT,
               "panels": ["World", "Higher resp.", "Lower resp."],
               "rows": rows(c, ["kind", "panel", "scope", "tier", "year", "gt"])},
         "d": {"title": "Components of the lowest-transfer net-emissions change from Source, by region",
-              "ylab": "Gt CO2", "levers": LEV_LVLS, "rows": rows(m, ["region", "scope", "lever", "contrib"]),
+              "ylab": "Gt CO₂", "levers": LEV_LVLS, "rows": rows(m, ["region", "scope", "lever", "contrib"]),
               "net": rows(dnet, ["region", "scope", "net"])},
         "e": {"title": "Regime totals", "metrics": ["Transfers ($tn NPV, MER)", "Δ Consumption vs Source (%)"],
               "rows": rows(e, ["scope", "tier", "metric", "x"])},
@@ -580,11 +580,11 @@ def figure_5(long) -> dict:
                "Hover or click a budget, or a region, to follow it across the panels.",
         "budgets": ["2 °C", "1.5 °C"],
         "a": {"title": "Components of the lowest-transfer net-emissions change from unlimited transfers, 2020 to 2100",
-              "ylab": "Δ from Source and unlimited transfers (Gt CO2)", "levers": LEV_LVLS,
+              "ylab": "Δ from Source and unlimited transfers (Gt CO₂)", "levers": LEV_LVLS,
               "rows": rows(r, ["bud", "region", "lever", "contrib"]), "net": rows(anet, ["bud", "region", "net"])},
         "b": {"title": "Financial transfers by region", "xlab": "Transfers ($tn NPV, MER)",
               "rows": rows(f, ["bud", "region", "state", "v"])},
-        "c": {"title": "Net CO2 vs 2020, to 2050", "ylab": "Net CO2 vs 2020 (%)", "groups": ["World", "Higher resp.", "Lower resp."],
+        "c": {"title": "Net CO₂ vs 2020, to 2050", "ylab": "Net CO₂ vs 2020 (%)", "groups": ["World", "Higher resp.", "Lower resp."],
               "rows": rows(c, ["bud", "state", "grp", "year", "pct"])},
         "d": {"title": "Regional carbon price, vs the 2 °C Source", "xlab": "Carbon price (× 2 °C Source)",
               "uniform": rows(cs, ["bud", "u"]), "rows": rows(d, ["bud", "region", "state", "v"])},

@@ -155,8 +155,8 @@ BUDGETS = {"800fm": {"id": "2C", "label": "2 °C (800 Gt CO2)", "gt": 800},
 
 CITE_SHORT = "Setu Pelz and co-authors (2026)"
 CITE_TAIL = ("'Equitable cooperation deepens the solution space for high "
-             "ambition pathways'. Environmental Research Letters, accepted. "
-             "DOI follows publication.")
+             "ambition pathways'. Environmental Research Letters. "
+             "doi:10.1088/1748-9326/aea34d.")
 
 
 def parse_variant(variant: str, model: str) -> dict:

@@ -33,7 +33,7 @@ emis_raw <- bind_rows(sl, sl_d) %>%
   filter(region %in% c("World", all_regions),
          variable %in% c("Emissions|CO2", "Gross Emissions|CO2"),
          year >= 2020, year <= 2100, !is.na(value)) %>%
-  mutate(metric = ifelse(grepl("Gross", variable), "Gross CO2", "Net CO2"),
+  mutate(metric = ifelse(grepl("Gross", variable), "Gross CO₂", "Net CO₂"),
          grp = ifelse(region == "World", "World",
                       ifelse(region %in% higher_resp, "Higher resp.", "Lower resp.")),
          lab = as.character(lab))
@@ -46,7 +46,7 @@ emis <- bind_rows(
   group_by(lab, grp, metric) %>% arrange(year) %>%
   mutate(pct = pct_vs(v, year)) %>% ungroup() %>%
   filter(year >= 2030) %>%
-  mutate(metric = factor(metric, levels = c("Net CO2", "Gross CO2")),
+  mutate(metric = factor(metric, levels = c("Net CO₂", "Gross CO₂")),
          grp = factor(grp, levels = c("World", "Higher resp.", "Lower resp.")),
          lab = factor(lab, levels = c(approach_levels, "Source")))
 
@@ -63,7 +63,7 @@ p_emis <- ggplot(emis, aes(year, pct, colour = lab, linetype = lab, group = lab)
   scale_x_continuous(breaks = path_xbreaks, labels = path_xlabels) +
   # colour legend lives on panel c (collected at the figure bottom), not here.
   labs(x = NULL, y = "Change vs 2020 (%)",
-       subtitle = "CO2 trajectories; Fair-share variants (FS lowest-f. transfers) & Source (≈ FS unlim. transfers)") +
+       subtitle = "CO₂ trajectories; Fair-share variants (FS lowest-f. transfers) & Source (≈ FS unlim. transfers)") +
   theme_publication() +
   theme(legend.position = "none",
         axis.title.y = element_text(margin = margin(r = 1)))
@@ -85,7 +85,7 @@ transfers_df <- bind_rows(
     coop_of(sl) %>% mutate(lab = lab_of(principle, start)),
     coop_of(sl_d) %>% mutate(lab = "ECPC 2015*")
   ) %>%
-  mutate(lab = factor(lab, levels = lab_levels_fig2), state = factor(state, levels = corners))
+  mutate(lab = factor(lab, levels = approach_row_order), state = factor(state, levels = corners))
 transfers_seg <- transfers_df %>% mutate(s = ifelse(grepl("^U", state), "U", "L")) %>%
   select(principle, lab, s, coop) %>%
   pivot_wider(names_from = s, values_from = coop) %>% filter(!is.na(L))
@@ -107,12 +107,10 @@ p_tr <- ggplot(transfers_df, aes(coop, lab, colour = lab)) +
 
 # --- c. Global energy investment ----------------------------------------------
 # Change vs source, 2026-2050 (NPV), by approach, unlimited -> lowest-f. Sums
-# the Investment|Energy Supply leaf nodes
-# over all regions; in cooperation variants the reported aggregate is several
-# times the sum of its technology leaves (the unlimited corner reports ~9x the
-# Source total despite an identical physical system; v6.5 run, July 2026), so
-# the leaves are summed directly. Delay (ECPC 2015*) carried via the lab
-# column; source = shared ECPC2015 source.
+# the Investment|Energy Supply leaf nodes over all regions (the reported
+# aggregate is unreliable in the fair-share variants and is dropped at
+# assembly). Delay (ECPC 2015*) carried via the lab column; source = shared
+# ECPC2015 source.
 sl_inv <- bind_rows(sl, sl_d,
   sl %>% filter(lab == "ECPC 2015", state == "Source") %>%
     mutate(lab = factor("ECPC 2015*", levels = approach_levels)))
@@ -127,7 +125,7 @@ inv_raw <- sl_inv %>%
 inv_pct <- inv_raw %>% filter(state %in% corners) %>%
   left_join(inv_raw %>% filter(state == "Source") %>% select(lab, src = inv), by = "lab") %>%
   mutate(pct = (inv - src) / src * 100,
-         lab = factor(lab, levels = lab_levels_fig2), state = factor(state, levels = corners))
+         lab = factor(lab, levels = approach_row_order), state = factor(state, levels = corners))
 inv_seg <- inv_pct %>% mutate(s = ifelse(grepl("^U", state), "U", "L")) %>%
   select(lab, s, pct) %>% pivot_wider(names_from = s, values_from = pct) %>% filter(!is.na(L))
 
@@ -154,7 +152,7 @@ pe_fuels_raw <- bind_rows(sl, sl_d) %>%
          variable %in% c("Primary Energy|Coal", "Primary Energy|Gas",
                          "Primary Energy|Oil", "Primary Energy|Solar", "Primary Energy|Wind")) %>%
   mutate(carrier = case_when(grepl("Coal", variable) ~ "Coal", grepl("Gas", variable) ~ "Gas",
-                             grepl("Oil", variable) ~ "Oil", TRUE ~ "Renew."),
+                             grepl("Oil", variable) ~ "Oil", TRUE ~ "Solar+Wind"),
          lab = as.character(lab))
 pe_fuels <- bind_rows(
     pe_fuels_raw %>% filter(state == "Lowest-f. (L)"),
@@ -186,7 +184,7 @@ elec <- bind_rows(
   select(lab, carrier, year, pct)
 
 pe <- bind_rows(pe_fuels, elec) %>%
-  mutate(carrier = factor(carrier, levels = c("Coal", "Gas", "Oil", "Renew.", "Elec. %")),
+  mutate(carrier = factor(carrier, levels = c("Coal", "Gas", "Oil", "Solar+Wind", "Elec. %")),
          lab = factor(lab, levels = c(approach_levels, "Source")))
 
 p_sector <- ggplot(pe, aes(year, pct, colour = lab, linetype = lab, group = lab)) +
@@ -217,5 +215,9 @@ figure_2 <- free(p_emis) + guide_area() + p_tr + p_inv + free(p_sector) +
                   tag_levels = "a") &
   theme(legend.position = "bottom")
 
+save_fig_data(emis, "fig2", "a_co2_pct_vs_2020")
+save_fig_data(transfers_df, "fig2", "b_transfers_tn_npv")
+save_fig_data(inv_pct, "fig2", "c_investment_pct_vs_source")
+save_fig_data(pe, "fig2", "d_benchmarks_pct_vs_2020")
 save_figure(figure_2, "202_figure_2.png", width = 10, height = 11)
 

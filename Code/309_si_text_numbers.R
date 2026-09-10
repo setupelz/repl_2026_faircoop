@@ -31,7 +31,7 @@ coop_total <- function(df, rate) {
 #     U and L corners, no CDR/Delay, 5% NPV.
 # ---------------------------------------------------------------------------
 bud_df <- main_ssp2(c(grid_sets, "500fm_ecpc2015")) %>%
-  filter(!grepl("CDR|Delay", variant)) %>%
+  filter(!grepl("CDR|Delay", variant), variant != "Baseline") %>%
   prepare_long_format() %>%
   mutate(state = create_scenario_label(variant),
          lab = lab_of(ifelse(grepl("ecpc", scenario_set), "ECPC", "CAPC"),
@@ -90,8 +90,7 @@ cons_l <- main_ssp2(c(grid_sets, "500fm_ecpc2015")) %>%
   filter(!grepl("CDR|Delay", variant), variable == "Consumption",
          region %in% all_regions) %>%
   prepare_long_format() %>%
-  mutate(state = ifelse(variant == "Baseline", "Baseline",
-                        as.character(create_scenario_label(variant))),
+  mutate(state = as.character(create_scenario_label(variant, baseline = TRUE)),
          lab = ifelse(grepl("500fm", scenario_set), "ECPC 2015 (1.5C)",
                       lab_of(ifelse(grepl("ecpc", scenario_set), "ECPC", "CAPC"),
                              str_extract(scenario_set, "1990|2015|2025"))))
@@ -120,8 +119,7 @@ cons_cdr <- main_ssp2("800fm_ecpc2015") %>%
          variant %in% c("Baseline", "Source scenario",
                         "U. SSP2-2C-ECPC2015-CDR", "L. SSP2-2C-ECPC2015-CDR")) %>%
   prepare_long_format() %>%
-  mutate(state = ifelse(variant == "Baseline", "Baseline",
-                        as.character(create_scenario_label(variant))),
+  mutate(state = as.character(create_scenario_label(variant, baseline = TRUE)),
          lab = "ECPC 2015 (CDR-only)")
 cons_tbl <- bind_rows(cons_pct(cons_l), cons_pct(cons_cdr))
 
@@ -131,7 +129,8 @@ cons_tbl <- bind_rows(cons_pct(cons_l), cons_pct(cons_cdr))
 #     unlimited corner and vs Source, per 800fm approach.
 # ---------------------------------------------------------------------------
 fossil_tbl <- main_ssp2(grid_sets) %>%
-  filter(!grepl("CDR|Delay", variant), variable == "Primary Energy|Fossil",
+  filter(!grepl("CDR|Delay", variant), variant != "Baseline",
+         variable == "Primary Energy|Fossil",
          region %in% all_regions) %>%
   prepare_long_format() %>%
   mutate(state = create_scenario_label(variant),
@@ -147,7 +146,7 @@ fossil_tbl <- main_ssp2(grid_sets) %>%
   arrange(lab, year)
 
 # ---------------------------------------------------------------------------
-# PRINT + WRITE
+# Print and write
 # ---------------------------------------------------------------------------
 cat("\n=== SI Table 2: total transfers per approach and budget ($tn NPV, 5%) ===\n")
 print(as.data.frame(transfers_tbl), digits = 3)

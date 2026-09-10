@@ -1,16 +1,15 @@
 # 307_si_equivalence.R ---------------------------------------------------------
 #
-# SI Figure 7, verification: the physical-equivalence result the main figures
-# assert but never demonstrate. Every main panel labels Source as "≈ FS unlimited
-# transfers", and fig 5c even drops the U scenario as physically
-# indistinguishable. With unlimited
-# transfers the fair-share allocation is fully decoupled from the physical system:
-# the model reproduces the cost-effective (Source) pathway regardless of allocation
-# approach. One panel per quantity showing GLOBAL LEVELS of Source, FS-U and
-# FS-Lf (CO2 cumulative 2020-2100; energy system at 2050), every x-axis anchored
-# at 0, deviations then read against the true magnitude of the quantity.
-# U sits on the Source mark everywhere; lowest-f. is the one that moves.
-# Cumulative U-vs-Source maxima (backing the fig 5c caption) print to console.
+# SI Figure 7: the physical equivalence of unlimited transfers and Source that
+# the main figures rely on (every main panel labels Source as "≈ FS unlimited
+# transfers", and fig 5c plots the two jointly). With unlimited transfers the
+# fair-share allocation is settled entirely through finance, so the model
+# reproduces the cost-effective (Source) pathway under every allocation
+# approach. One panel per quantity showing global levels of Source, FS-U and
+# FS-Lf (CO2 cumulative 2020-2100; energy system at 2050), every x-axis
+# anchored at 0, so deviations read against the magnitude of the quantity. U
+# sits on the Source mark everywhere; lowest-f. moves. Cumulative U-vs-Source
+# maxima (backing the fig 5c caption) print to console.
 
 source(here::here("Code", "000_setup.R"))
 
@@ -19,9 +18,7 @@ source(here::here("Code", "000_setup.R"))
 state_lvls <- variant_label_order
 
 # Source + both transfer tiers for the six 800fm grid sets (same filter as Fig 2).
-# The Baseline rows are dropped: they carry no state and would plot as NA.
 grid <- load_scenarios() %>%
-  filter(grepl("^U\\.|^L\\.|^Source", variant)) %>%
   mutate(lab = lab_of(principle, start))
 
 # Delay variant: its own U/L scenarios, paired with the shared ECPC2015 physical
@@ -33,12 +30,11 @@ dat <- bind_rows(grid, delay_ul, delay_src)
 
 # --- Global levels: CO2 cumulative 2020-2100, energy system at 2050 -----------
 # World ROW, not the 12-region sum: the row carries international bunkers (~40 Gt
-# cumulative) and is what the 800 Gt budget is set on. Source lands at ~799 Gt
-# (v6.5 run, July 2026).
+# cumulative) and is what the 800 Gt budget is set on.
 co2_cum50 <- dat %>%
   filter(variable %in% c("Emissions|CO2", "Gross Emissions|CO2"),
          region == "World", year >= 2020, year <= 2100) %>%
-  mutate(metric = ifelse(grepl("Gross", variable), "Gross CO2", "Net CO2")) %>%
+  mutate(metric = ifelse(grepl("Gross", variable), "Gross CO₂", "Net CO₂")) %>%
   group_by(lab, state, metric) %>% arrange(year) %>%
   summarise(x = trapz_integral(value, year) / MT_TO_GT, .groups = "drop") %>%
   transmute(lab, state, quantity = paste0(metric, " (Gt, 2020–2100)"), x)
@@ -60,7 +56,7 @@ el_50 <- dat %>%
 # Facet per quantity, free x anchored at 0. Shape = scenario (paper convention:
 # Source x / U up / Lf down triangle). U overplots Source by construction, and
 # that is the result.
-qty_lvls <- c("Net CO2 (Gt, 2020–2100)", "Gross CO2 (Gt, 2020–2100)", "PE Coal (EJ/yr)",
+qty_lvls <- c("Net CO₂ (Gt, 2020–2100)", "Gross CO₂ (Gt, 2020–2100)", "PE Coal (EJ/yr)",
               "PE Gas (EJ/yr)", "PE Oil (EJ/yr)", "Elec. share (%)")
 plot_df <- bind_rows(co2_cum50, pe_50, el_50) %>%
   mutate(state = factor(state, levels = state_lvls),
@@ -88,10 +84,11 @@ p_eq <- ggplot(plot_df, aes(x, lab, shape = state)) +
   scale_y_discrete(limits = rev(approach_levels)) +
   expand_limits(x = 0) +
   labs(x = "Global level (axis from 0; units per panel)", y = NULL,
-       subtitle = "FS transfer tiers vs Source: cumulative CO2 (2020–2100) & 2050 energy system") +
+       subtitle = "FS transfer tiers vs Source: cumulative CO₂ (2020–2100) & 2050 energy system") +
   theme_publication() +
   theme(legend.position = "bottom", panel.spacing = unit(0.9, "lines"))
 
+save_fig_data(plot_df, "si7", "global_levels", si = TRUE)
 save_figure(p_eq, "SI_Figure_7_Equivalence.png", width = 9, height = 5.6, si = TRUE)
 
 # --- Cumulative U-vs-Source maxima backing the fig 5c caption -----------------
@@ -111,4 +108,4 @@ gmax <- co2_cum %>% slice_max(abs(dev), n = 1)
 wmax <- co2_cum %>% filter(grp == "World") %>% slice_max(abs(dev), n = 1)
 cat(sprintf("Group-level (as Fig 5c plots) max |U net CO2 cum. dev|: %.3f Gt (%s, %s; %.2f%%)\n",
             abs(gmax$dev), gmax$lab, gmax$grp, abs(gmax$pct)))
-cat(sprintf("World-total U net CO2 cum. dev: %.3f Gt (%s)\n", abs(wmax$dev), wmax$lab))
+cat(sprintf("World-total U net CO₂ cum. dev: %.3f Gt (%s)\n", abs(wmax$dev), wmax$lab))

@@ -3,10 +3,10 @@
 # Figure 3: the financial / economic story across fair-share approaches (SSP2 2C,
 # 800fm), how burden and finance redistribute as the allocation principle and
 # responsibility start date change. Panels:
-#   a (p_cons)      cumulative Δ Consumption vs NoPol, higher/lower resp. + World, by approach
+#   a (p_cons)      cumulative Δ Consumption vs NoPol, higher/lower resp. + World
 #   b (p_trade)     higher-resp domestic effort vs transfers paid trade-off (U -> L)
 #   c (p_cprice)    regional carbon price as multiple of Source, per approach
-#   d (p_world_inv) world energy-investment reallocation by technology (lowest-f. vs Source)
+#   d (p_world_inv) world energy-investment shift by technology, lowest-f. vs Source
 # Colour = principle (ECPC / CAPC); shape = corner (Source X / Unlimited
 # up-tri / Lowest-f. down-tri).
 
@@ -17,14 +17,13 @@ source(here::here("Code", "000_setup.R"))
 # cooperation-onset-delay variant as start "2015*", so lab_of() gives
 # "ECPC 2015*" and group_by(principle, start) keeps it off regular ECPC 2015.
 sl <- load_scenarios(delay = TRUE)
-lab_levels <- lab_levels_fig3
+lab_levels <- approach_row_order
 
 # --- a. Economic redistribution -----------------------------------------------
 # Cumulative Consumption change vs baseline by approach.
 # Consumption, not GDP: it is the welfare measure, and it is robust to the NPV
 # convention. GDP carries lumpy investment-reallocation swings, so its cumulative
-# burden moves ~6x more than Consumption's when the integration method changes
-# (~0.18 vs ~0.03 pp for higher-resp; v6.5 run, July 2026). NPV = period-weighted
+# burden is far more sensitive to the integration method. NPV = period-weighted
 # annuity (period_npv, base 2025, flows from 2026). Baseline cumulated the same
 # way.
 cons_grp <- function(grp_regions, grp_label) {
@@ -95,17 +94,17 @@ p_cons <- ggplot(cons_df, aes(pct, ypos, colour = col_key, group = interaction(l
         legend.background = element_rect(fill = alpha("white", 0.65), colour = NA))
 
 # --- b. Domestic effort vs finance, higher resp. ------------------------------
-# Cumulative Δ net CO2 from source (Gt) vs the
-# interregional finance transfer paid ($tn NPV, MER). Emissions Δ cumulates
-# undiscounted (Gt, step); the finance transfer is a period-weighted annuity NPV
-# (period_npv, base 2025). One point per approach x corner (U / L), the two linked.
+# Cumulative Δ net CO2 from source (Gt) vs the interregional finance transfer
+# paid ($tn NPV, MER). Emissions Δ cumulates undiscounted (Gt, trapezoid, as
+# figs 4-5); the finance transfer is a period-weighted annuity NPV (period_npv,
+# base 2025). One point per approach x corner (U / L), the two linked.
 nco2 <- sl %>%
   filter(variable == "Emissions|CO2", region %in% higher_resp, state %in% c("Source", corners),
          year >= 2020, year <= 2100) %>%
   group_by(principle, start, state, year) %>%
   summarise(v = sum(value, na.rm = TRUE), .groups = "drop") %>%
   group_by(principle, start, state) %>% arrange(year) %>%
-  summarise(co2 = step_integral(v, year) / MT_TO_GT, .groups = "drop")
+  summarise(co2 = trapz_integral(v, year) / MT_TO_GT, .groups = "drop")
 nco2_d <- nco2 %>% filter(state %in% corners) %>%
   left_join(nco2 %>% filter(state == "Source") %>% select(principle, start, src = co2),
             by = c("principle", "start")) %>%
@@ -144,7 +143,7 @@ p_trade <- ggplot(scat, aes(dco2, paid, colour = principle)) +
                      guide = guide_legend(position = "inside", order = 2,
                        theme = theme(legend.position.inside = c(0.02, 0.98),
                                      legend.justification.inside = c(0, 1)))) +
-  labs(x = "Higher resp. Δ net CO2 from Source (Gt)",
+  labs(x = "Higher resp. Δ net CO₂ from Source (Gt)",
        y = "Transfers ($tn NPV, MER)",
        subtitle = "Domestic effort vs transfer trade-off") +
   theme_publication() +
@@ -206,10 +205,10 @@ p_cprice <- ggplot(cp_rel, aes(ratio, region, fill = grp)) +
 #    the leaves are summed directly.
 #    Bars = % of the world source-pathway energy-supply
 #    investment redirected (2026-2100 NPV); net marker filled by principle.
-cat_levels <- c("Solar","Wind","Batteries","Transmission","Other clean","CO2 storage",
+cat_levels <- c("Solar","Wind","Batteries","Transmission","Other clean","CO₂ storage",
                 "Other energy","Oil","Gas","Coal")
 cat_cols <- c("Solar"="#F0E442","Wind"="#56B4E9","Batteries"="#CC79A7","Transmission"="#E69F00",
-              "Other clean"="#009E73","CO2 storage"="#882255","Other energy"="#DDCC77",
+              "Other clean"="#009E73","CO₂ storage"="#882255","Other energy"="#DDCC77",
               "Oil"="#8C510A","Gas"="#999999","Coal"="#1A1A1A")
 inv_world <- sl %>%
   filter(variable %in% names(inv_tech_cat), region %in% all_regions,
@@ -241,7 +240,7 @@ p_world_inv <- ggplot(inv_world_realloc, aes(delta, lab, fill = cat)) +
   # shape key (Source/U/L) lives in panel a's inset; only the tech fill here.
   scale_fill_manual(values = cat_cols, name = NULL, breaks = cat_levels) +
   guides(fill = guide_legend(nrow = 2)) +
-  labs(x = "Δ % energy investment vs Source / FS unlim. transfers (2026–2100 NPV)", y = NULL) +
+  labs(x = "Δ vs Source / FS unlim. transfers, % of total Source energy-supply investment (2026–2100 NPV)", y = NULL) +
   theme_publication() +
   theme(legend.position = "bottom", legend.box = "horizontal", panel.spacing = unit(0.5, "lines"))
 
@@ -254,4 +253,9 @@ figure_3 <- p_cons + p_trade + p_cprice + p_world_inv +
   plot_layout(design = layout, heights = c(1.2, 0.8, 1)) +
   plot_annotation(tag_levels = "a")
 
+save_fig_data(cons_df, "fig3", "a_consumption_pct_vs_nopol")
+save_fig_data(scat, "fig3", "b_effort_vs_transfers")
+save_fig_data(cp_rel, "fig3", "c_carbon_price_ratio")
+save_fig_data(inv_world_realloc, "fig3", "d_investment_shift_by_tech")
+save_fig_data(inv_world_net, "fig3", "d_investment_shift_net")
 save_figure(figure_3, "203_figure_3.png", width = 9, height = 11)

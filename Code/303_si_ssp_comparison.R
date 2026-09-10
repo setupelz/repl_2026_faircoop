@@ -3,9 +3,9 @@
 # SI Figure 3: SSP1 vs SSP2 results comparison. SSP2 is the central narrative in
 # the main text; the SSP comparison is a robustness point, so it lives in the SI.
 #
-# Complements 302_si_ssp_drivers.R, which shows the SSP socioeconomic DRIVERS (GDP,
-# population, urban share); this figure shows how the transfer RESULTS differ
-# between SSP1 and SSP2:
+# Complements 302_si_ssp_drivers.R, which shows the SSP socioeconomic drivers
+# (GDP, population, urban share); this figure shows how the transfer results
+# differ between SSP1 and SSP2:
 #   a  same cumulative emissions, so the framework preserves the climate outcome
 #   b  higher-resp. excess (carbon debt) vs the domestic-action tradeoff
 #   c  physical transfer volume (Gt CO2)
@@ -15,10 +15,11 @@
 # SSP1 sustainability, higher-responsibility regions can nearly meet fair shares
 # domestically.
 #
-# Encoding: COLOUR = SSP (SSP2 amber emphasised, SSP1 blue dimmed to alpha 0.5),
-# SHAPE = variant (Source X, Unlimited up-triangle, Lowest-f. down-triangle).
-# Transfers are PHYSICAL fair-share transfers (GtCO2), not $ NPV (degenerate certificate
-# timing distorts a discounted NPV). 800fm = 2C, ECPC2015. Both SSPs throughout.
+# Encoding: colour = SSP (SSP2 amber emphasised, SSP1 blue dimmed to alpha 0.5),
+# shape = variant (Source X, Unlimited up-triangle, Lowest-f. down-triangle).
+# Transfers are physical fair-share transfers (GtCO2) rather than $ NPV
+# (degenerate certificate timing distorts a discounted NPV). 800fm = 2C,
+# ECPC2015. Both SSPs throughout.
 
 source(here::here("Code", "000_setup.R"))
 
@@ -128,7 +129,7 @@ p_draft <- group_excess %>% filter(grp == "Higher-resp.") %>%
              aes(shape = scenario_label), colour = "black", size = 3, stroke = 1.0,
              show.legend = FALSE) +
   ssp_scales +
-  labs(x = NULL, y = "Higher-resp. excess\nemissions (Gt CO2)") +
+  labs(x = NULL, y = "Higher-resp. excess\nemissions (Gt CO₂)") +
   guides(colour = "none", shape = "none", fill = "none") +
   theme_publication() +
   theme(legend.position = "right")
@@ -139,7 +140,7 @@ paths <- scenario_sets_long %>%
          scenario_label %in% c("Source", "Unlimited (U)", "Lowest-f. (L)"),
          year >= 2020, year <= 2100, !is.na(value)) %>%
   mutate(grp = grp[region],
-         metric = ifelse(variable == "Gross Emissions|CO2", "Gross CO2", "Net CO2")) %>%
+         metric = ifelse(variable == "Gross Emissions|CO2", "Gross CO₂", "Net CO₂")) %>%
   group_by(scenario_set, grp, metric, scenario_label, year) %>%
   summarise(gt = sum(value) / MT_TO_GT, .groups = "drop") %>%
   group_by(scenario_set, grp, metric, scenario_label) %>% arrange(year) %>%
@@ -147,7 +148,7 @@ paths <- scenario_sets_long %>%
   filter(year >= 2030) %>%   # baseline is 2020, display starts at 2030 (first model year)
   mutate(scenario_set = factor(scenario_set, levels = ssp_lvls),
          grp = factor(grp, levels = grp_lvls),
-         metric = factor(metric, levels = c("Net CO2", "Gross CO2")))
+         metric = factor(metric, levels = c("Net CO₂", "Gross CO₂")))
 
 p_paths <- ggplot(paths, aes(year, pct, colour = scenario_set,
                              group = interaction(scenario_set, scenario_label, metric))) +
@@ -165,7 +166,7 @@ p_paths <- ggplot(paths, aes(year, pct, colour = scenario_set,
   scale_alpha_manual(values = c("SSP2 2C" = 1, "SSP1 2C" = 0.5), guide = "none") +
   scale_shape_manual(values = state_shapes, breaks = variant_label_order, name = NULL) +
   scale_x_continuous(breaks = path_xbreaks, labels = path_xlabels) +
-  labs(x = NULL, y = "CO2 emissions\nchange vs 2020 (%)") +
+  labs(x = NULL, y = "CO₂ emissions\nchange vs 2020 (%)") +
   guides(colour = "none", shape = "none", fill = "none") +
   theme_publication() +
   theme(axis.text.x = element_text(angle = 30, hjust = 1), legend.position = "right")
@@ -179,7 +180,7 @@ pe_fuels <- scenario_sets_long %>%
   mutate(carrier = case_when(grepl("Coal", variable) ~ "Coal",
                              grepl("Gas", variable)  ~ "Gas",
                              grepl("Oil", variable)  ~ "Oil",
-                             TRUE                     ~ "Renewables")) %>%
+                             TRUE                     ~ "Solar+Wind")) %>%
   filter(year %in% c(2020, path_xbreaks), !is.na(value)) %>%
   group_by(scenario_set, scenario_label, carrier, year) %>%
   summarise(v = sum(value), .groups = "drop") %>%
@@ -203,7 +204,7 @@ elec <- scenario_sets_long %>%
 pe <- bind_rows(pe_fuels, elec) %>%
   mutate(scenario_set = factor(scenario_set, levels = ssp_lvls),
          carrier = factor(carrier, levels = c("Coal", "Gas", "Oil",
-                                              "Renewables", "Electricity share")))
+                                              "Solar+Wind", "Electricity share")))
 
 p_sector <- ggplot(pe, aes(year, pct, colour = scenario_set, fill = scenario_set,
                            shape = scenario_label,
@@ -231,4 +232,9 @@ si_ssp_fig <- (p_proof + p_draft + p_coop + plot_layout(widths = c(1, 1, 1))) /
   plot_annotation(tag_levels = "a") &
   theme(legend.position = "bottom")
 
+save_fig_data(proof, "si3", "a_cumulative_net_co2_gt", si = TRUE)
+save_fig_data(group_excess, "si3", "b_excess_emissions_gt", si = TRUE)
+save_fig_data(coop_total, "si3", "c_transfers_gt", si = TRUE)
+save_fig_data(paths, "si3", "d_group_pathways_pct_vs_2020", si = TRUE)
+save_fig_data(pe, "si3", "e_benchmarks_pct_vs_2020", si = TRUE)
 save_figure(si_ssp_fig, "SI_Figure_3_SSP_Comparison.png", width = 12, height = 10.5, si = TRUE)

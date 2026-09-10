@@ -1,19 +1,19 @@
 # 306_si_ppp_consumption.R -----------------------------------------------------
 #
 # SI Figure 6, sensitivity: the Fig 3a consumption-cost panel on MER vs PPP
-# basis. The main
-# figure uses Consumption at market exchange rates, the native basis of the
-# MACRO consumption variable and of the financial transfers. PPP re-expresses
-# each region's consumption by its GDP|PPP/GDP|MER price factor before
-# aggregating: each region's % cost is unchanged (the factor cancels in ratios);
-# only the weighting of regions within group aggregates shifts.
-# This panel shows the two side by side so readers can see the equity-weighting effect.
+# basis. The main figure uses Consumption at market exchange rates, the native
+# basis of the MACRO consumption variable and of the financial transfers. PPP
+# re-expresses each region's consumption by its GDP|PPP/GDP|MER price factor
+# before aggregating: each region's % cost is unchanged (the factor cancels in
+# ratios); only the weighting of regions within group aggregates shifts. This
+# panel shows the two side by side so readers can see the equity-weighting
+# effect.
 
 source(here::here("Code", "000_setup.R"))
 
 # Main + delay variant + relabelled ECPC2015 source (same construction as Fig 3).
 sl <- load_scenarios(delay = TRUE)
-lab_levels <- lab_levels_fig3
+lab_levels <- approach_row_order
 
 # MER = Consumption as reported; PPP = Consumption * GDP|PPP / GDP|MER (per region-year).
 to_bases <- function(dat) dat %>%
@@ -67,4 +67,5 @@ p_ppp <- ggplot(gdp_df, aes(pct, ypos, colour = principle, group = interaction(l
   theme_publication() +
   theme(legend.position = "bottom", panel.spacing = unit(0.6, "lines"))
 
+save_fig_data(gdp_df, "si6", "consumption_pct_vs_nopol_mer_ppp", si = TRUE)
 save_figure(p_ppp, "SI_Figure_6_PPP_Consumption.png", width = 9, height = 5, si = TRUE)
