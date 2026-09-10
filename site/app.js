@@ -311,14 +311,14 @@ function drawBarPanel(svg, p, x0, series) {
         `${fmtNum(b.v, p.unit)}<br><span style="opacity:.7">${b.x.s.variant}</span>`));
       rect.addEventListener("mouseleave", hideTip);
     });
-    const lab = el("text", { x: cx, y: M_T + PANEL_H + (many ? 9 : 15), "font-size": many ? 6.5 : 8, fill: "#5c5c5c",
-      "text-anchor": many ? "end" : "middle" }, g);
-    lab.textContent = fam || "selected";
-    if (many) lab.setAttribute("transform", `rotate(-35 ${cx} ${M_T + PANEL_H + 9})`);
+    // approach name under the cluster, wrapped to two lines so it fits the margin
+    const words = (fam || "selected").split(" ");
+    const lines = words.length > 1 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "),
+                                      words.slice(Math.ceil(words.length / 2)).join(" ")] : [words[0]];
+    lines.forEach((ln, li) =>
+      el("text", { x: cx, y: M_T + PANEL_H + 10 + li * 8, "font-size": many ? 6.5 : 7.5, fill: "#5c5c5c",
+        "text-anchor": "middle" }, g).textContent = ln);
   });
-  if (!many)
-    el("text", { x: M_L + PANEL_W, y: M_T + PANEL_H + 24, "text-anchor": "end", "font-size": 7, fill: C_MUTED }, g)
-      .textContent = "left bar unlimited, right bar lowest-feasible transfers";
 }
 
 function drawPanel(svg, p, x0, series) {
