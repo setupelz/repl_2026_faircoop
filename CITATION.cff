@@ -1,17 +1,19 @@
 cff-version: 1.2.0
-message: "If you use this archive, cite the paper below and the archive by its GitHub release."
+message: "If you use this archive, cite the paper below and the archive by its Zenodo DOI."
 title: "Replication archive: Equitable cooperation deepens the solution space for high ambition pathways"
 type: software
-version: 1.0.0
+version: 1.0.1
 date-released: 2026-09-10
 license: MIT
 repository-code: https://github.com/setupelz/repl_2026_faircoop
-url: https://github.com/setupelz/repl_2026_faircoop/releases/tag/v1.0.0
+url: https://github.com/setupelz/repl_2026_faircoop/releases
+doi: 10.5281/zenodo.22686495
 authors:
   - family-names: Pelz
     given-names: Setu
     affiliation: International Institute for Applied Systems Analysis
     email: pelz@iiasa.ac.at
+    orcid: https://orcid.org/0000-0002-3528-8679
 preferred-citation:
   type: article
   title: "Equitable cooperation deepens the solution space for high ambition pathways"
@@ -21,38 +23,25 @@ preferred-citation:
   authors:
     - family-names: Pelz
       given-names: Setu
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Fricko
       given-names: Oliver
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Riahi
       given-names: Keywan
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Pachauri
       given-names: Shonali
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Brutschin
       given-names: Elina
-      affiliation: International Institute for Applied Systems Analysis
-    # Rogelj and Gidden are dual-affiliated; the first affiliation in the paper is used.
     - family-names: Rogelj
       given-names: Joeri
-      affiliation: Imperial College London
     - family-names: Krey
       given-names: Volker
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Johnstone
-      given-names: Injy
-      affiliation: University of Oxford
+      given-names: Iain
     - family-names: Vinca
       given-names: Adriano
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Schleussner
       given-names: Carl-Friedrich
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Kikstra
       given-names: Jarmo
-      affiliation: International Institute for Applied Systems Analysis
     - family-names: Gidden
       given-names: Matthew J.
-      affiliation: Center for Global Sustainability, University of Maryland
