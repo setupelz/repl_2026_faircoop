@@ -292,19 +292,33 @@ function drawBarPanel(svg, p, x0, series) {
       fill: C_MUTED }, g).textContent = "no transfers in the selected pathways";
     return;
   }
-  const slot = PANEL_W / bars.length, bw = Math.min(46, slot * 0.6);
-  bars.forEach((b, i) => {
-    const cx = M_L + slot * (i + 0.5);
-    const rect = el("rect", { x: cx - bw / 2, y: Math.min(py(0), py(b.v)), width: bw,
-      height: Math.abs(py(b.v) - py(0)), fill: b.x.colour, "fill-opacity": b.x.opacity, "class": "series" }, g);
-    el("text", { x: cx, y: (b.v >= 0 ? py(b.v) - 4 : py(b.v) + 10), "text-anchor": "middle", "font-size": 8,
-      fill: "#1a1a1a" }, g).textContent = fmtNum(b.v, "");
-    el("text", { x: cx, y: M_T + PANEL_H + 15, "text-anchor": "middle", "font-size": 8, fill: "#5c5c5c" }, g)
-      .textContent = b.x.s.role === "U" ? "unlimited" : b.x.s.role === "L" ? "lowest-feasible" : b.x.s.role;
-    rect.addEventListener("mousemove", ev => showTip(ev, `<b>${b.x.label}</b><br>${regionLabel()}, 2026 to 2100: ` +
-      `${fmtNum(b.v, p.unit)}<br><span style="opacity:.7">${b.x.s.variant}</span>`));
-    rect.addEventListener("mouseleave", hideTip);
+  // one cluster per approach (family), unlimited then lowest-feasible within it
+  const fams = [...new Set(bars.map(b => b.x.s.family ?? ""))];
+  const roleOrder = { U: 0, L: 1 };
+  const slot = PANEL_W / fams.length, inner = Math.min(slot * 0.8, 60), bw = inner / 2 - 1;
+  const many = fams.length > 3;
+  fams.forEach((fam, fi) => {
+    const cx = M_L + slot * (fi + 0.5);
+    const members = bars.filter(b => (b.x.s.family ?? "") === fam).sort((a, b) => (roleOrder[a.x.s.role] ?? 9) - (roleOrder[b.x.s.role] ?? 9));
+    members.forEach((b, i) => {
+      const x = cx - inner / 2 + i * (bw + 2);
+      const rect = el("rect", { x, y: Math.min(py(0), py(b.v)), width: bw, height: Math.abs(py(b.v) - py(0)),
+        fill: b.x.colour, "fill-opacity": b.x.opacity, "class": "series" }, g);
+      if (bw >= 16)
+        el("text", { x: x + bw / 2, y: (b.v >= 0 ? py(b.v) - 3 : py(b.v) + 9), "text-anchor": "middle",
+          "font-size": 7.5, fill: "#1a1a1a" }, g).textContent = fmtNum(b.v, "");
+      rect.addEventListener("mousemove", ev => showTip(ev, `<b>${b.x.label}</b><br>${regionLabel()}, 2026 to 2100: ` +
+        `${fmtNum(b.v, p.unit)}<br><span style="opacity:.7">${b.x.s.variant}</span>`));
+      rect.addEventListener("mouseleave", hideTip);
+    });
+    const lab = el("text", { x: cx, y: M_T + PANEL_H + (many ? 9 : 15), "font-size": many ? 6.5 : 8, fill: "#5c5c5c",
+      "text-anchor": many ? "end" : "middle" }, g);
+    lab.textContent = fam || "selected";
+    if (many) lab.setAttribute("transform", `rotate(-35 ${cx} ${M_T + PANEL_H + 9})`);
   });
+  if (!many)
+    el("text", { x: M_L + PANEL_W, y: M_T + PANEL_H + 24, "text-anchor": "end", "font-size": 7, fill: C_MUTED }, g)
+      .textContent = "left bar unlimited, right bar lowest-feasible transfers";
 }
 
 function drawPanel(svg, p, x0, series) {
