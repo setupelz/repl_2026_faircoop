@@ -39,6 +39,11 @@ OVERLAY = {
             "doi:10.5194/gmd-19-2627-2026. IAM quantification v0.2, Zenodo record 19825038.",
 }
 
+# Transfers are discounted as in the paper: 5% per year to a 2025 base, each
+# reported year standing for the period that ends in it (2030 covers 2026 to
+# 2030), flows from 2026 (Code/000_setup.R, period_npv).
+DISCOUNT_RATE = 0.05
+NPV_BASE_YEAR = 2025
 CUM_YEARS = [2020, 2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060, 2070, 2080,
              2090, 2100]
 YEARS = list(CUM_YEARS)  # the cards run to 2100 on the model's own grid
@@ -80,10 +85,17 @@ INPUT_VARS = [
     "Emissions|CO2", "Emissions|CO2|Energy and Industrial Processes",
     "Emissions|CH4", "Emissions|N2O", "Emissions|F-Gases",
     "Carbon Removal|Geological Storage", "Carbon Capture|Geological Storage",
+    "Transfers|Finance",
 ]
 
 # Derived indicators: key -> (function of a wide frame with one column per
 # input variable, unit, EGR chapter indicator name, how it is formed).
+def _col(w, name):
+    """A variable column, or all-missing where a frame lacks it (the overlay run
+    reports no transfers)."""
+    return w[name] if name in w.columns else pd.Series(float("nan"), index=w.index)
+
+
 def _sum(*cols):
     return lambda w: sum(w[c] for c in cols)
 
@@ -126,12 +138,27 @@ INDICATORS = {
                 "Carbon Capture|Geological Storage minus Carbon Removal|Geological Storage"),
     "storage_total": (lambda w: w["Carbon Capture|Geological Storage"] / 1000.0, "Gt CO2/yr",
                       "Total geological carbon storage", "Carbon Capture|Geological Storage"),
+    "transfers": (lambda w: _col(w, "Transfers|Finance"), "billion US$2010/yr",
+                  "Interregional financial transfers",
+                  "Transfers|Finance: certificate volume x certificate price. Regions and groups are net "
+                  "(received positive, paid negative); World is the gross volume moved between regions, the "
+                  "sum of what net recipients receive in that year"),
+    "transfers_npv": (lambda w: _col(w, "Transfers|Finance") * float("nan"), "trillion US$ (NPV 2025)",
+                      "Cumulative interregional financial transfers",
+                      "Transfers|Finance accumulated from 2026, 5% discount rate to a 2025 base, "
+                      "period-weighted as in Figure 2b of the paper; World is the gross volume"),
 }
 
 FIGS = [
     {"id": "fig00", "title": "Total CO2 and greenhouse-gas emissions",
      "sub": "All CO2, including land use, and all greenhouse gases in CO2-equivalent, in Gt per year.",
      "panels": [("total_co2", "Total CO2"), ("total_ghg", "Total greenhouse gases")]},
+    {"id": "figtr", "title": "Interregional financial transfers",
+     "sub": "What regions pay or receive to settle their fair shares, in billion US$ per year, and "
+            "the cumulative volume in trillion US$ (net present value, 5% discount rate, 2025 base). "
+            "Regions and groups are net: positive is received, negative is paid. World is the gross "
+            "volume moved between regions. The source and baseline pathways have no transfers.",
+     "panels": [("transfers", "Transfers per year"), ("transfers_npv", "Cumulative transfers, NPV")]},
     {"id": "fig01", "title": "Renewable electricity generation",
      "sub": "Electricity generated from all renewables, wind and solar, in EJ per year.",
      "panels": [("renew_gen", "All renewables"), ("wind_gen", "Wind"),
@@ -215,7 +242,21 @@ def tidy(df: pd.DataFrame) -> pd.DataFrame:
     long = df.melt(id_vars=["scenario_set", "model", "variant", "region", "variable"],
                    value_vars=year_cols, var_name="year", value_name="value")
     long["year"] = long["year"].astype(int)
+    # Transfers are reported only in the years certificates change hands; every
+    # other year of a cooperation pathway is a zero flow, not a missing one.
+    tr = long["variable"] == "Transfers|Finance"
+    has_tr = long[tr].dropna(subset=["value"])[["scenario_set", "model", "variant"]].drop_duplicates()
+    keyed = long[tr].merge(has_tr.assign(_coop=True), how="left")
+    keyed.loc[keyed["_coop"].eq(True) & keyed["value"].isna(), "value"] = 0.0
+    long = pd.concat([long[~tr], keyed.drop(columns="_coop")], ignore_index=True)
     long = long.dropna(subset=["value"])
+    # World transfers: the reporting has no World row (the flows sum to zero), so
+    # World is the gross volume, the sum of the positive regional flows.
+    g = long[(long["variable"] == "Transfers|Finance") & long["region"].isin(HIGHER + LOWER)]
+    gross = (g.assign(value=g["value"].clip(lower=0))
+             .groupby(["scenario_set", "model", "variant", "variable", "year"], as_index=False)["value"].sum())
+    gross["region"] = "World"
+    long = pd.concat([long, gross], ignore_index=True)
     groups = []
     for reg in REGIONS:
         if not reg["group"]:
@@ -238,7 +279,29 @@ def derive(long: pd.DataFrame) -> pd.DataFrame:
             out[key] = fn(wide)
         except KeyError as e:
             sys.exit(f"missing input variable for {key}: {e}")
-    return out.reset_index()
+    out = out.reset_index()
+    out["transfers_npv"] = _cumulative_npv(out)
+    return out
+
+
+def _cumulative_npv(ind: pd.DataFrame) -> pd.Series:
+    """Running NPV of transfers per series and region, trillion US$, the paper's
+    period_npv convention: a reported year stands for the period ending in it,
+    every calendar year of that period is discounted to the base year."""
+    npv = pd.Series(float("nan"), index=ind.index)
+    keys = ["scenario_set", "model", "variant", "region"]
+    for _, grp in ind.dropna(subset=["transfers"]).groupby(keys):
+        grp = grp.sort_values("year")
+        yrs = grp["year"].to_numpy()
+        prev = yrs[0] - (yrs[1] - yrs[0] if len(yrs) > 1 else 5)
+        run = 0.0
+        for idx, y, v in zip(grp.index, yrs, grp["transfers"].to_numpy()):
+            start = max(prev + 1, NPV_BASE_YEAR + 1)
+            if start <= y:
+                run += v * sum((1 + DISCOUNT_RATE) ** -(t - NPV_BASE_YEAR) for t in range(start, y + 1))
+            npv[idx] = run / 1000.0
+            prev = y
+    return npv
 
 
 def _round(v: float) -> float | None:
@@ -319,6 +382,8 @@ def build_overlay(csv: Path = OVERLAY_CSV, source_head=None) -> dict | None:
     wide = d.pivot_table(index="year", columns="variable", values="value", aggfunc="first")
     out = {}
     for key, (fn, *_rest) in INDICATORS.items():
+        if key.startswith("transfers"):
+            continue  # the comparison run has no fair-share transfers
         if key == "non_co2":
             ser = (wide["Emissions|Kyoto Gases"] - wide["Emissions|CO2"]) / 1000.0
         elif key == "total_ghg":
@@ -370,6 +435,8 @@ def build_overlay_regional(csv: Path = OVERLAY_REGIONAL_CSV) -> dict:
         wide = g.pivot_table(index="year", columns="variable", values="value", aggfunc="first")
         ind = {}
         for key, (fn, *_rest) in INDICATORS.items():
+            if key.startswith("transfers"):
+                continue  # the comparison run has no fair-share transfers
             try:
                 ser = ((wide["Emissions|Kyoto Gases"] - wide["Emissions|CO2"]) / 1000.0 if key == "non_co2"
                        else wide["Emissions|Kyoto Gases"] / 1000.0 if key == "total_ghg" else fn(wide))
