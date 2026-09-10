@@ -37,8 +37,8 @@ Promise.all([
   ...["fig00", "fig01", "fig03", "fig04", "fig05"].map(id => d3.json(`data/${id}.json?v=${Date.now()}`)),
 ]).then(([meta, cum, overlay, ...figs]) => {
   META = meta; CUM = cum; OVERLAY = overlay; FIGS = figs;
-  FAMILIES = [...new Set(META.series.map(s => s.family).filter(f => f && f !== DEFAULT_FAMILY))]
-    .sort((a, b) => (PRINCIPLE_RE.test(b) - PRINCIPLE_RE.test(a)) || a.localeCompare(b));
+  FAMILIES = [DEFAULT_FAMILY, ...[...new Set(META.series.map(s => s.family).filter(f => f && f !== DEFAULT_FAMILY))]
+    .sort((a, b) => (PRINCIPLE_RE.test(b) - PRINCIPLE_RE.test(a)) || a.localeCompare(b))];
   readHash();
   buildControls();
   buildCards();
@@ -60,7 +60,9 @@ function readHash() {
   if (h.get("b") && DEFAULT_SETS[h.get("b")]) state.budget = h.get("b");
   if (h.get("r")) state.region = h.get("r");
   if (["both", "U", "L"].includes(h.get("t"))) state.transfers = h.get("t");
-  state.families = new Set((h.get("f") || "").split("|").filter(Boolean));
+  // no "f" at all means a first visit: start with the paper's reference pair on
+  const f = h.get("f");
+  state.families = f === null ? new Set([DEFAULT_FAMILY]) : new Set(f.split("|").filter(Boolean));
   state.overlay = h.get("o") === "1";
 }
 const overlayRegionOk = () => !!(OVERLAY && (state.region === OVERLAY.region || (OVERLAY.regional && OVERLAY.regional[state.region])));
@@ -69,7 +71,7 @@ const overlaySeries = key => state.region === OVERLAY.region ? (OVERLAY.indicato
 function writeHash() {
   const h = new URLSearchParams();
   h.set("b", state.budget); h.set("r", state.region); h.set("t", state.transfers);
-  if (state.families.size) h.set("f", [...state.families].join("|"));
+  h.set("f", [...state.families].join("|"));
   if (state.overlay) h.set("o", "1");
   history.replaceState(null, "", "#" + h.toString());
 }
@@ -88,17 +90,22 @@ function activeSeries() {
       if (s.scenario_set === set && s.model === DEFAULT_MODEL) out.push(styled(s, null));
       continue;
     }
-    if (s.family === DEFAULT_FAMILY && s.model === DEFAULT_MODEL) { out.push(styled(s, null)); continue; }
     if (state.families.has(s.family)) out.push(styled(s, s.family));
   }
   const order = { baseline: 0, source: 1, U: 2, L: 3 };
   return out.sort((a, b) => (a.fam === null) - (b.fam === null) || order[a.s.role] - order[b.s.role]);
 }
+// the reference pair draws solid; every other family gets its own dash
+function famDash(fam) {
+  if (!fam || fam === DEFAULT_FAMILY) return null;
+  const others = FAMILIES.filter(f => f !== DEFAULT_FAMILY);
+  return FAMILY_DASH[others.indexOf(fam) % FAMILY_DASH.length];
+}
 function styled(s, fam) {
   const r = ROLE[s.role];
   const dimmed = (state.transfers === "U" && s.role === "L") || (state.transfers === "L" && s.role === "U");
   return { s, fam, colour: r.colour, width: r.width,
-    dash: fam ? FAMILY_DASH[FAMILIES.indexOf(fam) % FAMILY_DASH.length] : r.dash,
+    dash: famDash(fam) ?? r.dash,
     opacity: dimmed ? DIM_OPACITY : 1,
     label: r.label + (fam ? `, ${fam}` : "") };
 }
@@ -153,8 +160,8 @@ function buildControls() {
   const drawer = document.createElement("details"); drawer.className = "drawer";
   drawer.open = false; // the bar floats, so the drawer stays folded until asked
   drawer.innerHTML = `<summary>Change or add fair-share variants</summary><div class="chipgroups"></div>
-    <div class="note">The default pair, ${DEFAULT_FAMILY} on SSP2, is always on. Each other chip adds the unlimited and
-    lowest transfer corners of one variant; a greyed chip has no run under the chosen budget.</div>`;
+    <div class="note">${DEFAULT_FAMILY} on SSP2, the paper's reference case, is selected at first. Each chip adds or removes
+    the unlimited and lowest transfer corners of one variant; a greyed chip has no run under the chosen budget.</div>`;
   const groups = drawer.querySelector(".chipgroups");
   const principle = FAMILIES.filter(f => PRINCIPLE_RE.test(f));
   const sensit = FAMILIES.filter(f => !PRINCIPLE_RE.test(f));
@@ -162,14 +169,9 @@ function buildControls() {
     const g = document.createElement("div"); g.className = "chipgroup";
     g.innerHTML = `<span class="gl">${gl}</span><div class="chips"></div>`;
     const chips = g.querySelector(".chips");
-    if (gl === "Principle and start year") {
-      const d = document.createElement("span"); d.className = "chip on default"; d.title = "Always on";
-      d.appendChild(dashSample(null, ROLE.U.colour, 2)); d.appendChild(document.createTextNode(`${DEFAULT_FAMILY} (default, always on)`));
-      chips.appendChild(d);
-    }
     for (const f of fams) {
       const c = document.createElement("button"); c.className = "chip"; c.dataset.family = f;
-      c.appendChild(dashSample(FAMILY_DASH[FAMILIES.indexOf(f) % FAMILY_DASH.length]));
+      c.appendChild(dashSample(famDash(f)));
       c.appendChild(document.createTextNode(f));
       c.addEventListener("click", () => {
         if (state.families.has(f)) state.families.delete(f); else state.families.add(f);
@@ -212,16 +214,17 @@ function buildLegend(series) {
   const host = document.getElementById("legend"); host.innerHTML = "";
   const seen = new Set();
   for (const x of series) {
-    if (x.fam) continue;
+    if (seen.has(x.s.role)) continue;
+    const r = ROLE[x.s.role];
     const li = document.createElement("span"); li.className = "li";
-    li.appendChild(dashSample(x.dash, x.colour, x.width));
-    li.appendChild(document.createTextNode(ROLE[x.s.role].label));
+    li.appendChild(dashSample(r.dash, r.colour, r.width));
+    li.appendChild(document.createTextNode(r.label));
     host.appendChild(li); seen.add(x.s.role);
   }
   for (const f of FAMILIES) {
     if (!state.families.has(f)) continue;
     const li = document.createElement("span"); li.className = "li";
-    li.appendChild(dashSample(FAMILY_DASH[FAMILIES.indexOf(f) % FAMILY_DASH.length]));
+    li.appendChild(dashSample(famDash(f)));
     li.appendChild(document.createTextNode(f + " pair"));
     host.appendChild(li);
   }
