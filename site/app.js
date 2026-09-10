@@ -44,7 +44,7 @@ Promise.all([
   buildCards();
   const fit = document.getElementById("ov-fit");
   if (fit && OVERLAY && OVERLAY.fit && OVERLAY.fit.rms_annual_gt != null)
-    fit.textContent = `: annual CO2 to ${OVERLAY.fit.annual_to} within ${OVERLAY.fit.rms_annual_gt.toFixed(1)} Gt per year, cumulative CO2 over ${OVERLAY.fit.cum_from} to 2100 within ${Math.round(OVERLAY.fit.cum_gap_gt)} Gt`;
+    fit.textContent = `: annual CO₂ to ${OVERLAY.fit.annual_to} within ${OVERLAY.fit.rms_annual_gt.toFixed(1)} Gt per year, cumulative CO₂ over ${OVERLAY.fit.cum_from} to 2100 within ${Math.round(OVERLAY.fit.cum_gap_gt)} Gt`;
   render();
   window.addEventListener("hashchange", () => { readHash(); syncControls(); render(); });
 }).catch(err => {
@@ -383,7 +383,7 @@ function drawStrip(series) {
     ${budget.gt} Gt binds the emissions the fair-share rules cover, so total CO2 lands within a few percent of it.
 </div>`;
   const W = 900, H = 74, L = 40, R = 40;
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cumulative CO2 by pathway" });
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cumulative CO₂ by pathway" });
   const vals = pts.map(x => CUM[x.s.id]);
   if (OVERLAY && state.overlay && state.budget === OVERLAY.budget && OVERLAY.cumulative != null) vals.push(OVERLAY.cumulative);
   const hi = Math.max(budget.gt, ...vals) * 1.06, lo = Math.min(budget.gt, ...vals) * 0.94;
@@ -396,7 +396,7 @@ function drawStrip(series) {
       .textContent = t.toLocaleString();
   }
   el("text", { x: W - R, y: y + 30, "text-anchor": "end", "font-size": 8, fill: C_MUTED }, svg)
-    .textContent = "Gt CO2, 2020 to 2100";
+    .textContent = "Gt CO₂, 2020 to 2100";
   el("line", { x1: sx(budget.gt), x2: sx(budget.gt), y1: 8, y2: y, stroke: "#e8382e", "stroke-width": 1.2,
     "stroke-dasharray": "3 2" }, svg);
   el("text", { x: sx(budget.gt), y: 7, "text-anchor": "middle", "font-size": 8.5, fill: "#e8382e",
@@ -408,14 +408,14 @@ function drawStrip(series) {
       stroke: "#ffffff", "stroke-width": 0.8 }, svg);
     if (x.fam) dot.setAttribute("stroke", "#1a1a1a");
     dot.addEventListener("mousemove", ev => showTip(ev,
-      `<b>${x.label}</b><br>${fmtNum(CUM[x.s.id], "Gt CO2")} cumulative, 2020 to 2100`));
+      `<b>${x.label}</b><br>${fmtNum(CUM[x.s.id], "Gt CO₂")} cumulative, 2020 to 2100`));
     dot.addEventListener("mouseleave", hideTip);
   }
   if (OVERLAY && state.overlay && state.budget === OVERLAY.budget && OVERLAY.cumulative != null) {
     const dot = el("circle", { cx: sx(OVERLAY.cumulative), cy: y - 28, r: 4.2, fill: C_SMIP,
       stroke: "#ffffff", "stroke-width": 0.8 }, svg);
     dot.addEventListener("mousemove", ev => showTip(ev,
-      `<b>${OVERLAY.label}</b><br>${fmtNum(OVERLAY.cumulative, "Gt CO2")} cumulative, 2020 to 2100` +
+      `<b>${OVERLAY.label}</b><br>${fmtNum(OVERLAY.cumulative, "Gt CO₂")} cumulative, 2020 to 2100` +
       `<br><span style="opacity:.7">${fmtNum(OVERLAY.cumulative_own, "Gt")} over ${OVERLAY.cum_years[0]} to 2100 in the release; ` +
       `${fmtNum(OVERLAY.head_from_source, "Gt")} for 2020 to ${OVERLAY.cum_years[0]} from the source pathway</span>`));
     dot.addEventListener("mouseleave", hideTip);
@@ -449,7 +449,7 @@ function openModal(doc) {
   <a href="https://github.com/setupelz/repl_2026_faircoop">github.com/setupelz/repl_2026_faircoop</a>.
   Licence: ${META.license}. Generated ${META.generated}.</div>
   ${OVERLAY ? `<h4>Separate comparison run</h4>
-  <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why}${OVERLAY.fit && OVERLAY.fit.rms_annual_gt != null ? ` On the current data: annual CO2 to ${OVERLAY.fit.annual_to} within ${OVERLAY.fit.rms_annual_gt.toFixed(1)} Gt per year, cumulative CO2 over ${OVERLAY.fit.cum_from} to 2100 within ${Math.round(OVERLAY.fit.cum_gap_gt)} Gt.` : ""} ${OVERLAY.non_co2_note} ${OVERLAY.regional_note || ""} ${OVERLAY.cite}</div>` : ""}
+  <div class="srcblock">${OVERLAY.label}. ${OVERLAY.why}${OVERLAY.fit && OVERLAY.fit.rms_annual_gt != null ? ` On the current data: annual CO₂ to ${OVERLAY.fit.annual_to} within ${OVERLAY.fit.rms_annual_gt.toFixed(1)} Gt per year, cumulative CO₂ over ${OVERLAY.fit.cum_from} to 2100 within ${Math.round(OVERLAY.fit.cum_gap_gt)} Gt.` : ""} ${OVERLAY.non_co2_note} ${OVERLAY.regional_note || ""} ${OVERLAY.cite}</div>` : ""}
   <h4>Cite this figure</h4>
   <div class="citebox">${META.cite_short}, '${doc.title}', from ${META.cite_tail}</div>`;
   m.querySelector("h3 button").onclick = closeModal;

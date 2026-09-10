@@ -358,7 +358,7 @@ function dumbbells(fig, p, rows, opts) {
 
 /* stacked bars, vertical: groups = [{label, hk, bars:[{key, keys, hk, dx, segs:[{name, v, colour}], net, netShape, netFill, netStroke, tipLabel}]}] */
 function stackedBars(fig, p, groups, opts) {
-  const { ylab, barW = 0.36, x0 = p.l, x1 = p.r, legendLevels, unit = "Gt CO2", rotate = 30, annotate } = opts;
+  const { ylab, barW = 0.36, x0 = p.l, x1 = p.r, legendLevels, unit = "Gt CO₂", rotate = 30, annotate } = opts;
   const g = el("g", {}, p.svg);
   const n = groups.length;
   const x = d3.scaleLinear().domain([0.4, n + 0.6]).range([x0, x1]);
@@ -408,9 +408,9 @@ function drawFig2(f, fig, host, leg) {
   legendChip(fig, g2, "L", "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
 
   // a. CO2 trajectories, 2 x 3 facets
-  const pa = panel(host, 12, FULL, 400, { l: 44, r: 8, t: 26, b: 22 }, "a  CO2 trajectories: fair-share variants at lowest transfers, and the Source pathway");
+  const pa = panel(host, 12, FULL, 400, { l: 44, r: 8, t: 26, b: 22 }, "a  CO₂ trajectories: fair-share variants at lowest transfers, and the Source pathway");
   const years = d3.range(2030, 2101, 10);
-  const grps = ["World", "Higher resp.", "Lower resp."], metrics = ["Net CO2", "Gross CO2"];
+  const grps = ["World", "Higher resp.", "Lower resp."], metrics = ["Net CO₂", "Gross CO₂"];
   const rowH = (pa.b - pa.t) / 2;
   metrics.forEach((met, mi) => {
     const sub = { svg: pa.svg, l: pa.l, r: pa.r, t: pa.t + mi * rowH, b: pa.t + (mi + 1) * rowH - 22, iw: pa.iw };
@@ -481,7 +481,7 @@ function drawFig3(f, fig, host, leg) {
       mark(fig, el("line", { x1: x(U.dco2), x2: x(L.dco2), y1: y(U.paid), y2: y(L.paid), stroke: c, "stroke-width": 1.4, opacity: 0.5 }, g), [lab, "U", "L"], lab, null);
       for (const [d, s] of [[U, "U"], [L, "L"]])
         mark(fig, sym(g, s, x(d.dco2), y(d.paid), c, "#3a3a3a", { opacity: s === "U" ? 0.7 : 1 }), [lab, s], lab,
-          () => `<b>${lab}, ${s === "U" ? "unlimited" : "lowest"} transfers</b><br>Δ net CO2 from Source: ${fmt(d.dco2, "Gt")}<br>transfers paid: ${fmt(d.paid, "$tn NPV")}`);
+          () => `<b>${lab}, ${s === "U" ? "unlimited" : "lowest"} transfers</b><br>Δ net CO₂ from Source: ${fmt(d.dco2, "Gt")}<br>transfers paid: ${fmt(d.paid, "$tn NPV")}`);
       mark(fig, txt(g, x(L.dco2) + 7, y(L.paid) + 3, L.start, { "font-size": F.small, fill: c }), [lab], lab, null);
     }
     xlabel(pb, f.b.xlab); ylabel(pb, f.b.ylab);
@@ -582,7 +582,7 @@ function drawFig4(f, fig, host, leg) {
           () => `<b>${comp}, ${grp}</b><br>transfers for carbon removal only: ${fmt(C.gt, "Gt vs Source")}`);
       }
     }
-    ylabel(pa, "Gt CO2");
+    ylabel(pa, "Gt CO₂");
     const g3 = legendGroup(leg, "Quantity (panel a)");
     for (const comp of f.a.components) legendChip(fig, g3, comp, comp, lineSample(wf[comp], null));
   }
@@ -638,8 +638,8 @@ function drawFig4(f, fig, host, leg) {
         el("line", { x1: x.range()[0], x2: x.range()[1], y1: y(f.c.cap), y2: y(f.c.cap), stroke: "#6a6a6a", "stroke-width": 0.9, "stroke-dasharray": "5 3" }, g);
         txt(g, x.range()[0] + 4, y(f.c.cap) - 4, `injection cap, ${f.c.cap} Gt per year`, { "font-size": F.small, fill: "#5c5c5c" });
       } : null }));
-    facetLines(fig, pcp, fs, cells, { years, zeroLines: [0], labelYearsAt: [2030, 2050, 2070, 2100], tipUnit: "Gt CO2 per year" });
-    ylabel(pcp, "Gt CO2 per year");
+    facetLines(fig, pcp, fs, cells, { years, zeroLines: [0], labelYearsAt: [2030, 2050, 2070, 2100], tipUnit: "Gt CO₂ per year" });
+    ylabel(pcp, "Gt CO₂ per year");
   }
 
   // d. lever mix per region
@@ -652,7 +652,7 @@ function drawFig4(f, fig, host, leg) {
         segs: f.d.levers.map(lv => ({ name: lv, v: (f.d.rows.find(r => r.region === reg && r.scope === sc && r.lever === lv) || {}).contrib || 0, colour: lc[lv] })),
         net: n ? n.net : null, netFill: sc === "ALL" ? "#ffffff" : "#2a2a2a", netStroke: sc === "ALL" ? "#3a3a3a" : "#ffffff" };
     }) }));
-    stackedBars(fig, pd, groups, { ylab: "Gt CO2", annotate: "Bars above zero for CDR and CCS mean less removal or capture than in Source; below zero means more mitigation effort" });
+    stackedBars(fig, pd, groups, { ylab: "Gt CO₂", annotate: "Bars above zero for CDR and CCS mean less removal or capture than in Source; below zero means more mitigation effort" });
     const g4 = legendGroup(leg, "Lever (panels d)");
     for (const lv of f.d.levers) legendChip(fig, g4, lv, lv, swatch(lc[lv]));
     legendChip(fig, g4, "FS-Lf.Trnsf-ALL", "net, ALL", shapeSample("L", "#ffffff"));
@@ -698,7 +698,7 @@ function drawFig5(f, fig, host, leg) {
         segs: f.a.levers.map(lv => ({ name: lv, v: (f.a.rows.find(r => r.region === reg && r.bud === b && r.lever === lv) || {}).contrib || 0, colour: lc[lv] })),
         net: n ? n.net : null, netFill: b === "2 °C" ? "#ffffff" : "#2a2a2a", netStroke: b === "2 °C" ? "#3a3a3a" : "#ffffff" };
     }) }));
-    stackedBars(fig, pa, groups, { ylab: "Gt CO2 vs unlimited transfers", annotate: "Left bar 2 °C, right bar 1.5 °C; below zero means more mitigation effort at home" });
+    stackedBars(fig, pa, groups, { ylab: "Gt CO₂ vs unlimited transfers", annotate: "Left bar 2 °C, right bar 1.5 °C; below zero means more mitigation effort at home" });
   }
 
   // b. financial transfers by region
@@ -710,7 +710,7 @@ function drawFig5(f, fig, host, leg) {
   dumbbells(fig, pb, mkRegionRows(f.b.rows, r => r && r.v), { xlab: f.b.xlab, unit: "$tn NPV; positive receives, negative pays", ticks: 5 });
 
   // c. net CO2 to 2050
-  const pcp = panel(host, 7, TWO3 - 100, 250, { l: 44, r: 8, t: 26, b: 22 }, "c  Net CO2 vs 2020, Source and lowest transfers, at both budgets");
+  const pcp = panel(host, 7, TWO3 - 100, 250, { l: 44, r: 8, t: 26, b: 22 }, "c  Net CO₂ vs 2020, Source and lowest transfers, at both budgets");
   {
     const fs = facets(pcp, 3, 30);
     const cells = f.c.groups.map(grp => ({ label: grp === "World" ? "World" : grp.replace(" resp.", "-responsibility regions"), includeY: [0],
@@ -718,7 +718,7 @@ function drawFig5(f, fig, host, leg) {
         shape: st === "Source" ? "X" : "L", label: `${b}, ${st === "Source" ? "Source" : "lowest transfers"}`,
         pts: f.c.rows.filter(r => r.bud === b && r.state === st && r.grp === grp).map(r => ({ year: r.year, v: r.pct })).sort((a, b2) => a.year - b2.year) }))) }));
     facetLines(fig, pcp, fs, cells, { years: [2030, 2050], zeroLines: [0], labelYearsAt: [2030, 2040, 2050], markerAt: [2035, 2050], tipUnit: "% vs 2020" });
-    ylabel(pcp, "Net CO2 vs 2020 (%)");
+    ylabel(pcp, "Net CO₂ vs 2020 (%)");
   }
 
   // d. carbon price per region
