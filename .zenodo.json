@@ -1,0 +1,39 @@
+{
+  "title": "Replication archive: Equitable cooperation deepens the solution space for high ambition pathways",
+  "description": "<p>Code, data and figures for Pelz et al. (2026), <i>Environmental Research Letters</i>, <a href=\"https://doi.org/10.1088/1748-9326/aea34d\">doi:10.1088/1748-9326/aea34d</a>. The interactive explorer built from this archive is at <a href=\"https://setupelz.com/faircoop/\">https://setupelz.com/faircoop/</a>. Summary and materials: <a href=\"https://setupelz.com/work/faircoop.html\">https://setupelz.com/work/faircoop.html</a>.</p>",
+  "creators": [
+    {
+      "name": "Pelz, Setu",
+      "affiliation": "International Institute for Applied Systems Analysis",
+      "orcid": "0000-0002-3528-8679"
+    }
+  ],
+  "upload_type": "software",
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "fair shares",
+    "climate equity",
+    "integrated assessment",
+    "MESSAGEix-GLOBIOM",
+    "cooperation",
+    "replication archive"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.1088/1748-9326/aea34d",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-article"
+    },
+    {
+      "identifier": "https://setupelz.com/faircoop/",
+      "relation": "isSourceOf",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "https://setupelz.com/work/faircoop.html",
+      "relation": "isDescribedBy",
+      "resource_type": "other"
+    }
+  ]
+}

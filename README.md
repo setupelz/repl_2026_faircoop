@@ -1,5 +1,12 @@
 # Equitable cooperation deepens the solution space for high ambition pathways
 
+[![paper](https://img.shields.io/badge/paper-10.1088%2F1748--9326%2Faea34d-1f6feb)](https://doi.org/10.1088/1748-9326/aea34d) [![Zenodo](https://zenodo.org/badge/1307941228.svg)](https://zenodo.org/badge/latestdoi/1307941228) [![licence](https://img.shields.io/badge/licence-MIT-8a8f98)](LICENSE) [![explorer](https://img.shields.io/badge/explorer-setupelz.com%2Ffaircoop-2a9d8f)](https://setupelz.com/faircoop/)
+
+- Paper: https://doi.org/10.1088/1748-9326/aea34d
+- Archive of record: https://zenodo.org/badge/latestdoi/1307941228 (every release is archived on Zenodo)
+- Interactive explorer: https://setupelz.com/faircoop/
+- Summary page: https://setupelz.com/work/faircoop.html
+
 Replication archive for:
 
 > Pelz, S., Fricko, O., Riahi, K., Pachauri, S., Brutschin, E., Rogelj, J.,
