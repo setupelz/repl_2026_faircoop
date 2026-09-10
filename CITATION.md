@@ -5,8 +5,8 @@
 Pelz, S., Fricko, O., Riahi, K., Pachauri, S., Brutschin, E., Rogelj, J.,
 Krey, V., Johnstone, I., Vinca, A., Schleussner, C.-F., Kikstra, J. and
 Gidden, M.J. (2026). Equitable cooperation deepens the solution space for high
-ambition pathways. *Environmental Research Letters*. DOI: to be added at
-publication.
+ambition pathways. *Environmental Research Letters*.
+https://doi.org/10.1088/1748-9326/aea34d
 
 ## This archive
 

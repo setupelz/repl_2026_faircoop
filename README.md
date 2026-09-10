@@ -5,8 +5,8 @@ Replication archive for:
 > Pelz, S., Fricko, O., Riahi, K., Pachauri, S., Brutschin, E., Rogelj, J.,
 > Krey, V., Johnstone, I., Vinca, A., Schleussner, C.-F., Kikstra, J. and
 > Gidden, M.J. (2026). Equitable cooperation deepens the solution space for
-> high ambition pathways. *Environmental Research Letters*. DOI: to be added
-> at publication.
+> high ambition pathways. *Environmental Research Letters*.
+> https://doi.org/10.1088/1748-9326/aea34d
 
 Affiliations: IIASA (Laxenburg, Austria); Imperial College London; University
 of Oxford; Center for Global Sustainability, University of Maryland.
@@ -46,7 +46,8 @@ Data/*.xlsx  (one reporting workbook per model run)
 Data/scenario_set_reporting.csv
     │  Code/2xx (main figures), Code/3xx (SI)
     ▼
-Manuscript/Figures/*.png, Manuscript/Figures/SI/*.png, Manuscript/Tables/*
+Manuscript/Figures/*.png + <fig>-data/*.csv, Manuscript/Figures/SI/*.png + si<N>-data/*.csv,
+Manuscript/Tables/*
 ```
 
 Scenario labels are parsed from each workbook's own Model and Scenario
@@ -120,7 +121,8 @@ repl_2026_faircoop/
 │   └── tools/compute_fairshares.py   # Data/fairshare_allocations.csv
 ├── Data/                             # Workbooks (untracked), README, MANIFEST.md5, allocations
 ├── Manuscript/
-│   ├── Figures/                      # 202..205_figure_N.png, SI/SI_Figure_N_*.png
+│   ├── Figures/                      # 202..205_figure_N.png + figN-data/ CSVs per panel (README there)
+│   │   └── SI/                       # SI_Figure_N_*.png + siN-data/ CSVs per panel
 │   └── Tables/                       # SI_Table_1_Scenarios.csv, SI_text_numbers.xlsx
 ├── renv.lock                         # Pinned R package versions
 ├── DESCRIPTION                       # Package metadata

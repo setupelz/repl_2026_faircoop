@@ -1,8 +1,3 @@
-# Local tooling (not part of the replication archive)
-CLAUDE.md
-.claude/
-planning/
-
 # Model reporting data — large; cluster-fetched workbooks + assembled output.
 # Data/MANIFEST.md5 (tracked) carries checksums of the workbooks; regenerate
 # the CSV with Code/100_assemble.R.

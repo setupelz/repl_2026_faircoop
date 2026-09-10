@@ -3,10 +3,10 @@ message: "If you use this archive, cite the paper below and the archive by its Z
 title: "Replication archive: Equitable cooperation deepens the solution space for high ambition pathways"
 type: software
 version: 1.0.0
-date-released: 2026-09-04
+date-released: 2026-09-10
 license: MIT
 repository-code: https://github.com/setupelz/repl_2026_faircoop
-# Replace both placeholder DOIs at deposit and at publication.
+# Replace the Zenodo placeholder DOI at deposit.
 doi: 10.5281/zenodo.XXXXXXX
 authors:
   - family-names: Pelz
@@ -18,7 +18,7 @@ preferred-citation:
   title: "Equitable cooperation deepens the solution space for high ambition pathways"
   journal: Environmental Research Letters
   year: 2026
-  doi: 10.0000/TO-BE-ADDED
+  doi: 10.1088/1748-9326/aea34d
   authors:
     - family-names: Pelz
       given-names: Setu
