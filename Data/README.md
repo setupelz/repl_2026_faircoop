@@ -2,9 +2,10 @@
 
 Tracked in git: `MANIFEST.md5`, `fairshare_allocations.csv`, `scenariomip_cmip7_message_ssp2_low.csv` and `scenariomip_cmip7_message_ssp2_low_regional.csv` (with its manifest). The
 32 reporting workbooks and the assembled CSV are too large for git and are
-deposited on Zenodo alongside the paper (DOI added at deposit; available from the
-authors on request in the meantime, see `../CITATION.md`). Download them into this
-folder before running `make assemble`.
+attached to the `v1.0.0` release of the repository
+(https://github.com/setupelz/repl_2026_faircoop/releases/tag/v1.0.0). Download
+the workbooks into this folder before running `make assemble`, or download
+`scenario_set_reporting.csv.gz` and `gunzip` it here to skip the assembly.
 
 ## Reporting workbooks (`ES_*.xlsx`, `JUSTMIP_*.xlsx`)
 

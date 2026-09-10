@@ -1,13 +1,12 @@
 cff-version: 1.2.0
-message: "If you use this archive, cite the paper below and the archive by its Zenodo DOI."
+message: "If you use this archive, cite the paper below and the archive by its GitHub release."
 title: "Replication archive: Equitable cooperation deepens the solution space for high ambition pathways"
 type: software
 version: 1.0.0
 date-released: 2026-09-10
 license: MIT
 repository-code: https://github.com/setupelz/repl_2026_faircoop
-# Replace the Zenodo placeholder DOI at deposit.
-doi: 10.5281/zenodo.XXXXXXX
+url: https://github.com/setupelz/repl_2026_faircoop/releases/tag/v1.0.0
 authors:
   - family-names: Pelz
     given-names: Setu

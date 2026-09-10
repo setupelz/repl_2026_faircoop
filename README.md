@@ -26,8 +26,9 @@ before `make assemble` (see Data availability).
 git clone https://github.com/setupelz/repl_2026_faircoop
 cd repl_2026_faircoop
 Rscript -e 'renv::restore()'   # installs the pinned R packages
-# Download the 32 reporting workbooks from the Zenodo deposit
-# (DOI added at deposit) into Data/, then verify them against Data/MANIFEST.md5.
+# Download the 32 reporting workbooks from the v1.0.0 release assets
+# (https://github.com/setupelz/repl_2026_faircoop/releases/tag/v1.0.0) into
+# Data/, then verify them against Data/MANIFEST.md5.
 make assemble                  # Data/*.xlsx -> Data/scenario_set_reporting.csv
 make all                       # all figures and SI tables
 ```
@@ -82,8 +83,10 @@ the assembler stops on an unrecognised budget.
 ## Data availability
 
 The reporting workbooks (`Data/*.xlsx`) and the assembled CSV are too large for
-git. They are deposited on Zenodo alongside the paper (DOI added at deposit)
-and available from the authors on request in the meantime (see `CITATION.md`).
+git. They are attached to the `v1.0.0` release of this repository
+(https://github.com/setupelz/repl_2026_faircoop/releases/tag/v1.0.0): the 32
+workbooks and `scenario_set_reporting.csv.gz`, which `gunzip` restores to the
+assembled CSV so `make assemble` can be skipped.
 
 Tracked in the repository:
 

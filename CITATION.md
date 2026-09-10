@@ -10,7 +10,7 @@ https://doi.org/10.1088/1748-9326/aea34d
 
 ## This archive
 
-Cite the archive by its Zenodo DOI (added at deposit) or via `CITATION.cff`.
+Cite the archive by its GitHub release (v1.0.0) or via `CITATION.cff`.
 
 ## MESSAGEix-GLOBIOM-GAINS Scenario Data
 
@@ -21,12 +21,12 @@ International Institute for Applied Systems Analysis (IIASA).
 ## Data Access
 
 The per-scenario reporting workbooks (`Data/*.xlsx`) and the assembled dataset
-(`Data/scenario_set_reporting.csv`) are too large to track in git and are not
-included in the repository. They will be deposited alongside the published
-paper; in the meantime they are available on request:
+(`Data/scenario_set_reporting.csv`) are too large to track in git and are
+attached to the `v1.0.0` release instead:
+https://github.com/setupelz/repl_2026_faircoop/releases/tag/v1.0.0
 
-- Dr. Setu Pelz, Energy, Climate, and Environment Program, IIASA
-- Email: pelz@iiasa.ac.at
+Contact: Dr. Setu Pelz, Energy, Climate, and Environment Program, IIASA,
+pelz@iiasa.ac.at
 
 The small derived input `Data/fairshare_allocations.csv` is tracked in the
 repository.
