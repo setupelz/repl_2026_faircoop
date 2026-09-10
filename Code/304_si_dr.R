@@ -1,21 +1,23 @@
 # 304_si_dr.R -----------------------------------------------------------------
 #
-# SI Figure 4, discount-rate sensitivity: contrasts the default 5% runs with the
-# 1% runs
-# (..._ES_dr1p) to show how the welfare discount rate shifts the fair-share
-# result. Both rates use the ECPC 2025 allocation (SSP2, 2 C / 800fm): the dr
-# cells run a 2025 start for numerical
-# feasibility (the 2015-2025 historical deduction drives NAM to a negative bound
-# that collapses a MACRO term under the dr namespaces), so the 5% comparator here
-# is the ecpc2025 set, so the rate is the only difference between the lines.
-# Both rates share the identical cumulative TCE budget (bound_emission calibrated
-# at 5% to hit 800 Gt net CO2 2020-2100; binds within 0.1% in both runs). At 1%
-# the same TCE budget re-allocates across time and gases, so the reported net-CO2
+# SI Figure 4, discount-rate sensitivity: the default 5% runs against the 1%
+# runs (model tag "_dr1p", variants "...-DR1").
+#
+# Both rates use the ECPC 2025 allocation (SSP2, 2 C / 800fm). The 1% runs
+# could not be solved with the ECPC 2015 allocation: deducting 2015-2025
+# historical emissions leaves North America with a negative remaining budget,
+# and that infeasibility surfaces in MACRO at 1%. The 5% comparator is
+# therefore the ordinary 800fm_ecpc2025 set, so the discount rate is the only
+# difference between the two colours.
+#
+# Both rates share the same cumulative TCE budget (bound_emission calibrated at
+# 5% to hit 800 Gt net CO2 2020-2100; binds within 0.1% in both runs). At 1% the
+# same TCE budget re-allocates across time and gases, so the reported net-CO2
 # cumulative lands below 800. That follows from holding the physical constraint
-# fixed, not a different climate target.
-# Unlimited omitted at both rates: physically indistinguishable from Source
-# (|U - Source| < 0.7 Gt cumulative), so the dashed line reads Source / FS
-# unlimited transfers.
+# fixed, not from a different climate target.
+# Unlimited transfers are omitted at both rates: physically indistinguishable
+# from Source (|U - Source| < 0.7 Gt cumulative), so the dashed line reads
+# Source / FS unlimited transfers.
 #   a  Net CO2 vs 2020 (%) through 2100, World | Higher | Lower, Source vs
 #      lowest-f., 5% vs 1%, the depth and timing of the pathway.
 #   b  Cumulative net CO2 2020-2100 (Gt) per group, Source -> lowest-f. dumbbells
@@ -23,8 +25,7 @@
 # Finding: 1% deepens the pathway on the 2020-2100 net-CO2 metric under the same
 # TCE bound, and the higher-to-lower reallocation under lowest-f. is smaller in
 # absolute terms but a similar share of the higher-responsibility source
-# cumulative. The redistribution mechanism is robust to the rate and its volume
-# scales with pathway depth. The script prints both sets of numbers at the end.
+# cumulative. The script prints both sets of numbers at the end.
 
 source(here::here("Code", "000_setup.R"))
 
@@ -39,13 +40,10 @@ dr_cols    <- c("5% (default)" = "grey45", "1%" = "#009E73")
 state_shp  <- c("Src./FS.U." = 4, "FS-Lf.Trnsf." = 25)
 state_lty  <- c("Src./FS.U." = "22", "FS-Lf.Trnsf." = "solid")
 
-# Both rates, ECPC2025 2 C, Source + lowest-f. only (U dropped, see header).
-# 1% runs are stamped into the 800fm_ecpc2015 set (display overlay) but are
-# ecpc_2025 runs; the matching 5% comparator is the true ecpc2025 set.
+# Both rates, ECPC 2025 2 C, Source + lowest-f. only (U dropped, see header).
 both <- scenario_sets_raw %>%
-  filter(grepl("SSP_SSP2", model), !grepl("Delay|CDR", variant),
-         (grepl("dr1p", model) & scenario_set == "800fm_ecpc2015") |
-           (!grepl("dr1p", model) & scenario_set == "800fm_ecpc2025")) %>%
+  filter(grepl("SSP_SSP2", model), scenario_set == "800fm_ecpc2025",
+         !grepl("Delay|CDR", variant), variant != "Baseline") %>%
   prepare_long_format() %>%
   mutate(state = create_scenario_label(variant),
          dr = factor(ifelse(grepl("dr1p", model), "1%", "5% (default)"), levels = dr_lvls)) %>%
@@ -64,8 +62,8 @@ net <- both %>%
   mutate(grp = factor(grp, levels = grp_lvls))
 
 # --- a. Net CO2 relative to 2020 (%), through 2100 ----------------------------
-# Rel. base stays 2020 but nothing
-# is drawn before 2030. Markers at 2050 / 2100 anchor the two ends.
+# Relative base stays 2020 but nothing is drawn before 2030. Markers at 2050
+# and 2100 anchor the two ends.
 pct <- net %>% group_by(dr, state, grp) %>% arrange(year) %>%
   mutate(pct = pct_vs(v, year)) %>% ungroup()
 
@@ -80,8 +78,8 @@ p_ts <- ggplot(pct %>% filter(year >= 2030), aes(year, pct, colour = dr)) +
   scale_shape_manual(values = state_shp, name = NULL) +
   scale_linetype_manual(values = state_lty, guide = "none") +  # reinforces shape; no separate key
   scale_x_continuous(breaks = path_xbreaks, labels = path_xlabels) +
-  labs(x = NULL, y = "Net CO2 vs 2020 (%)",
-       subtitle = "Net CO2 pathway by responsibility group") +
+  labs(x = NULL, y = "Net CO₂ vs 2020 (%)",
+       subtitle = "Net CO₂ pathway by responsibility group") +
   theme_publication() +
   guides(colour = guide_legend(order = 1, override.aes = list(linetype = "solid")),
          shape = guide_legend(order = 2,
@@ -118,8 +116,8 @@ p_cum <- ggplot(cum, aes(gt, ypos, colour = dr)) +
   scale_fill_manual(values = dr_cols, guide = "none") +
   scale_shape_manual(values = state_shp, guide = "none") +
   scale_y_continuous(breaks = seq_along(grp_lvls), labels = grp_labs[rev(grp_lvls)]) +
-  facet_wrap(~"Cumulative net CO2, 2020–2100") +
-  labs(x = "Gt CO2", y = NULL) +
+  facet_wrap(~"Cumulative net CO₂, 2020–2100") +
+  labs(x = "Gt CO₂", y = NULL) +
   theme_publication() +
   theme(panel.grid.major.y = element_line(colour = "grey92", linewidth = 0.3))
 
@@ -130,4 +128,6 @@ figure_dr <- p_ts / p_cum +
   plot_layout(heights = c(1, 0.6)) +
   plot_annotation(tag_levels = "a")
 
+save_fig_data(pct %>% filter(year >= 2030), "si4", "a_net_co2_pct_vs_2020", si = TRUE)
+save_fig_data(cum, "si4", "b_cumulative_net_co2_gt", si = TRUE)
 save_figure(figure_dr, "SI_Figure_4_DR.png", width = 9, height = 6.2, si = TRUE)

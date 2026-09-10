@@ -88,7 +88,6 @@ meta <- meta %>%
     ver = str_extract(file_model, "v[0-9]+\\.[0-9]+"),
     sensitivity = case_when(
       str_detect(file_model, "dr1p") ~ "_dr1p",
-      str_detect(file_model, "dr3p") ~ "_dr3p",
       TRUE                           ~ ""
     ),
     model = paste0("SSP_", ssp, "_", ver, "_ES", sensitivity),
@@ -113,19 +112,20 @@ meta <- meta %>%
     is_cdr   = str_detect(file_scenario, "novel_cdr"),
     is_delay = str_detect(file_scenario, "delay2040"),
 
-    # Discount-rate sensitivities are run at a 2025 start for feasibility but
-    # are LABELLED into the main 800fm_ecpc2015 set so they overlay it; the
-    # "dr" tag in `model` keeps them out of main figures.
-    overlay       = sensitivity != "",
-    set_principle = if_else(overlay, "ecpc", principle),
-    set_start     = if_else(overlay, "2015", start),
+    # Every run, sensitivities included, is filed under the allocation its
+    # workbook names. The discount-rate runs are ECPC 2025 allocations (the
+    # ECPC 2015 allocation leaves North America with a negative remaining
+    # budget after the 2015-2025 deduction, which does not solve at 1%), so
+    # they land in 800fm_ecpc2025 and SI Figure 4 compares them with that
+    # set's 5% runs. The "dr" tag in `model` keeps them out of the main figures.
+    set_principle = principle,
+    set_start     = start,
     scenario_set  = paste0(budget, "_", set_principle, set_start),
 
     modifier = case_when(
       is_cdr               ~ "-CDR",
       is_delay             ~ "-Delay",
       sensitivity == "_dr1p" ~ "-DR1",
-      sensitivity == "_dr3p" ~ "-DR3",
       TRUE                 ~ ""
     ),
     variant = paste0(step, ". ", ssp, "-", temp, "-",
@@ -200,6 +200,14 @@ reporting <- reporting %>%
 
 # The reporting table is CSV because at full scenario count the wide frame
 # exceeds Excel's ~1.05M-row sheet cap; readr (a 000_setup.R dependency) reads it.
+# The reported energy-investment aggregates are unreliable in the fair-share
+# variants: with an identical physical system, the unlimited-transfers corner
+# reports several times the Source total for Investment|Energy Supply. The
+# technology leaves are consistent, and the figures sum those, so the two
+# aggregate rows are dropped here rather than released.
+reporting <- reporting %>%
+  filter(!variable %in% c("Investment", "Investment|Energy Supply"))
+
 write_csv(reporting, file.path(data_dir, "scenario_set_reporting.csv"))
 
 # --- 7. Summary --------------------------------------------------------------
