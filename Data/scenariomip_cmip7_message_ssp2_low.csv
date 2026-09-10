@@ -1,0 +1,373 @@
+model,scenario,region,variable,unit,year,value
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2020,74.77170602734448
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2025,41.79891220285713
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2030,41.35778861823187
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2035,34.9959458089456
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2040,24.47690196641285
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2045,24.48641267746578
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2050,23.61
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2055,23.61
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2060,23.53352782531134
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2070,22.51455339097743
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2080,22.51455339097744
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2090,22.51455339097744
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Biomass,GW,2100,22.51455339097744
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2020,14.69414021588627
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2025,18.84172165098881
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2030,17.53716372052988
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2035,20.88170722470723
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2040,25.50142907657487
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2045,33.89495669431137
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2050,45.65661692007359
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2055,61.98215452749788
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2060,84.96102609673207
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2070,154.946654463733
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2080,281.3236607459551
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2090,448.576082870563
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Geothermal,GW,2100,558.6674698565946
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2020,1177.641460534615
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2025,1334.634620005088
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2030,1354.908396688116
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2035,1621.073454197784
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2040,1727.427507336841
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2045,1774.1447353415
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2050,1874.5918900822
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2055,1905.941311597329
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2060,1931.177073981357
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2070,1962.380653842852
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2080,1986.368404118759
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2090,2009.069284551636
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Hydro,GW,2100,2030.658494104975
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2020,787.2730594125998
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2025,2047.162738379995
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2030,4678.439620829567
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2035,6816.982192044754
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2040,8719.211852469612
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2045,11454.51807979122
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2050,13979.67609002588
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2055,16641.82758177571
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2060,18802.35753412948
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2070,22512.84579568531
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2080,25949.96556479477
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2090,28756.67075587259
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Solar,GW,2100,32040.96787926432
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2020,733.4795899999995
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2025,1279.369845239999
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2030,1804.708234157144
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2035,2044.17917431113
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2040,2635.751103128278
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2045,3513.226381634278
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2050,5179.304563444125
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2055,7221.334123957632
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2060,8897.728060721722
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2070,11991.46583862133
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2080,13998.2938896512
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2090,16462.20876178935
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Capacity|Electricity|Wind,GW,2100,18814.5865469588
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2020,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2025,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2030,215.866076095951
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2035,234.1483209183622
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2040,422.7387432875943
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2045,750.0681384310593
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2050,1382.089651601484
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2055,2442.394400172571
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2060,3915.963578075344
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2070,7823.9160851364
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2080,10021.58560607076
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2090,10235.19495042824
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Capture|Geological Storage,Mt CO2/yr,2100,11694.20945697339
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2020,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2025,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2030,27.501488949798933
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2035,64.67839123802963
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2040,153.30715185058983
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2045,291.1780901214997
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2050,532.8261679808934
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2055,1065.209096101983
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2060,1837.3996458780434
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2070,4212.397162182454
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2080,6315.346404148454
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2090,6813.28873842431
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Carbon Removal|Geological Storage,Mt CO2/yr,2100,8399.23313395268
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2025,362.8211780995736
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2030,321.3199346035053
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2035,300.4834821263393
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2040,290.28368525236914
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2045,270.39660288014954
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2050,255.81230201244705
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2055,237.54555363510767
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2060,214.99980014738895
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2070,184.70367149648217
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2080,169.19549986748015
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2090,157.2746938152372
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CH4,Mt CH4/yr,2100,149.42933860261945
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2025,42731.25892802239
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2030,35878.855704011214
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2035,30473.358813073704
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2040,24869.617510317818
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2045,19154.349932384685
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2050,13316.826007965228
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2055,8282.637652859086
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2060,4182.770150915241
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2070,-2437.9515440132436
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2080,-6232.9090462817485
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2090,-7660.581553156522
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2,Mt CO2/yr,2100,-9376.591222715804
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2025,39224.81215785441
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2030,35397.678973089955
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2035,31337.531665899165
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2040,27079.13994688999
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2045,22498.71552270358
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2050,17796.034752030846
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2055,13235.708617171422
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2060,9609.703335474296
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2070,3331.1858460392496
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2080,-189.6029407358172
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2090,-1646.5025591171511
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy and Industrial Processes,Mt CO2/yr,2100,-3709.651541182996
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2020,7051.257384454483
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2025,6558.523919679157
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2030,6092.428311857072
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2035,5806.930370933142
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2040,5094.826480896898
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2045,4475.182527080313
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2050,3832.246252949922
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2055,3185.378146456754
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2060,2679.652659893352
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2070,1812.33558881368
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2080,1471.02892866094
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2090,1215.144777497768
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Industry,Mt CO2/yr,2100,1211.877701771628
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2020,3369.420738026839
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2025,3408.923429047882
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2030,3223.839668972469
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2035,2803.181857941731
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2040,2346.861472953762
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2045,1862.699654462743
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2050,1557.647524742116
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2055,1283.457766666333
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2060,1058.606766785426
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2070,564.7240657731893
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2080,220.7411671008309
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2090,60.42223225359075
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Residential and Commercial,Mt CO2/yr,2100,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2020,5900.715403339606
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2025,7007.930338340184
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2030,7169.607871814764
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2035,7405.858071474325
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2040,6727.558376605919
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2045,5721.905685347587
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2050,4639.510875087692
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2055,3711.684674643272
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2060,3100.905119178462
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2070,2291.157988029356
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2080,1668.292190157472
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2090,1318.927911292737
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Energy|Demand|Transportation,Mt CO2/yr,2100,1226.843312714963
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2020,1734.144956259281
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2025,1718.908642619602
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2030,1924.942427461012
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2035,1986.379980455469
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2040,2004.506319984994
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2045,1994.956075770043
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2050,1975.392714253608
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2055,1898.880190220385
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2060,1744.92058384872
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2070,1194.445859170547
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2080,1233.083838380693
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2090,1304.633111847742
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|CO2|Industrial Processes,Mt CO2/yr,2100,1324.307526248636
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2025,57855.43078551183
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2030,49654.71292652077
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2035,43285.30850119352
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2040,37238.03239105155
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2045,30922.967628584815
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2050,24645.348901060508
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2055,19053.48542320532
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2060,14281.085069702063
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2070,6720.238156646866
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2080,2500.303959336773
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2090,716.1416074424588
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|Kyoto Gases,Mt CO2-equiv/yr,2100,-1249.5840338006342
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2025,11413.632025669132
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2030,11278.554216846698
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2035,10905.83597032242
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2040,10538.86919205552
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2045,10215.790202979284
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2050,9936.154002535195
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2055,9630.60088440766
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2060,9444.202975569946
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2070,9218.400451707128
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2080,9059.236348537808
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2090,8828.66610874537
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Emissions|N2O,kt N2O/yr,2100,8605.520812805482
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2020,373.7061738986944
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2025,406.8765139035133
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2030,416.6197541037894
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2035,433.2562511655998
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2040,433.9470599050842
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2045,433.41210107049
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2050,435.7582359560324
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2055,442.1656934933769
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2060,452.2646663731771
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2070,479.4027149586927
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2080,512.3667653118802
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2090,548.692020603205
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy,EJ/yr,2100,582.8329968158913
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2020,81.30740990779867
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2025,94.97715204429804
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2030,105.241668799053
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2035,118.3775731794857
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2040,131.8556686383284
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2045,150.9863743763984
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2050,171.3496593529037
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2055,192.1804273312514
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2060,211.2391538470702
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2070,246.3066840473614
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2080,277.43044693553
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2090,309.1861804275779
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Final Energy|Electricity,EJ/yr,2100,341.5537992352709
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2020,118259.88426426
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2025,142507.69031438
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2030,165927.2709599001
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2035,191093.2205818884
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2040,215391.2585815717
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2045,242539.8180826036
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2050,269397.6879404179
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2055,299413.2179488078
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2060,329727.1051522872
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2070,396940.6671914699
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2080,467100.9046368514
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2090,540400.8173970095
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,GDP|PPP,billion USD_2010/yr,2100,618089.4200478264
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2020,558.3300215590154
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2025,590.3374819566018
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2030,573.2862455724571
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2035,565.486453275758
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2040,551.7617349494175
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2045,539.6643136798833
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2050,533.1805774474911
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2055,531.6531985685112
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2060,544.7691710279237
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2070,587.1789065321866
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2080,639.0921204433869
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2090,684.6376211548265
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy,EJ/yr,2100,736.2256816515868
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2020,159.2718377135721
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2025,152.9177868999523
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2030,128.1428061484843
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2035,80.2436552837796
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2040,50.47948575107529
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2045,33.51092106392841
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2050,17.85950397124996
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2055,6.584440878758498
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2060,3.408082992880826
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2070,0.313530507794935
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2080,0.094275354504292
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2090,0.051183763414812
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Coal,EJ/yr,2100,0.030349299801803
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2020,143.5785404203717
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2025,157.6290678056118
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2030,149.8772513814361
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2035,170.7036716112042
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2040,185.3447410604656
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2045,183.8077672565702
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2050,182.439916539504
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2055,165.1483403573909
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2060,155.5940048121193
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2070,143.0018122282225
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2080,131.867009941831
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2090,119.6238277933529
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Gas,EJ/yr,2100,114.1127276486632
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2020,173.6952256447117
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2025,186.0916647594852
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2030,173.0201765771269
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2035,166.2662774581826
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2040,142.4054189976323
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2045,115.7496604300589
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2050,88.61806273744905
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2055,70.53285948533185
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2060,53.95571744967499
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2070,29.83675577301799
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2080,18.40671225045021
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2090,9.374825867751763
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Primary Energy|Oil,EJ/yr,2100,4.049730292789218
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2020,2.020016390404512
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2025,0.9863175745492
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2030,1.170453690355283
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2035,1.180249340572453
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2040,0.958449011614412
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2045,1.047826725188115
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2050,1.132575414902539
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2055,1.273560068047604
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2060,1.588192302790286
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2070,2.5789377335702293
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2080,3.638668544866114
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2090,4.200529923214386
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Biomass,EJ/yr,2100,4.7938337031946725
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2020,34.19901612303592
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2025,37.42211566530491
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2030,30.04129004068355
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2035,16.88513424654552
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2040,9.9142136280169
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2045,6.32703768712994
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2050,2.227845805371861
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2055,0.001589788734337
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2060,0.001340036240126
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2070,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2080,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2090,-4.2955813865458624e-10
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Coal,EJ/yr,2100,0.0
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2020,0.343059291746413
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2025,0.431448507434356
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2030,0.395359717754563
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2035,0.459719915317568
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2040,0.5475739907222621
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2045,0.7202472623475881
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2050,0.9623112108732452
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2055,1.293979884175314
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2060,1.768195096935273
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2070,3.197583167371534
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2080,5.930087974973698
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2090,9.63814540313656
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Geothermal,EJ/yr,2100,12.07022729866497
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2020,15.7168386200237
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2025,17.02949989387769
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2030,18.09042392651888
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2035,21.81729719427678
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2040,22.83503996079024
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2045,23.4930404680179
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2050,24.61519681740124
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2055,25.04141027196862
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2060,25.39627727561095
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2070,25.85404294229452
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2080,26.20125836578327
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2090,26.52412524635403
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Hydro,EJ/yr,2100,26.8271541762437
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2020,3.0746619774541952
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2025,7.942196602501718
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2030,24.54115894432532
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2035,37.77712925764855
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2040,50.26230115412988
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2045,68.28464433498881
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2050,85.34950986448695
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2055,103.0490765155737
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2060,117.500073762475
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2070,142.5186895138014
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2080,164.8607241271021
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2090,184.1880001104766
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Solar,EJ/yr,2100,205.9305942040926
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2020,5.71852156674939
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2025,10.39301592646496
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2030,15.60894346370836
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2035,19.47951394675447
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2040,26.3315542553204
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2045,35.96206307326719
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2050,51.3882640657167
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2055,71.1091997192237
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2060,88.12170351972733
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2070,121.1318395966863
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2080,142.9622712767145
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2090,168.6809732630336
+MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,SSP2 - Low Emissions,World,Secondary Energy|Electricity|Wind,EJ/yr,2100,192.4160462098786

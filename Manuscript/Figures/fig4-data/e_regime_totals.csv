@@ -1,0 +1,9 @@
+scope,tier,x,metric
+FS-Lf.Trnsf-ALL,Unlimited,14.765505558733434,"Transfers ($tn NPV, MER)"
+FS-Lf.Trnsf-ALL,Lowest-f.,6.312435848591838,"Transfers ($tn NPV, MER)"
+FS-Lf.Trnsf-CDR,Unlimited,27.435180583323195,"Transfers ($tn NPV, MER)"
+FS-Lf.Trnsf-CDR,Lowest-f.,27.017442888988715,"Transfers ($tn NPV, MER)"
+FS-Lf.Trnsf-ALL,Lowest-f.,-0.055317705094837244,Δ Consumption vs Source (%)
+FS-Lf.Trnsf-CDR,Lowest-f.,-0.6394764202540371,Δ Consumption vs Source (%)
+FS-Lf.Trnsf-ALL,Unlimited,6.842734797229966e-4,Δ Consumption vs Source (%)
+FS-Lf.Trnsf-CDR,Unlimited,-0.6428989529829732,Δ Consumption vs Source (%)
