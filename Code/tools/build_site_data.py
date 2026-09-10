@@ -40,8 +40,9 @@ OVERLAY = {
            "source, on annual CO2 to 2050 and on cumulative CO2 over 2025 to 2100, so a reader can "
            "place the paper's scenarios against a published CMIP7 pathway from the same model. "
            "* The series drawn here are not the ScenarioMIP series as reported: the harmonised "
-           "release starts in 2023, so the 2020 to 2025 segment on the strip is the source "
-           "pathway's own; regional series are the model's native reporting rather than the "
+           "release starts in 2023, so for 2020 to 2025 the cumulative CO2 figure uses our source "
+           "scenario, which follows the same history before the first model timestep in 2030; "
+           "regional series are the model's native reporting rather than the "
            "harmonised release; and non-CO2 is recomputed on the release's own basket. "
            + DEFER + ".",
     "cite": "Cite: " + CITE + ".",
