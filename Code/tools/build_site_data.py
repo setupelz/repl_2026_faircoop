@@ -150,15 +150,14 @@ INDICATORS = {
 }
 
 FIGS = [
-    {"id": "fig00", "title": "Total CO2 and greenhouse-gas emissions",
-     "sub": "All CO2, including land use, and all greenhouse gases in CO2-equivalent, in Gt per year.",
-     "panels": [("total_co2", "Total CO2"), ("total_ghg", "Total greenhouse gases")]},
-    {"id": "figtr", "title": "Interregional financial transfers",
-     "sub": "What regions pay or receive to settle their fair shares, in billion US$ per year, and "
-            "the cumulative volume in trillion US$ (net present value, 5% discount rate, 2025 base). "
-            "Regions and groups are net: positive is received, negative is paid. World is the gross "
-            "volume moved between regions. The source and baseline pathways have no transfers.",
-     "panels": [("transfers", "Transfers per year"), ("transfers_npv", "Cumulative transfers, NPV")]},
+    {"id": "fig00", "title": "Emissions and financial transfers",
+     "sub": "All CO2, including land use, and all greenhouse gases in CO2-equivalent, in Gt per year; "
+            "and the interregional financial transfers that settle the fair shares over 2026 to 2100, in "
+            "trillion US$ (net present value, 5% discount rate, 2025 base). Regions and groups are net, "
+            "positive received and negative paid; World is the gross volume moved between regions. "
+            "The source and baseline pathways have no transfers.",
+     "panels": [("total_co2", "Total CO2"), ("total_ghg", "Total greenhouse gases"),
+                ("transfers_npv", "Transfers, NPV 2026 to 2100")]},
     {"id": "fig01", "title": "Renewable electricity generation",
      "sub": "Electricity generated from all renewables, wind and solar, in EJ per year.",
      "panels": [("renew_gen", "All renewables"), ("wind_gen", "Wind"),
@@ -324,8 +323,11 @@ def build_docs(ind: pd.DataFrame, series: pd.DataFrame) -> list[dict]:
             for (sid, region), grp in sub.groupby(["id", "region"]):
                 pts = [[int(y), _round(v)] for y, v in
                        sorted(zip(grp["year"], grp[key]))]
+                if key == "transfers_npv":
+                    pts = pts[-1:]  # the bar panel shows the 2026 to 2100 total only
                 data.setdefault(region, {})[sid] = pts
             panels.append({"key": key, "title": title, "unit": unit,
+                           "kind": "bar" if key == "transfers_npv" else "line",
                            "indicator": egr_name, "formed": formed, "data": data})
         docs.append({"id": fig["id"], "title": fig["title"], "sub": fig["sub"],
                      "panels": panels})

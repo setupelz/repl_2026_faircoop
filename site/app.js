@@ -34,7 +34,7 @@ Promise.all([
   d3.json("data/meta.json?v=" + Date.now()),
   d3.json("data/cumulative.json?v=" + Date.now()),
   d3.json("data/overlay.json?v=" + Date.now()).catch(() => null),
-  ...["fig00", "figtr", "fig01", "fig03", "fig04", "fig05"].map(id => d3.json(`data/${id}.json?v=${Date.now()}`)),
+  ...["fig00", "fig01", "fig03", "fig04", "fig05"].map(id => d3.json(`data/${id}.json?v=${Date.now()}`)),
 ]).then(([meta, cum, overlay, ...figs]) => {
   META = meta; CUM = cum; OVERLAY = overlay; FIGS = figs;
   FAMILIES = [...new Set(META.series.map(s => s.family).filter(f => f && f !== DEFAULT_FAMILY))]
@@ -266,7 +266,49 @@ function tickLabels(ticks) {
 const regionLabel = () => (META.regions.find(r => r.id === state.region) || {}).label || state.region;
 
 /* ============ one panel ============ */
+function drawBarPanel(svg, p, x0, series) {
+  const g = el("g", { transform: `translate(${x0},0)` }, svg);
+  const data = p.data[state.region] || {};
+  const bars = series.filter(x => data[x.s.id] && data[x.s.id].length).map(x => ({ x, v: data[x.s.id][0][1] }));
+  const vals = bars.map(b => b.v);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const pad = (hi - lo || 1) * 0.15;
+  const py = d3.scaleLinear().domain([lo - (lo < 0 ? pad : 0), hi + (hi > 0 ? pad : 0)]).range([M_T + PANEL_H, M_T]);
+  el("rect", { x: 0, y: 0, width: M_L + PANEL_W + M_R, height: M_T + PANEL_H + M_B, fill: "#ffffff" }, g);
+  el("text", { x: M_L, y: 14, "font-size": 11, "font-weight": 700, fill: "#1a1a1a" }, g).textContent = p.title;
+  el("text", { x: M_L, y: 25, "font-size": 8, fill: C_MUTED }, g).textContent = p.unit;
+  const ticks = py.ticks(4);
+  const labels = tickLabels(ticks);
+  ticks.forEach((t, i) => {
+    el("line", { x1: M_L, x2: M_L + PANEL_W, y1: py(t), y2: py(t), stroke: t === 0 ? C_ZERO : C_GRID,
+      "stroke-width": 0.8 }, g);
+    el("text", { x: M_L - 5, y: py(t) + 3, "text-anchor": "end", "font-size": 8, fill: "#5c5c5c" }, g)
+      .textContent = labels[i];
+  });
+  el("line", { x1: M_L, x2: M_L, y1: M_T, y2: M_T + PANEL_H, stroke: "#1a1a1a", "stroke-width": 0.9 }, g);
+  el("line", { x1: M_L, x2: M_L + PANEL_W, y1: py(0), y2: py(0), stroke: "#1a1a1a", "stroke-width": 0.9 }, g);
+  if (!bars.length) {
+    el("text", { x: M_L + PANEL_W / 2, y: M_T + PANEL_H / 2, "text-anchor": "middle", "font-size": 9,
+      fill: C_MUTED }, g).textContent = "no transfers in the selected pathways";
+    return;
+  }
+  const slot = PANEL_W / bars.length, bw = Math.min(46, slot * 0.6);
+  bars.forEach((b, i) => {
+    const cx = M_L + slot * (i + 0.5);
+    const rect = el("rect", { x: cx - bw / 2, y: Math.min(py(0), py(b.v)), width: bw,
+      height: Math.abs(py(b.v) - py(0)), fill: b.x.colour, "fill-opacity": b.x.opacity, "class": "series" }, g);
+    el("text", { x: cx, y: (b.v >= 0 ? py(b.v) - 4 : py(b.v) + 10), "text-anchor": "middle", "font-size": 8,
+      fill: "#1a1a1a" }, g).textContent = fmtNum(b.v, "");
+    el("text", { x: cx, y: M_T + PANEL_H + 15, "text-anchor": "middle", "font-size": 8, fill: "#5c5c5c" }, g)
+      .textContent = b.x.s.role === "U" ? "unlimited" : b.x.s.role === "L" ? "lowest-feasible" : b.x.s.role;
+    rect.addEventListener("mousemove", ev => showTip(ev, `<b>${b.x.label}</b><br>${regionLabel()}, 2026 to 2100: ` +
+      `${fmtNum(b.v, p.unit)}<br><span style="opacity:.7">${b.x.s.variant}</span>`));
+    rect.addEventListener("mouseleave", hideTip);
+  });
+}
+
 function drawPanel(svg, p, x0, series) {
+  if (p.kind === "bar") return drawBarPanel(svg, p, x0, series);
   const g = el("g", { transform: `translate(${x0},0)` }, svg);
   const data = p.data[state.region] || {};
   const drawn = series.filter(x => data[x.s.id] && data[x.s.id].length > 1);
