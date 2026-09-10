@@ -1,0 +1,13 @@
+scenario_set,scenario_label,grp,excess
+SSP1 2C,Source,Higher-resp.,461.33612792972
+SSP1 2C,Source,Lower-resp.,-461.4327555755117
+SSP1 2C,Unlimited (U),Higher-resp.,165.62528336659494
+SSP1 2C,Unlimited (U),Lower-resp.,-421.84359345068225
+SSP1 2C,Lowest-f. (L),Higher-resp.,134.63453024606198
+SSP1 2C,Lowest-f. (L),Lower-resp.,-361.623232476613
+SSP2 2C,Source,Higher-resp.,495.56570437348114
+SSP2 2C,Source,Lower-resp.,-498.0056062241681
+SSP2 2C,Unlimited (U),Higher-resp.,177.42654800625883
+SSP2 2C,Unlimited (U),Lower-resp.,-461.5328118469829
+SSP2 2C,Lowest-f. (L),Higher-resp.,95.06563398098076
+SSP2 2C,Lowest-f. (L),Lower-resp.,-306.9463325259995

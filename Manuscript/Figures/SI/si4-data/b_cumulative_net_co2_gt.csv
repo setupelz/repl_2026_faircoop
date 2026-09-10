@@ -1,0 +1,13 @@
+dr,state,grp,gt,ypos
+5% (default),Src./FS.U.,World,798.7850412234894,2.84
+5% (default),Src./FS.U.,Higher,555.3453171170521,1.84
+5% (default),Src./FS.U.,Lower,203.25211136365124,0.84
+5% (default),FS-Lf.Trnsf.,World,805.5190761964,2.84
+5% (default),FS-Lf.Trnsf.,Higher,409.46625438760867,1.84
+5% (default),FS-Lf.Trnsf.,Lower,355.9811464894579,0.84
+1%,Src./FS.U.,World,724.896863011746,3.16
+1%,Src./FS.U.,Higher,477.6393902539359,2.16
+1%,Src./FS.U.,Lower,208.86692996122756,1.16
+1%,FS-Lf.Trnsf.,World,705.2122507452343,3.16
+1%,FS-Lf.Trnsf.,Higher,363.3786329793146,2.16
+1%,FS-Lf.Trnsf.,Lower,303.8177828132698,1.16

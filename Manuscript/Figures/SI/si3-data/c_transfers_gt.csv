@@ -1,0 +1,7 @@
+scenario_set,scenario_label,coop_gt
+SSP1 2C,Unlimited (U),461.83399282839974
+SSP1 2C,Lowest-f. (L),392.8584023217488
+SSP2 2C,Unlimited (U),496.2195485518883
+SSP2 2C,Lowest-f. (L),328.3996227909663
+SSP2 2C,Source,0
+SSP1 2C,Source,0
