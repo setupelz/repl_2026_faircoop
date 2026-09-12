@@ -95,6 +95,20 @@ INPUT_VARS = [
     "Emissions|CH4", "Emissions|N2O", "Emissions|F-Gases",
     "Carbon Removal|Geological Storage", "Carbon Capture|Geological Storage",
     "Transfers|Finance",
+    # electricity mix and capacity
+    "Secondary Energy|Electricity", "Secondary Energy|Electricity|Coal",
+    "Secondary Energy|Electricity|Nuclear",
+    "Capacity|Electricity|Solar", "Capacity|Electricity|Wind",
+    "Capacity|Electricity|Hydro", "Capacity|Electricity|Biomass",
+    "Capacity|Electricity|Geothermal",
+    # efficiency and electrification
+    "Primary Energy", "GDP|PPP", "Final Energy", "Final Energy|Electricity",
+    "Final Energy|Transportation", "Final Energy|Transportation|Electricity",
+    # emissions by demand sector
+    "Emissions|CO2|Energy|Demand|Industry", "Emissions|CO2|Industrial Processes",
+    "Emissions|CO2|Energy|Demand|Residential and Commercial",
+    "Emissions|CO2|Energy|Demand|Transportation",
+    "Emissions|CH4|AFOLU|Agriculture", "Emissions|N2O|AFOLU|Agriculture",
 ]
 
 # Derived indicators: key -> (function of a wide frame with one column per
@@ -107,6 +121,18 @@ def _col(w, name):
 
 def _sum(*cols):
     return lambda w: sum(w[c] for c in cols)
+
+
+def _sum_col(*cols):
+    """Sum of columns, tolerating a frame that lacks some of them."""
+    return lambda w: sum(_col(w, c) for c in cols)
+
+
+def _share(num, den):
+    """Percentage share. Region groups are summed before this runs, so the
+    result is a ratio of sums rather than a mean of regional ratios."""
+    nums = (num,) if isinstance(num, str) else num
+    return lambda w: sum(_col(w, n) for n in nums) / _col(w, den) * 100.0
 
 
 INDICATORS = {
@@ -147,6 +173,52 @@ INDICATORS = {
                 "Carbon Capture|Geological Storage minus Carbon Removal|Geological Storage"),
     "storage_total": (lambda w: w["Carbon Capture|Geological Storage"] / 1000.0, "Gt CO2/yr",
                       "Total geological carbon storage", "Carbon Capture|Geological Storage"),
+    # Electricity capacity, the basis of the global tripling goal.
+    "cap_renew": (_sum_col("Capacity|Electricity|Solar", "Capacity|Electricity|Wind",
+                           "Capacity|Electricity|Hydro", "Capacity|Electricity|Biomass",
+                           "Capacity|Electricity|Geothermal"),
+                  "GW", "Renewable electricity capacity",
+                  "Installed solar, wind, hydro, biomass and geothermal capacity"),
+    "cap_solar": (lambda w: _col(w, "Capacity|Electricity|Solar"), "GW",
+                  "Solar electricity capacity", "Capacity|Electricity|Solar"),
+    "cap_wind": (lambda w: _col(w, "Capacity|Electricity|Wind"), "GW",
+                 "Wind electricity capacity", "Capacity|Electricity|Wind (onshore and offshore)"),
+    "energy_intensity": (lambda w: _col(w, "Primary Energy") / _col(w, "GDP|PPP") * 1000.0,
+                         "MJ per US$2010 (PPP)", "Primary energy intensity of GDP",
+                         "Primary Energy divided by GDP|PPP"),
+    "elec_share": (_share("Final Energy|Electricity", "Final Energy"), "%",
+                   "Share of electricity in final energy",
+                   "Final Energy|Electricity as a share of Final Energy"),
+    "coal_power": (lambda w: _col(w, "Secondary Energy|Electricity|Coal"), "EJ/yr",
+                   "Electricity generation from coal", "Secondary Energy|Electricity|Coal"),
+    "coal_elec_share": (_share("Secondary Energy|Electricity|Coal", "Secondary Energy|Electricity"), "%",
+                        "Share of coal in electricity generation",
+                        "Coal generation as a share of total electricity generation"),
+    "ws_elec_share": (_share(("Secondary Energy|Electricity|Solar", "Secondary Energy|Electricity|Wind"),
+                             "Secondary Energy|Electricity"), "%",
+                      "Share of solar and wind in electricity generation",
+                      "Solar plus wind generation as a share of total electricity generation"),
+    "nuclear_gen": (lambda w: _col(w, "Secondary Energy|Electricity|Nuclear"), "EJ/yr",
+                    "Nuclear electricity generation", "Secondary Energy|Electricity|Nuclear"),
+    "industry_co2": (lambda w: (_col(w, "Emissions|CO2|Energy|Demand|Industry")
+                                + _col(w, "Emissions|CO2|Industrial Processes")) / 1000.0,
+                     "Gt CO2/yr", "Industry CO2 emissions, direct",
+                     "Industrial energy demand plus industrial process CO2, excluding the emissions "
+                     "of the electricity and heat industry buys"),
+    "buildings_co2": (lambda w: _col(w, "Emissions|CO2|Energy|Demand|Residential and Commercial") / 1000.0,
+                      "Gt CO2/yr", "Buildings CO2 emissions, direct",
+                      "Residential and commercial energy demand CO2, excluding the emissions of the "
+                      "electricity and heat buildings buy"),
+    "agri_nonco2": (lambda w: (_col(w, "Emissions|CH4|AFOLU|Agriculture") * GWP_CH4
+                               + _col(w, "Emissions|N2O|AFOLU|Agriculture") / 1000.0 * GWP_N2O) / 1000.0,
+                    "Gt CO2e/yr", "Agriculture non-CO2 emissions",
+                    f"Agricultural CH4 x {GWP_CH4} plus N2O x {GWP_N2O:.0f} (AR6 GWP100)"),
+    "transport_co2": (lambda w: _col(w, "Emissions|CO2|Energy|Demand|Transportation") / 1000.0,
+                      "Gt CO2/yr", "Transport CO2 emissions, all modes",
+                      "Emissions|CO2|Energy|Demand|Transportation"),
+    "transport_elec_share": (_share("Final Energy|Transportation|Electricity", "Final Energy|Transportation"),
+                             "%", "Electrification of transport energy",
+                             "Electricity as a share of transport final energy"),
     "transfers": (lambda w: _col(w, "Transfers|Finance"), "billion US$2010/yr",
                   "Interregional financial transfers",
                   "Transfers|Finance: certificate volume x certificate price. Regions and groups are net "
@@ -167,10 +239,20 @@ FIGS = [
             "The source and baseline pathways have no transfers.",
      "panels": [("total_co2", "Total CO2"), ("total_ghg", "Total greenhouse gases"),
                 ("transfers_npv", "Transfers, NPV 2026 to 2100")]},
-    {"id": "fig01", "title": "Renewable electricity generation",
-     "sub": "Electricity generated from all renewables, wind and solar, in EJ per year.",
-     "panels": [("renew_gen", "All renewables"), ("wind_gen", "Wind"),
-                ("solar_gen", "Solar PV")]},
+    {"id": "figcap", "title": "Renewable electricity capacity",
+     "sub": "Installed generating capacity in GW: all renewables, then solar and wind on their own. "
+            "Capacity is the basis of the global goal to triple renewables by 2030, and it is a "
+            "different quantity from the generation shown further down.",
+     "panels": [("cap_renew", "All renewables"), ("cap_solar", "Solar"), ("cap_wind", "Wind")]},
+    {"id": "figeff", "title": "Energy efficiency and electrification",
+     "sub": "Primary energy used per unit of economic output, and the share of final energy delivered "
+            "as electricity. Group and World values are ratios of the summed components.",
+     "panels": [("energy_intensity", "Energy intensity of GDP"),
+                ("elec_share", "Electricity share of final energy")]},
+    {"id": "figcoal", "title": "Coal-fired electricity",
+     "sub": "Electricity generated from coal, in EJ per year, and its share of all electricity "
+            "generation.",
+     "panels": [("coal_power", "Coal generation"), ("coal_elec_share", "Coal share of electricity")]},
     {"id": "fig03", "title": "Fossil fuel supply",
      "sub": "Primary energy from coal, oil and gas, in EJ per year.",
      "panels": [("coal", "Coal supply"), ("oil", "Oil supply"), ("gas", "Gas supply")]},
@@ -178,6 +260,25 @@ FIGS = [
      "sub": "CO2 from energy and industrial processes, and non-CO2 greenhouse "
             "gases in CO2 equivalent.",
      "panels": [("energy_co2", "Energy-system CO2"), ("non_co2", "Non-CO2 gases")]},
+    {"id": "figsec", "title": "Emissions by demand sector",
+     "sub": "Direct CO2 from industry, including industrial processes, and from buildings, with "
+            "agricultural methane and nitrous oxide in CO2-equivalent. Direct means the emissions "
+            "released in the sector, not those of the electricity and heat it buys.",
+     "panels": [("industry_co2", "Industry"), ("buildings_co2", "Buildings"),
+                ("agri_nonco2", "Agriculture, non-CO2")]},
+    {"id": "fig01", "title": "Renewable electricity generation",
+     "sub": "Electricity generated from all renewables, wind and solar, in EJ per year.",
+     "panels": [("renew_gen", "All renewables"), ("wind_gen", "Wind"),
+                ("solar_gen", "Solar PV")]},
+    {"id": "figlow", "title": "Low-emission electricity",
+     "sub": "The share of electricity generated from solar and wind, and nuclear generation in EJ "
+            "per year.",
+     "panels": [("ws_elec_share", "Solar and wind share"), ("nuclear_gen", "Nuclear generation")]},
+    {"id": "figtrans", "title": "Transport",
+     "sub": "Direct CO2 from transport across all modes, and the share of transport final energy "
+            "delivered as electricity.",
+     "panels": [("transport_co2", "Transport CO2"),
+                ("transport_elec_share", "Electrification of transport")]},
     {"id": "fig05", "title": "Geological carbon storage",
      "sub": "CO2 stored underground each year, in Gt: carbon removal (bioenergy with CCS and direct "
             "air capture), CCS on fossil and industrial sources, and the total, which is their sum.",
@@ -401,8 +502,10 @@ def build_overlay(csv: Path = OVERLAY_CSV, source_head=None) -> dict | None:
             ser = wide["Emissions|Kyoto Gases"] / 1000.0
         else:
             ser = fn(wide)
-        out[key] = [[int(y), _round(v)] for y, v in ser.items()
-                    if y in YEARS and pd.notna(v)]
+        pts = [[int(y), _round(v)] for y, v in ser.items()
+               if y in YEARS and pd.notna(v)]
+        if pts:  # the comparison run reports a subset of the card variables
+            out[key] = pts
     co2 = wide["Emissions|CO2"].dropna()
     yrs = [y for y in CUM_YEARS if y in co2.index]
     vals = co2.loc[yrs].to_numpy() / 1000.0
@@ -453,7 +556,9 @@ def build_overlay_regional(csv: Path = OVERLAY_REGIONAL_CSV) -> dict:
                        else wide["Emissions|Kyoto Gases"] / 1000.0 if key == "total_ghg" else fn(wide))
             except KeyError:
                 continue
-            ind[key] = [[int(y), _round(v)] for y, v in ser.items() if y in YEARS and pd.notna(v)]
+            pts = [[int(y), _round(v)] for y, v in ser.items() if y in YEARS and pd.notna(v)]
+            if pts:  # the comparison run reports a subset of the card variables
+                ind[key] = pts
         out[region] = ind
     return out
 
