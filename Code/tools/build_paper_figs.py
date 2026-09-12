@@ -102,7 +102,8 @@ BUD_COLS = {"2 °C": "#E69F00", "1.5 °C": "#0072B2"}
 
 VARS = sorted(set(
     ["Emissions|CO2", "Gross Emissions|CO2", "Transfers|Finance", "Transfers|Mitigation",
-     "Consumption", "Price|Carbon", "Final Energy", "Final Energy|Electricity",
+     "Consumption", "Price|Carbon", "Emissions|CO2|AFOLU",
+     "Final Energy", "Final Energy|Electricity",
      "Primary Energy|Coal", "Primary Energy|Gas", "Primary Energy|Oil",
      "Primary Energy|Solar", "Primary Energy|Wind",
      "Emissions|Allocation|Remaining domestic|Source|Gt"]
@@ -164,7 +165,46 @@ def load(csv: Path = CSV) -> pd.DataFrame:
     long = df.melt(id_vars=["model", "scenario_set", "variant", "region", "variable"],
                    value_vars=year_cols, var_name="year", value_name="value")
     long["year"] = long["year"].astype(int)
-    return long.dropna(subset=["value"]).reset_index(drop=True)
+    long = long.dropna(subset=["value"]).reset_index(drop=True)
+    return correct_consumption_excluded(long)
+
+
+def correct_consumption_excluded(long: pd.DataFrame) -> pd.DataFrame:
+    """Port of correct_consumption_excluded() in Code/000_setup.R, so the site
+    reports the same consumption as the paper's figures.
+
+    MACRO's Consumption in every fair-share variant carries the value of the
+    region's excluded (LULUCF) emissions at the source-scenario carbon price.
+    The variants hold excluded emissions to their source behaviour by pricing
+    them at the global level; the regional cost accounting that MACRO receives
+    nets that price against each region's own excluded emissions, although no
+    region pays or receives it. Source and Baseline carry no such price and are
+    left alone.
+
+        Consumption_corrected = Consumption
+                                - Price|Carbon(source, World) x Emissions|CO2|AFOLU / 1e3
+    """
+    price = (long[(long["variable"] == "Price|Carbon")
+                  & (long["variant"] == "Source scenario")
+                  & (long["region"] == "World")]
+             [["model", "scenario_set", "year", "value"]]
+             .rename(columns={"value": "price"}))
+    afolu = (long[long["variable"] == "Emissions|CO2|AFOLU"]
+             [["model", "scenario_set", "variant", "region", "year", "value"]]
+             .rename(columns={"value": "afolu"}))
+    cons = long[long["variable"] == "Consumption"]
+    priced = ~cons["variant"].isin(["Source scenario", "Baseline"])
+    adj = (cons[priced]
+           .merge(price, on=["model", "scenario_set", "year"], how="left")
+           .merge(afolu, on=["model", "scenario_set", "variant", "region", "year"], how="left"))
+    missing = int(adj[["price", "afolu"]].isna().any(axis=1).sum())
+    if missing:
+        sys.exit(f"consumption correction: {missing} rows without a carbon price or "
+                 "an Emissions|CO2|AFOLU series")
+    adj["value"] = adj["value"] - adj["price"] * adj["afolu"] / 1e3
+    adj = adj.drop(columns=["price", "afolu"])
+    return pd.concat([long[long["variable"] != "Consumption"], cons[~priced], adj],
+                     ignore_index=True)
 
 
 # Figure captions as published (Pelz et al. 2026, ERL), the caption title as the
