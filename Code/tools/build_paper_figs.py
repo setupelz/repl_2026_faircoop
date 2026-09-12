@@ -330,7 +330,7 @@ def figure_2(long) -> dict:
         ["Primary Energy|Coal", "Primary Energy|Gas", "Primary Energy|Oil",
          "Primary Energy|Solar", "Primary Energy|Wind"])].copy()
     pe["carrier"] = np.select([pe["variable"].str.contains("Coal"), pe["variable"].str.contains("Gas"),
-                               pe["variable"].str.contains("Oil")], ["Coal", "Gas", "Oil"], "Renew.")
+                               pe["variable"].str.contains("Oil")], ["Coal", "Gas", "Oil"], "Solar+Wind")
     pe = pd.concat([pe[pe["state"] == "Lowest-f. (L)"],
                     pe[(pe["state"] == "Source") & (pe["scenario_set"] == "800fm_ecpc2015")].assign(lab="Source")])
     pe = pe[pe["year"].isin([2020] + PATH_XBREAKS)]
@@ -364,7 +364,7 @@ def figure_2(long) -> dict:
         "c": {"title": "Global energy investment", "xlab": "Δ % energy investment vs Source (2026 to 2050 NPV)",
               "rows": rows(c, ["lab", "state", "pct"])},
         "d": {"title": "Global benchmarks", "ylab": "Change vs 2020 (%)",
-              "carriers": ["Coal", "Gas", "Oil", "Renew.", "Elec. %"],
+              "carriers": ["Coal", "Gas", "Oil", "Solar+Wind", "Elec. %"],
               "rows": rows(d, ["lab", "carrier", "year", "pct"])},
     }
 
