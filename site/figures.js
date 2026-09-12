@@ -434,7 +434,7 @@ function drawFig2(f, fig, host, leg) {
   // d. global benchmarks
   const pd = panel(host, 12, FULL, 230, { l: 44, r: 8, t: 26, b: 22 }, "d  Global benchmarks: fair-share variants at lowest transfers, and the Source pathway");
   const fs = facets(pd, 5, 26);
-  const cellName = { "Coal": "Coal primary energy", "Gas": "Gas primary energy", "Oil": "Oil primary energy", "Renew.": "Solar and wind primary energy", "Elec. %": "Electricity share of final energy" };
+  const cellName = { "Coal": "Coal primary energy", "Gas": "Gas primary energy", "Oil": "Oil primary energy", "Solar+Wind": "Solar and wind primary energy", "Elec. %": "Electricity share of final energy" };
   const cells = f.d.carriers.map(car => ({ label: cellName[car], includeY: [0], series: labs.map(lab => ({ key: lab, keys: [lab, lab === "Source" ? "S" : "L"], colour: col[lab], dash: dashOf(lab), width: lab === "Source" ? 2.4 : 1.7, label: labelOf(lab),
     pts: f.d.rows.filter(r => r.lab === lab && r.carrier === car).map(r => ({ year: r.year, v: r.pct })).sort((a, b) => a.year - b.year) })) }));
   facetLines(fig, pd, fs, cells, { years, zeroLines: [], dashedZero: [0], labelYearsAt: [2030, 2060, 2100], tipUnit: "% vs 2020" });
