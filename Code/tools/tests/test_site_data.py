@@ -71,10 +71,14 @@ def test_group_regions_are_member_sums():
 def test_build_writes_expected_files_within_size(built):
     names = sorted(p.name for p in built.glob("*.json"))
     assert names == ["cumulative.json", "fig00.json", "fig01.json", "fig03.json",
-                     "fig04.json", "fig05.json", "meta.json", "overlay.json"]
+                     "fig04.json", "fig05.json", "figcap.json", "figcoal.json",
+                     "figeff.json", "figlow.json", "figsec.json", "figtrans.json",
+                     "meta.json", "overlay.json"]
     sizes = {p.name: p.stat().st_size for p in built.glob("*.json")}
     assert all(s < 700_000 for s in sizes.values()), sizes
-    assert sum(sizes.values()) < 4_000_000
+    # Guard against runaway growth, not a transfer budget: Pages serves these
+    # gzipped, where the whole set is about an eighth of its size on disk.
+    assert sum(sizes.values()) < 6_000_000
 
 
 @needs_csv
@@ -169,7 +173,10 @@ def test_overlay_low_marker():
     o = b.build_overlay(source_head=lambda y: 214.0 if y == 2025 else 0.0)
     assert o["id"] == "smip|SSP2-L" and o["region"] == "World" and o["budget"] == "2C"
     assert o["cum_years"][0] == 2025 and o["head_from_source"] == 214.0
-    assert set(o["indicators"]) == {k for k in b.INDICATORS if not k.startswith("transfers")}
+    # the comparison run reports a subset of the card variables
+    scen = {k for k in b.INDICATORS if not k.startswith("transfers")}
+    assert set(o["indicators"]) <= scen
+    assert {"total_co2", "total_ghg", "coal", "oil", "gas", "energy_co2", "non_co2"} <= set(o["indicators"])
     for key, pts in o["indicators"].items():
         yrs = [y for y, _ in pts]
         assert yrs == sorted(yrs) and yrs and min(yrs) >= 2020 and max(yrs) <= 2100, key
@@ -193,7 +200,9 @@ def test_overlay_regional_covers_regions_and_groups():
         pytest.skip("regional overlay CSV not on disk")
     r = b.build_overlay_regional()
     assert set(r) == {x["id"] for x in b.REGIONS if x["id"] != "World"}
-    assert set(r["CHN"]) == {k for k in b.INDICATORS if not k.startswith("transfers")}
+    scen = {k for k in b.INDICATORS if not k.startswith("transfers")}
+    assert set(r["CHN"]) <= scen
+    assert {"total_co2", "coal", "oil", "gas", "energy_co2", "non_co2"} <= set(r["CHN"])
     d = pd.read_csv(b.OVERLAY_REGIONAL_CSV)
     chn = d[(d.region == "CHN") & (d.variable == "Primary Energy|Coal")]["2040"].iloc[0]
     assert dict(r["CHN"]["coal"])[2040] == pytest.approx(chn, rel=1e-3)

@@ -34,7 +34,8 @@ Promise.all([
   d3.json("data/meta.json?v=" + Date.now()),
   d3.json("data/cumulative.json?v=" + Date.now()),
   d3.json("data/overlay.json?v=" + Date.now()).catch(() => null),
-  ...["fig00", "fig01", "fig03", "fig04", "fig05"].map(id => d3.json(`data/${id}.json?v=${Date.now()}`)),
+  ...["fig00", "figcap", "figeff", "figcoal", "fig04", "figsec", "fig03", "fig01",
+      "figlow", "fig05", "figtrans"].map(id => d3.json(`data/${id}.json?v=${Date.now()}`)),
 ]).then(([meta, cum, overlay, ...figs]) => {
   META = meta; CUM = cum; OVERLAY = overlay; FIGS = figs;
   FAMILIES = [DEFAULT_FAMILY, ...[...new Set(META.series.map(s => s.family).filter(f => f && f !== DEFAULT_FAMILY))]
