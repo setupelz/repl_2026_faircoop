@@ -1,7 +1,8 @@
 """Build the explorer's JSON from Data/scenario_set_reporting.csv.
 
-Writes site/data/fig00.json, fig01.json, fig03.json, fig04.json and fig05.json (UNEP EGR 2026 Chapter 5
-ensemble indicators, redrawn from this paper's scenario set), cumulative.json
+Writes one site/data/fig*.json per explorer card (the scenario-resolved indicators of the
+UNEP EGR 2026 Chapter 5 deep dive plus net-zero timing, hydrogen and land-use CO2, redrawn
+from this paper's scenario set), cumulative.json
 (World cumulative CO2 2020 to 2100 per series) and meta.json (series, regions,
 units, citation). Run with `make site-data`; the JSON is committed because the
 CSV it reads is not.
@@ -21,7 +22,7 @@ OUT = ROOT / "site" / "data"
 # The ScenarioMIP-CMIP7 Low marker (MESSAGEix-GLOBIOM-GAINS 2.1-M-R12,
 # "SSP2 - Low Emissions"), World only: the nearest public MESSAGE run to the
 # 2 C source by annual CO2 to 2050, shown for orientation. Scenario data:
-# doi:10.5281/zenodo.22296051 (IAM quantification v0.2, 2026-09-01). The
+# doi:10.5281/zenodo.22296051 (release v0.1, 2026-09-01). The
 # series drawn here are adjusted (see OVERLAY["why"]), so the page marks the
 # run with an asterisk and points to the IIASA ScenarioMIP explorer.
 OVERLAY_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low.csv"
@@ -29,7 +30,7 @@ OVERLAY_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low.csv"
 # (Code/tools/pull_scenariomip_regional.py): the model's own reporting, so its
 # World series differ slightly from the release's harmonised emissions above.
 OVERLAY_REGIONAL_CSV = ROOT / "Data" / "scenariomip_cmip7_message_ssp2_low_regional.csv"
-CITE = ('Riahi, K., van Vuuren, D.P., et al. (in preparation). Overview of the Socioeconomic, Emissions and Land Use Futures of the ScenarioMIP-CMIP7 Pathways. Scenario data: Riahi, K., van Vuuren, D.P., et al., Socioeconomic, Emissions and Land Use Futures, the ScenarioMIP Pathways for CMIP7, doi:10.5281/zenodo.22296051. Model documentation: Fricko et al. (forthcoming). Full list: https://scenariomip.apps.ece.iiasa.ac.at/documentation')
+CITE = ('Riahi, K., van Vuuren, D.P., et al. (in preparation). Overview of the Socioeconomic, Emissions and Land Use Futures of the ScenarioMIP-CMIP7 Pathways. Scenario data: Riahi, K., van Vuuren, D.P., et al. (2026). Scenario data of the \u2018Socioeconomic, Emissions and Land Use Futures: The ScenarioMIP Pathways for CMIP7\u2019, release v0.1. Zenodo. doi:10.5281/zenodo.22296051. CC BY 4.0. Framework: van Vuuren, D.P., O\'Neill, B.C., Tebaldi, C., et al. (2026). The Scenario Model Intercomparison Project for CMIP7 (ScenarioMIP-CMIP7). Geoscientific Model Development 19, 2627. doi:10.5194/gmd-19-2627-2026. Low marker run: Fricko, O., Wu, Y., Zhang, S., et al. (2026, to be submitted), listed with the other model papers at https://scenariomip.apps.ece.iiasa.ac.at/documentation')
 DEFER = ('For the scenario data itself, use the IIASA ScenarioMIP explorer at https://scenariomip.apps.ece.iiasa.ac.at/')
 OVERLAY = {
     "id": "smip|SSP2-L", "budget": "2C", "region": "World",
@@ -109,6 +110,11 @@ INPUT_VARS = [
     "Emissions|CO2|Energy|Demand|Residential and Commercial",
     "Emissions|CO2|Energy|Demand|Transportation",
     "Emissions|CH4|AFOLU|Agriculture", "Emissions|N2O|AFOLU|Agriculture",
+    # energy supply, coal capacity, hydrogen and land-use CO2
+    "Emissions|CO2|Energy|Supply", "Capacity|Electricity|Coal",
+    "Secondary Energy|Hydrogen", "Secondary Energy|Hydrogen|Fossil|w/o CCS",
+    "Final Energy|Hydrogen",
+    "Emissions|CO2|AFOLU", "Emissions|CO2|AFOLU|Positive", "Emissions|CO2|AFOLU|Negative",
 ]
 
 # Derived indicators: key -> (function of a wide frame with one column per
@@ -219,6 +225,41 @@ INDICATORS = {
     "transport_elec_share": (_share("Final Energy|Transportation|Electricity", "Final Energy|Transportation"),
                              "%", "Electrification of transport energy",
                              "Electricity as a share of transport final energy"),
+    "energy_supply_co2": (lambda w: _col(w, "Emissions|CO2|Energy|Supply") / 1000.0, "Gt CO2/yr",
+                          "Energy supply CO2 emissions",
+                          "Emissions|CO2|Energy|Supply: electricity and heat generation, fuel extraction, "
+                          "refining and conversion"),
+    "netzero_year": (lambda w: _col(w, "Emissions|CO2|Energy and Industrial Processes") * float("nan"),
+                     "year", "Net-zero year of energy-system CO2",
+                     "First year in which Emissions|CO2|Energy and Industrial Processes reaches zero, "
+                     "interpolated between reported years; a pathway still above zero in 2100 is marked "
+                     "as not reaching it"),
+    "methane": (lambda w: _col(w, "Emissions|CH4"), "Mt CH4/yr", "Methane emissions",
+                "Emissions|CH4, all sources, in native mass units"),
+    "cap_coal": (lambda w: _col(w, "Capacity|Electricity|Coal"), "GW", "Coal capacity",
+                 "Capacity|Electricity|Coal, with and without CCS"),
+    "final_energy": (lambda w: _col(w, "Final Energy"), "EJ/yr", "Total final energy consumption",
+                     "Final Energy"),
+    "h2_prod": (lambda w: _col(w, "Secondary Energy|Hydrogen"), "EJ/yr", "Hydrogen production",
+                "Secondary Energy|Hydrogen, all routes"),
+    "h2_lowc": (lambda w: _col(w, "Secondary Energy|Hydrogen") - _col(w, "Secondary Energy|Hydrogen|Fossil|w/o CCS"),
+                "EJ/yr", "Low-carbon hydrogen production",
+                "Secondary Energy|Hydrogen minus Secondary Energy|Hydrogen|Fossil|w/o CCS: electrolysis, "
+                "biomass and fossil routes with CCS"),
+    "h2_fe_share": (_share("Final Energy|Hydrogen", "Final Energy"), "%",
+                    "Share of hydrogen in final energy",
+                    "Final Energy|Hydrogen as a share of Final Energy"),
+    "afolu_gross_em": (lambda w: _col(w, "Emissions|CO2|AFOLU|Positive") / 1000.0, "Gt CO2/yr",
+                       "Land-use CO2 gross emissions",
+                       "Emissions|CO2|AFOLU|Positive: deforestation, other land-use change and soils, "
+                       "before any removal is netted off"),
+    "afolu_gross_rem": (lambda w: _col(w, "Emissions|CO2|AFOLU|Negative") / 1000.0, "Gt CO2/yr",
+                        "Land-use CO2 gross removals",
+                        "Emissions|CO2|AFOLU|Negative: afforestation, forest management and soil carbon, "
+                        "reported as a negative flux"),
+    "afolu_net": (lambda w: _col(w, "Emissions|CO2|AFOLU") / 1000.0, "Gt CO2/yr",
+                  "AFOLU net CO2 flux",
+                  "Emissions|CO2|AFOLU, the sum of gross emissions and gross removals"),
     "transfers": (lambda w: _col(w, "Transfers|Finance"), "billion US$2010/yr",
                   "Interregional financial transfers",
                   "Transfers|Finance: certificate volume x certificate price. Regions and groups are net "
@@ -244,28 +285,36 @@ FIGS = [
             "Capacity is the basis of the global goal to triple renewables by 2030, and it is a "
             "different quantity from the generation shown further down.",
      "panels": [("cap_renew", "All renewables"), ("cap_solar", "Solar"), ("cap_wind", "Wind")]},
-    {"id": "figeff", "title": "Energy efficiency and electrification",
-     "sub": "Primary energy used per unit of economic output, and the share of final energy delivered "
-            "as electricity. Group and World values are ratios of the summed components.",
-     "panels": [("energy_intensity", "Energy intensity of GDP"),
+    {"id": "figeff", "title": "Final energy, efficiency and electrification",
+     "sub": "Total final energy consumption in EJ per year, primary energy used per unit of economic "
+            "output, and the share of final energy delivered as electricity. Group and World ratios "
+            "are ratios of the summed components.",
+     "panels": [("final_energy", "Total final energy"), ("energy_intensity", "Energy intensity of GDP"),
                 ("elec_share", "Electricity share of final energy")]},
-    {"id": "figcoal", "title": "Coal-fired electricity",
-     "sub": "Electricity generated from coal, in EJ per year, and its share of all electricity "
-            "generation.",
-     "panels": [("coal_power", "Coal generation"), ("coal_elec_share", "Coal share of electricity")]},
-    {"id": "fig03", "title": "Fossil fuel supply",
-     "sub": "Primary energy from coal, oil and gas, in EJ per year.",
-     "panels": [("coal", "Coal supply"), ("oil", "Oil supply"), ("gas", "Gas supply")]},
-    {"id": "fig04", "title": "Energy-system CO2 and non-CO2 emissions",
-     "sub": "CO2 from energy and industrial processes, and non-CO2 greenhouse "
-            "gases in CO2 equivalent.",
-     "panels": [("energy_co2", "Energy-system CO2"), ("non_co2", "Non-CO2 gases")]},
+    {"id": "figcoal", "title": "Coal power",
+     "sub": "Installed coal capacity in GW, electricity generated from coal in EJ per year, and coal's "
+            "share of all electricity generation.",
+     "panels": [("cap_coal", "Coal capacity"), ("coal_power", "Coal generation"),
+                ("coal_elec_share", "Coal share of electricity")]},
+    {"id": "fig04", "title": "Energy-system CO2 and net zero",
+     "sub": "CO2 from energy and industrial processes, the part of it released by energy supply "
+            "(power, heat, extraction and fuel conversion), and the year each pathway's energy-system "
+            "CO2 reaches net zero. A pathway still above zero in 2100 is marked as not reaching it.",
+     "panels": [("energy_co2", "Energy-system CO2"), ("energy_supply_co2", "Energy supply CO2"),
+                ("netzero_year", "Net-zero year")]},
+    {"id": "fignonco2", "title": "Non-CO2 gases and methane",
+     "sub": "Non-CO2 greenhouse gases in CO2-equivalent, and methane on its own in Mt CH4 per year, "
+            "from all sources.",
+     "panels": [("non_co2", "Non-CO2 gases"), ("methane", "Methane")]},
     {"id": "figsec", "title": "Emissions by demand sector",
      "sub": "Direct CO2 from industry, including industrial processes, and from buildings, with "
             "agricultural methane and nitrous oxide in CO2-equivalent. Direct means the emissions "
             "released in the sector, not those of the electricity and heat it buys.",
      "panels": [("industry_co2", "Industry"), ("buildings_co2", "Buildings"),
                 ("agri_nonco2", "Agriculture, non-CO2")]},
+    {"id": "fig03", "title": "Fossil fuel supply",
+     "sub": "Primary energy from coal, oil and gas, in EJ per year.",
+     "panels": [("coal", "Coal supply"), ("oil", "Oil supply"), ("gas", "Gas supply")]},
     {"id": "fig01", "title": "Renewable electricity generation",
      "sub": "Electricity generated from all renewables, wind and solar, in EJ per year.",
      "panels": [("renew_gen", "All renewables"), ("wind_gen", "Wind"),
@@ -274,16 +323,28 @@ FIGS = [
      "sub": "The share of electricity generated from solar and wind, and nuclear generation in EJ "
             "per year.",
      "panels": [("ws_elec_share", "Solar and wind share"), ("nuclear_gen", "Nuclear generation")]},
-    {"id": "figtrans", "title": "Transport",
-     "sub": "Direct CO2 from transport across all modes, and the share of transport final energy "
-            "delivered as electricity.",
-     "panels": [("transport_co2", "Transport CO2"),
-                ("transport_elec_share", "Electrification of transport")]},
+    {"id": "figh2", "title": "Hydrogen",
+     "sub": "Hydrogen produced by all routes and by low-carbon routes (electrolysis, biomass, and "
+            "fossil with CCS), in EJ per year, and hydrogen's share of final energy.",
+     "panels": [("h2_prod", "All hydrogen"), ("h2_lowc", "Low-carbon hydrogen"),
+                ("h2_fe_share", "Hydrogen share of final energy")]},
     {"id": "fig05", "title": "Geological carbon storage",
      "sub": "CO2 stored underground each year, in Gt: carbon removal (bioenergy with CCS and direct "
             "air capture), CCS on fossil and industrial sources, and the total, which is their sum.",
      "panels": [("cdr_geo", "Carbon removal"), ("ccs_geo", "CCS on fossil and industry"),
                 ("storage_total", "Total storage")]},
+    {"id": "figland", "title": "Land-use CO2",
+     "sub": "Gross emissions from deforestation, other land-use change and soils; gross removals from "
+            "afforestation, forest management and soil carbon, shown negative; and their sum, the net "
+            "flux. Land-use CO2 sits outside the carbon budget the fair shares divide, so the "
+            "cooperation pathways stay close to their source here.",
+     "panels": [("afolu_gross_em", "Gross emissions"), ("afolu_gross_rem", "Gross removals"),
+                ("afolu_net", "Net flux")]},
+    {"id": "figtrans", "title": "Transport",
+     "sub": "Direct CO2 from transport across all modes, and the share of transport final energy "
+            "delivered as electricity.",
+     "panels": [("transport_co2", "Transport CO2"),
+                ("transport_elec_share", "Electrification of transport")]},
 ]
 
 BUDGETS = {"800fm": {"id": "2C", "label": "2 °C (800 Gt CO2)", "gt": 800},
@@ -390,6 +451,31 @@ def derive(long: pd.DataFrame) -> pd.DataFrame:
             sys.exit(f"missing input variable for {key}: {e}")
     out = out.reset_index()
     out["transfers_npv"] = _cumulative_npv(out)
+    out["netzero_year"] = _netzero_year(out)
+    return out
+
+
+def _netzero_from_points(pts) -> float:
+    """First year a series reaches zero or below, interpolated on the reported
+    grid; NaN when it stays positive to the last reported year."""
+    pts = sorted((int(y), float(v)) for y, v in pts if v is not None and not pd.isna(v))
+    for (y0, v0), (y1, v1) in zip(pts, pts[1:]):
+        if v0 <= 0:
+            return float(y0)
+        if v1 <= 0:
+            return y0 + (y1 - y0) * v0 / (v0 - v1)
+    if pts and pts[-1][1] <= 0:
+        return float(pts[-1][0])
+    return float("nan")
+
+
+def _netzero_year(ind: pd.DataFrame) -> pd.Series:
+    """Net-zero year of energy-system CO2 per series and region, stamped on
+    every row of that series so the panel builder can read it once."""
+    out = pd.Series(float("nan"), index=ind.index)
+    keys = ["scenario_set", "model", "variant", "region"]
+    for _, grp in ind.dropna(subset=["energy_co2"]).groupby(keys):
+        out[grp.index] = _netzero_from_points(zip(grp["year"], grp["energy_co2"]))
     return out
 
 
@@ -419,6 +505,14 @@ def _round(v: float) -> float | None:
     return float(f"{v:.4g}")
 
 
+def _year_point(v: float) -> list:
+    """The year panel's single point: [year, year], or [2100, None] when the
+    series never reaches zero by the last reported year."""
+    if pd.isna(v):
+        return [[YEARS[-1], None]]
+    return [[int(round(v)), round(float(v), 1)]]
+
+
 def build_docs(ind: pd.DataFrame, series: pd.DataFrame) -> list[dict]:
     ind = ind[ind["year"].isin(YEARS)]
     ind = ind.merge(series[["scenario_set", "model", "variant", "id"]],
@@ -429,15 +523,21 @@ def build_docs(ind: pd.DataFrame, series: pd.DataFrame) -> list[dict]:
         for key, title in fig["panels"]:
             _fn, unit, egr_name, formed = INDICATORS[key]
             data: dict[str, dict[str, list]] = {}
-            sub = ind[["id", "region", "year", key]].dropna(subset=[key])
-            for (sid, region), grp in sub.groupby(["id", "region"]):
-                pts = [[int(y), _round(v)] for y, v in
-                       sorted(zip(grp["year"], grp[key]))]
-                if key == "transfers_npv":
-                    pts = pts[-1:]  # the bar panel shows the 2026 to 2100 total only
-                data.setdefault(region, {})[sid] = pts
-            panels.append({"key": key, "title": title, "unit": unit,
-                           "kind": "bar" if key == "transfers_npv" else "line",
+            if key == "netzero_year":
+                # one point per series: [year, year]; [2100, null] when not reached
+                sub = ind[["id", "region", "energy_co2", key]].dropna(subset=["energy_co2"])
+                for (sid, region), grp in sub.groupby(["id", "region"]):
+                    data.setdefault(region, {})[sid] = _year_point(grp[key].iloc[0])
+            else:
+                sub = ind[["id", "region", "year", key]].dropna(subset=[key])
+                for (sid, region), grp in sub.groupby(["id", "region"]):
+                    pts = [[int(y), _round(v)] for y, v in
+                           sorted(zip(grp["year"], grp[key]))]
+                    if key == "transfers_npv":
+                        pts = pts[-1:]  # the bar panel shows the 2026 to 2100 total only
+                    data.setdefault(region, {})[sid] = pts
+            kind = {"transfers_npv": "bar", "netzero_year": "year"}.get(key, "line")
+            panels.append({"key": key, "title": title, "unit": unit, "kind": kind,
                            "indicator": egr_name, "formed": formed, "data": data})
         docs.append({"id": fig["id"], "title": fig["title"], "sub": fig["sub"],
                      "panels": panels})
@@ -506,6 +606,8 @@ def build_overlay(csv: Path = OVERLAY_CSV, source_head=None) -> dict | None:
                if y in YEARS and pd.notna(v)]
         if pts:  # the comparison run reports a subset of the card variables
             out[key] = pts
+    if "energy_co2" in out:
+        out["netzero_year"] = _year_point(_netzero_from_points(out["energy_co2"]))
     co2 = wide["Emissions|CO2"].dropna()
     yrs = [y for y in CUM_YEARS if y in co2.index]
     vals = co2.loc[yrs].to_numpy() / 1000.0
@@ -559,6 +661,8 @@ def build_overlay_regional(csv: Path = OVERLAY_REGIONAL_CSV) -> dict:
             pts = [[int(y), _round(v)] for y, v in ser.items() if y in YEARS and pd.notna(v)]
             if pts:  # the comparison run reports a subset of the card variables
                 ind[key] = pts
+        if "energy_co2" in ind:
+            ind["netzero_year"] = _year_point(_netzero_from_points(ind["energy_co2"]))
         out[region] = ind
     return out
 
