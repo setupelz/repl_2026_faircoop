@@ -1,7 +1,7 @@
 """Build the explorer's JSON from Data/scenario_set_reporting.csv.
 
 Writes one site/data/fig*.json per explorer card (the scenario-resolved indicators of the
-UNEP EGR 2026 Chapter 5 deep dive plus net-zero timing, hydrogen and land-use CO2, redrawn
+UNEP EGR 2026 Chapter 5 deep dive plus hydrogen and land-use CO2, redrawn
 from this paper's scenario set), cumulative.json
 (World cumulative CO2 2020 to 2100 per series) and meta.json (series, regions,
 units, citation). Run with `make site-data`; the JSON is committed because the
@@ -229,11 +229,6 @@ INDICATORS = {
                           "Energy supply CO2 emissions",
                           "Emissions|CO2|Energy|Supply: electricity and heat generation, fuel extraction, "
                           "refining and conversion"),
-    "netzero_year": (lambda w: _col(w, "Emissions|CO2|Energy and Industrial Processes") * float("nan"),
-                     "year", "Net-zero year of energy-system CO2",
-                     "First year in which Emissions|CO2|Energy and Industrial Processes reaches zero, "
-                     "interpolated between reported years; a pathway still above zero in 2100 is marked "
-                     "as not reaching it"),
     "methane": (lambda w: _col(w, "Emissions|CH4"), "Mt CH4/yr", "Methane emissions",
                 "Emissions|CH4, all sources, in native mass units"),
     "cap_coal": (lambda w: _col(w, "Capacity|Electricity|Coal"), "GW", "Coal capacity",
@@ -296,12 +291,10 @@ FIGS = [
             "share of all electricity generation.",
      "panels": [("cap_coal", "Coal capacity"), ("coal_power", "Coal generation"),
                 ("coal_elec_share", "Coal share of electricity")]},
-    {"id": "fig04", "title": "Energy-system CO2 and net zero",
-     "sub": "CO2 from energy and industrial processes, the part of it released by energy supply "
-            "(power, heat, extraction and fuel conversion), and the year each pathway's energy-system "
-            "CO2 reaches net zero. A pathway still above zero in 2100 is marked as not reaching it.",
-     "panels": [("energy_co2", "Energy-system CO2"), ("energy_supply_co2", "Energy supply CO2"),
-                ("netzero_year", "Net-zero year")]},
+    {"id": "fig04", "title": "Energy-system CO2",
+     "sub": "CO2 from energy and industrial processes, and the part of it released by energy supply "
+            "(power, heat, extraction and fuel conversion).",
+     "panels": [("energy_co2", "Energy-system CO2"), ("energy_supply_co2", "Energy supply CO2")]},
     {"id": "fignonco2", "title": "Non-CO2 gases and methane",
      "sub": "Non-CO2 greenhouse gases in CO2-equivalent, and methane on its own in Mt CH4 per year, "
             "from all sources.",
@@ -451,31 +444,6 @@ def derive(long: pd.DataFrame) -> pd.DataFrame:
             sys.exit(f"missing input variable for {key}: {e}")
     out = out.reset_index()
     out["transfers_npv"] = _cumulative_npv(out)
-    out["netzero_year"] = _netzero_year(out)
-    return out
-
-
-def _netzero_from_points(pts) -> float:
-    """First year a series reaches zero or below, interpolated on the reported
-    grid; NaN when it stays positive to the last reported year."""
-    pts = sorted((int(y), float(v)) for y, v in pts if v is not None and not pd.isna(v))
-    for (y0, v0), (y1, v1) in zip(pts, pts[1:]):
-        if v0 <= 0:
-            return float(y0)
-        if v1 <= 0:
-            return y0 + (y1 - y0) * v0 / (v0 - v1)
-    if pts and pts[-1][1] <= 0:
-        return float(pts[-1][0])
-    return float("nan")
-
-
-def _netzero_year(ind: pd.DataFrame) -> pd.Series:
-    """Net-zero year of energy-system CO2 per series and region, stamped on
-    every row of that series so the panel builder can read it once."""
-    out = pd.Series(float("nan"), index=ind.index)
-    keys = ["scenario_set", "model", "variant", "region"]
-    for _, grp in ind.dropna(subset=["energy_co2"]).groupby(keys):
-        out[grp.index] = _netzero_from_points(zip(grp["year"], grp["energy_co2"]))
     return out
 
 
@@ -505,14 +473,6 @@ def _round(v: float) -> float | None:
     return float(f"{v:.4g}")
 
 
-def _year_point(v: float) -> list:
-    """The year panel's single point: [year, year], or [2100, None] when the
-    series never reaches zero by the last reported year."""
-    if pd.isna(v):
-        return [[YEARS[-1], None]]
-    return [[int(round(v)), round(float(v), 1)]]
-
-
 def build_docs(ind: pd.DataFrame, series: pd.DataFrame) -> list[dict]:
     ind = ind[ind["year"].isin(YEARS)]
     ind = ind.merge(series[["scenario_set", "model", "variant", "id"]],
@@ -523,21 +483,15 @@ def build_docs(ind: pd.DataFrame, series: pd.DataFrame) -> list[dict]:
         for key, title in fig["panels"]:
             _fn, unit, egr_name, formed = INDICATORS[key]
             data: dict[str, dict[str, list]] = {}
-            if key == "netzero_year":
-                # one point per series: [year, year]; [2100, null] when not reached
-                sub = ind[["id", "region", "energy_co2", key]].dropna(subset=["energy_co2"])
-                for (sid, region), grp in sub.groupby(["id", "region"]):
-                    data.setdefault(region, {})[sid] = _year_point(grp[key].iloc[0])
-            else:
-                sub = ind[["id", "region", "year", key]].dropna(subset=[key])
-                for (sid, region), grp in sub.groupby(["id", "region"]):
-                    pts = [[int(y), _round(v)] for y, v in
-                           sorted(zip(grp["year"], grp[key]))]
-                    if key == "transfers_npv":
-                        pts = pts[-1:]  # the bar panel shows the 2026 to 2100 total only
-                    data.setdefault(region, {})[sid] = pts
-            kind = {"transfers_npv": "bar", "netzero_year": "year"}.get(key, "line")
-            panels.append({"key": key, "title": title, "unit": unit, "kind": kind,
+            sub = ind[["id", "region", "year", key]].dropna(subset=[key])
+            for (sid, region), grp in sub.groupby(["id", "region"]):
+                pts = [[int(y), _round(v)] for y, v in
+                       sorted(zip(grp["year"], grp[key]))]
+                if key == "transfers_npv":
+                    pts = pts[-1:]  # the bar panel shows the 2026 to 2100 total only
+                data.setdefault(region, {})[sid] = pts
+            panels.append({"key": key, "title": title, "unit": unit,
+                           "kind": "bar" if key == "transfers_npv" else "line",
                            "indicator": egr_name, "formed": formed, "data": data})
         docs.append({"id": fig["id"], "title": fig["title"], "sub": fig["sub"],
                      "panels": panels})
@@ -606,8 +560,6 @@ def build_overlay(csv: Path = OVERLAY_CSV, source_head=None) -> dict | None:
                if y in YEARS and pd.notna(v)]
         if pts:  # the comparison run reports a subset of the card variables
             out[key] = pts
-    if "energy_co2" in out:
-        out["netzero_year"] = _year_point(_netzero_from_points(out["energy_co2"]))
     co2 = wide["Emissions|CO2"].dropna()
     yrs = [y for y in CUM_YEARS if y in co2.index]
     vals = co2.loc[yrs].to_numpy() / 1000.0
@@ -661,8 +613,6 @@ def build_overlay_regional(csv: Path = OVERLAY_REGIONAL_CSV) -> dict:
             pts = [[int(y), _round(v)] for y, v in ser.items() if y in YEARS and pd.notna(v)]
             if pts:  # the comparison run reports a subset of the card variables
                 ind[key] = pts
-        if "energy_co2" in ind:
-            ind["netzero_year"] = _year_point(_netzero_from_points(ind["energy_co2"]))
         out[region] = ind
     return out
 

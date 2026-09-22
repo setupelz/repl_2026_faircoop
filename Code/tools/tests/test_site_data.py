@@ -56,22 +56,6 @@ def test_derived_indicators_on_synthetic_frame():
     assert ind["storage_total"] == pytest.approx(ind["cdr_geo"] + ind["ccs_geo"])
 
 
-def test_netzero_year_interpolates_and_flags_not_reached():
-    assert b._netzero_from_points([(2030, 10.0), (2040, -10.0)]) == pytest.approx(2035.0)
-    assert b._netzero_from_points([(2030, 10.0), (2040, 5.0), (2050, 0.0)]) == pytest.approx(2050.0)
-    assert pd.isna(b._netzero_from_points([(2030, 10.0), (2100, 1.0)]))
-    assert b._year_point(float("nan")) == [[2100, None]]
-    assert b._year_point(2057.26) == [[2057, 2057.3]]
-    rows = []
-    for yr, v in [(2030, 2000.0), (2040, -1000.0)]:
-        for var in b.INPUT_VARS:
-            rows.append({"scenario_set": "s", "model": "m", "variant": "Baseline", "region": "NAM",
-                         "variable": var, "year": yr,
-                         "value": v if var == "Emissions|CO2|Energy and Industrial Processes" else 1.0})
-    ind = b.derive(pd.DataFrame(rows))
-    assert ind["netzero_year"].unique().tolist() == pytest.approx([2036.6666667])
-
-
 def test_group_regions_are_member_sums():
     rows = []
     for reg, val in [("NAM", 10.0), ("WEU", 20.0), ("CHN", 30.0), ("SAS", 5.0)]:
@@ -151,28 +135,6 @@ def test_golden_derived_values_against_csv(built):
     assert site("fig00", "total_ghg") == pytest.approx(
         (w["Emissions|CO2"] + w["Emissions|CH4"] * 27.9 + w["Emissions|N2O"] / 1000 * 273
          + w["Emissions|F-Gases"]) / 1000, rel=1e-3)
-
-
-@needs_csv
-def test_netzero_panel_shape_and_ordering(built):
-    """One point per series; the lowest-transfers corner never reaches net zero
-    later than its source in a higher-responsibility region, and the baseline
-    never reaches it."""
-    doc = json.loads((built / "fig04.json").read_text())
-    p = next(p for p in doc["panels"] if p["key"] == "netzero_year")
-    assert p["kind"] == "year"
-    meta = json.loads((built / "meta.json").read_text())
-    role = {s["id"]: s["role"] for s in meta["series"]}
-    for region, per_series in p["data"].items():
-        for sid, pts in per_series.items():
-            assert len(pts) == 1 and 2020 <= pts[0][0] <= 2100
-            assert pts[0][1] is None or 2020 <= pts[0][1] <= 2100
-            if role[sid] == "baseline":
-                assert pts[0][1] is None, (region, sid)
-    nam = p["data"]["NAM"]
-    src = nam["800fm_ecpc2015|SSP_SSP2_v6.5_ES|Source scenario"][0][1]
-    low = nam["800fm_ecpc2015|SSP_SSP2_v6.5_ES|L. SSP2-2C-ECPC2015"][0][1]
-    assert low is not None and src is not None and low <= src
 
 
 @needs_csv
