@@ -325,79 +325,8 @@ function drawBarPanel(svg, p, x0, series) {
   });
 }
 
-/* Net-zero year: one lollipop per pathway, clustered by approach; a hollow
-   marker at the top stands for a pathway still above zero in 2100. */
-function drawYearPanel(svg, p, x0, series) {
-  const g = el("g", { transform: `translate(${x0},0)` }, svg);
-  const data = p.data[state.region] || {};
-  const marks = series.filter(x => data[x.s.id] && data[x.s.id].length).map(x => ({ x, v: data[x.s.id][0][1] }));
-  const ov = overlayOn() ? overlaySeries(p.key) : [];
-  const Y_LO = X_LO, Y_HI = X_HI;
-  const py = d3.scaleLinear().domain([Y_LO, Y_HI + 6]).range([M_T + PANEL_H, M_T]);
-  el("rect", { x: 0, y: 0, width: M_L + PANEL_W + M_R, height: M_T + PANEL_H + M_B, fill: "#ffffff" }, g);
-  el("text", { x: M_L, y: 14, "font-size": 11, "font-weight": 700, fill: "#1a1a1a" }, g).textContent = p.title;
-  el("text", { x: M_L, y: 25, "font-size": 8, fill: C_MUTED }, g).textContent = "energy-system CO₂ reaches zero";
-  for (const t of [2020, 2040, 2060, 2080, 2100]) {
-    el("line", { x1: M_L, x2: M_L + PANEL_W, y1: py(t), y2: py(t), stroke: C_GRID, "stroke-width": 0.8 }, g);
-    el("text", { x: M_L - 5, y: py(t) + 3, "text-anchor": "end", "font-size": 8, fill: "#5c5c5c" }, g)
-      .textContent = String(t);
-  }
-  el("line", { x1: M_L, x2: M_L, y1: M_T, y2: M_T + PANEL_H, stroke: "#1a1a1a", "stroke-width": 0.9 }, g);
-  el("line", { x1: M_L, x2: M_L + PANEL_W, y1: py(Y_LO), y2: py(Y_LO), stroke: "#1a1a1a", "stroke-width": 0.9 }, g);
-  if (!marks.length) {
-    el("text", { x: M_L + PANEL_W / 2, y: M_T + PANEL_H / 2, "text-anchor": "middle", "font-size": 9,
-      fill: C_MUTED }, g).textContent = "no data for this region";
-    return;
-  }
-  // reference pathways first, then one cluster per approach, U before L within it
-  const famOf = b => b.x.s.family ?? "";
-  const fams = [...new Set(marks.map(famOf))].sort((a, b) => (a === "" ? 0 : 1) - (b === "" ? 0 : 1));
-  const roleOrder = { source: 0, baseline: 1, U: 2, L: 3 };
-  const slot = PANEL_W / fams.length, inner = Math.min(slot * 0.8, 60);
-  const many = fams.length > 3;
-  const place = (b, cx) => {
-    const reached = b.v != null;
-    const y = reached ? py(b.v) : py(Y_HI + 4);
-    el("line", { x1: cx, x2: cx, y1: py(Y_LO), y2: y, stroke: b.x.colour, "stroke-width": 1.2,
-      "stroke-opacity": b.x.opacity * 0.6, "stroke-dasharray": reached ? null : "2 2" }, g);
-    const dot = el("circle", { cx, cy: y, r: 4.2, fill: reached ? b.x.colour : "#ffffff", stroke: b.x.colour,
-      "stroke-width": 1.6, "fill-opacity": b.x.opacity, "class": "series" }, g);
-    if (!many)
-      el("text", { x: cx, y: y - 7, "text-anchor": "middle", "font-size": 7.5, fill: "#1a1a1a" }, g)
-        .textContent = reached ? String(Math.round(b.v)) : "›2100";
-    dot.addEventListener("mousemove", ev => showTip(ev, `<b>${b.x.label}</b><br>${regionLabel()}: ` +
-      (reached ? `energy-system CO₂ reaches net zero in ${Math.round(b.v)}` : "still above zero in 2100") +
-      `<br><span style="opacity:.7">${b.x.s.variant}</span>`));
-    dot.addEventListener("mouseleave", hideTip);
-  };
-  fams.forEach((fam, fi) => {
-    const cx = M_L + slot * (fi + 0.5);
-    const members = marks.filter(b => famOf(b) === fam).sort((a, b) => (roleOrder[a.x.s.role] ?? 9) - (roleOrder[b.x.s.role] ?? 9));
-    // members sit as a tight pair around the slot centre, over the label
-    const step = Math.min(11, inner / Math.max(members.length - 1, 1));
-    const span = step * (members.length - 1);
-    members.forEach((b, i) => place(b, cx - span / 2 + i * step));
-    const words = (fam || "reference").split(" ");
-    const lines = words.length > 1 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "),
-                                      words.slice(Math.ceil(words.length / 2)).join(" ")] : [words[0]];
-    lines.forEach((ln, li) =>
-      el("text", { x: cx, y: M_T + PANEL_H + 10 + li * 8, "font-size": many ? 6.5 : 7.5, fill: "#5c5c5c",
-        "text-anchor": "middle" }, g).textContent = ln);
-  });
-  if (ov.length) {
-    const v = ov[0][1], reached = v != null, y = reached ? py(v) : py(Y_HI + 4);
-    el("line", { x1: M_L, x2: M_L + PANEL_W, y1: y, y2: y, stroke: C_SMIP, "stroke-width": 1.4,
-      "stroke-dasharray": SMIP_DASH, "class": "series overlay" }, g);
-    const hit = el("line", { x1: M_L, x2: M_L + PANEL_W, y1: y, y2: y, stroke: "transparent", "stroke-width": 9 }, g);
-    hit.addEventListener("mousemove", ev => showTip(ev, `<b>${OVERLAY.label}</b><br>${regionLabel()}: ` +
-      (reached ? `energy-system CO₂ reaches net zero in ${Math.round(v)}` : "still above zero in 2100")));
-    hit.addEventListener("mouseleave", hideTip);
-  }
-}
-
 function drawPanel(svg, p, x0, series) {
   if (p.kind === "bar") return drawBarPanel(svg, p, x0, series);
-  if (p.kind === "year") return drawYearPanel(svg, p, x0, series);
   const g = el("g", { transform: `translate(${x0},0)` }, svg);
   const data = p.data[state.region] || {};
   const drawn = series.filter(x => data[x.s.id] && data[x.s.id].length > 1);
