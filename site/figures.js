@@ -259,29 +259,164 @@ function dataFoot(f) {
   const div = document.createElement("div"); div.className = "datafoot";
   div.innerHTML = `<span><b>Data:</b> MESSAGEix-GLOBIOM-GAINS v6.5, aggregated as in the paper's figure code
     (<a href="https://github.com/setupelz/repl_2026_faircoop/tree/main/Code">Code/20${f.number}_figure_${f.number}.R</a>).</span>
-    <span class="actions"><a>Download data (.csv)</a></span>`;
-  div.querySelector(".actions a").addEventListener("click", () => downloadCSV(f));
+    <span class="actions"><a data-dl="xlsx">Download data (.xlsx)</a> <a data-dl="csv">.csv</a></span>`;
+  div.querySelector('[data-dl="xlsx"]').addEventListener("click", () => downloadXlsx(f));
+  div.querySelector('[data-dl="csv"]').addEventListener("click", () => downloadCSV(f));
   return div;
 }
-function downloadCSV(f) {
-  const cols = new Set(["panel"]);
-  const recs = [];
+
+/* ============ data download ============
+   Each panel's rows are keyed by short internal names (lab, grp, pct, ...).
+   DICT renames them for the reader, decodes the shorthand codes, and says what
+   the value column measures, so the workbook stands on its own. */
+const CITE = {
+  short: "Pelz, S., Fricko, O., Riahi, K., Pachauri, S., Brutschin, E., Rogelj, J., Krey, V., Johnstone, I., Vinca, A., " +
+    "Schleussner, C.-F., Kikstra, J. and Gidden, M.J. (2026). Equitable cooperation deepens the solution space for " +
+    "high ambition pathways. Environmental Research Letters. https://doi.org/10.1088/1748-9326/aea34d",
+  data: "MESSAGEix-GLOBIOM-GAINS v6.5 scenario output, aggregated as in the paper's figure code, from the replication " +
+    "archive at https://github.com/setupelz/repl_2026_faircoop (releases are archived on Zenodo).",
+  licence: "CC BY 4.0",
+  bibtex: "@article{pelz2026equitable, author = {Pelz, Setu and Fricko, Oliver and Riahi, Keywan and Pachauri, Shonali and " +
+    "Brutschin, Elina and Rogelj, Joeri and Krey, Volker and Johnstone, Iain and Vinca, Adriano and Schleussner, " +
+    "Carl-Friedrich and Kikstra, Jarmo and Gidden, Matthew J.}, title = {Equitable cooperation deepens the solution space " +
+    "for high ambition pathways}, journal = {Environmental Research Letters}, year = {2026}, doi = {10.1088/1748-9326/aea34d}}",
+};
+const CODE = {
+  state: { "Unlimited (U)": "Unlimited transfers (U)", "Lowest-f. (L)": "Lowest transfers (L)", "Source": "Source pathway" },
+  tier: { "Unlimited": "Unlimited transfers (U)", "Lowest-f.": "Lowest transfers (L)", "Source": "Source pathway" },
+  scope: { "FS-Lf.Trnsf-ALL": "Any mitigation", "FS-Lf.Trnsf-CDR": "Novel carbon removal only", "ALL": "Any mitigation",
+    "CDR": "Novel carbon removal only", "Source": "Source pathway" },
+  step: { "FS-Lf.Trnsf-ALL": "Any mitigation", "FS-Lf.Trnsf-CDR": "Novel carbon removal only" },
+  grp: { "Higher resp.": "Higher-responsibility regions", "Lower resp.": "Lower-responsibility regions", "World": "World" },
+  panel: { "Higher resp.": "Higher-responsibility regions", "Lower resp.": "Lower-responsibility regions", "World": "World" },
+  lab: { "Source": "Source pathway" },
+  carrier: { "Elec. %": "Electrification share of final energy", "Solar+Wind": "Solar and wind primary energy",
+    "Coal": "Coal primary energy", "Gas": "Gas primary energy", "Oil": "Oil primary energy" },
+  comp: { "Dom. Geo.CDR": "Domestic geological carbon removal", "Dom. reductions (residual)": "Domestic gross reductions (residual)",
+    "Trf. ALL": "Transfers, any mitigation", "Trf. Geo.CDR (added)": "Transfers, geological carbon removal (added)",
+    "Trf. Geo.CDR (in Source)": "Transfers, geological carbon removal (already in Source)" },
+  kind: { "novel": "Novel carbon removal", "total": "Total carbon removal" },
+  metric: {},
+};
+const REGION_NAME = { NAM: "North America", WEU: "Western Europe", CHN: "China", EEU: "Eastern Europe", FSU: "Reforming economies",
+  MEA: "Middle East and North Africa", RCPA: "Rest of centrally planned Asia", PAO: "Pacific OECD",
+  LAM: "Latin America and Caribbean", PAS: "Other Pacific Asia", SAS: "South Asia", AFR: "Sub-Saharan Africa" };
+const H = {  // shared column headers
+  lab: "Fair-share approach", grp: "Region group", region: "Region", state: "Transfer corner", tier: "Transfer corner",
+  scope: "Cooperation scope", step: "Cooperation scope", year: "Year", principle: "Principle", start: "Responsibility start",
+  bud: "Carbon budget", metric: "Metric", carrier: "Benchmark", cat: "Investment category", lever: "Lever",
+  component: "Component", comp: "Instrument", kind: "Removal type", panel: "Region group",
+};
+// per figure and panel: the value columns with what they measure; other columns take H
+const VALUES = {
+  2: { a: { pct: "Change vs 2020 (%)" }, b: { coop: "Cumulative transfers, 2026 to 2100 (trillion US$, 2025 NPV)" },
+       c: { pct: "Change in energy-supply investment vs Source, 2026 to 2050 NPV (%)" }, d: { pct: "Change vs 2020 (%)" } },
+  3: { a: { pct: "Change in consumption vs no new policy, 2026 to 2100 NPV at market exchange rates (%)" },
+       b: { dco2: "Change in net CO2 vs Source, 2020 to 2100 (Gt CO2)", paid: "Transfers paid, 2026 to 2100 (trillion US$, 2025 NPV)" },
+       c: { ratio: "Carbon price relative to Source (1 = Source and unlimited transfers)" },
+       d: { delta: "Change vs Source, as % of total Source energy-supply investment, 2026 to 2100 NPV",
+            net: "Net change vs Source, as % of total Source energy-supply investment, 2026 to 2100 NPV" } },
+  4: { a: { gt: "Cumulative change vs Source, 2020 to 2100 (Gt CO2)" },
+       b: { gt: "Gt CO2", share: "Share of the higher-responsibility carbon debt (fraction)" },
+       c: { gt: "Carbon removal (Gt CO2 per year)" },
+       d: { contrib: "Contribution to the lowest-transfer change in net emissions vs Source, 2020 to 2100 (Gt CO2)",
+            net: "Net change vs Source, 2020 to 2100 (Gt CO2)" },
+       e: { x: "Value" } },
+  5: { a: { contrib: "Contribution to the lowest-transfer change in net emissions vs unlimited transfers, 2020 to 2100 (Gt CO2)",
+            net: "Net change vs unlimited transfers, 2020 to 2100 (Gt CO2)" },
+       b: { v: "Transfers, 2026 to 2100 (trillion US$, 2025 NPV, market exchange rates)" },
+       c: { pct: "Net CO2, change vs 2020 (%)" },
+       d: { v: "Carbon price relative to the 2 °C Source", u: "Uniform carbon price relative to the 2 °C Source" } },
+};
+const isNum = v => typeof v === "number" || (typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)));
+function decode(col, v) {
+  if (v == null) return "";
+  if (col === "region" && REGION_NAME[v]) return `${REGION_NAME[v]} (${v})`;
+  const m = CODE[col]; if (m && m[v] != null) return m[v];
+  return v;
+}
+function panelTables(f) {
+  // [{key, title, header:[...], rows:[[...]]}] with categorical columns first, in a stable sort
+  const out = [];
   for (const k of ["a", "b", "c", "d", "e"]) {
-    if (!f[k]) continue;
+    const pnl = f[k]; if (!pnl) continue;
+    const vals = (VALUES[f.number] || {})[k] || {};
     for (const part of ["rows", "net", "uniform"]) {
-      for (const r of (f[k][part] || [])) {
-        const rec = { panel: k + (part === "rows" ? "" : ` (${part})`), ...r };
-        Object.keys(rec).forEach(c => cols.add(c)); recs.push(rec);
-      }
+      const rows = pnl[part] || []; if (!rows.length) continue;
+      const cols = Object.keys(rows[0]);
+      const cat = cols.filter(c => !(c in vals)), num = cols.filter(c => c in vals);
+      const header = [...cat.map(c => H[c] || c), ...num.map(c => vals[c])];
+      const body = rows.map(r => [...cat.map(c => { const d = decode(c, r[c]); return c === "year" && isNum(d) ? Number(d) : d; }),
+                                  ...num.map(c => (r[c] == null || r[c] === "" ? "" : Number(r[c]))) ]);
+      body.sort((a, b) => { for (let i = 0; i < cat.length; i++) { const x = a[i], y = b[i];
+        if (x === y) continue; return typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y)); } return 0; });
+      const title = pnl.title + (part === "rows" ? "" : part === "net" ? " (net)" : " (uniform price)");
+      out.push({ key: k + (part === "rows" ? "" : ` ${part}`), title, header, rows: body,
+                 axes: [pnl.xlab, pnl.ylab].filter(Boolean).join("; ") });
     }
   }
-  const head = [...cols];
-  const lines = [`# Figure ${f.number}. ${f.title}. Pelz et al. (2026), Equitable cooperation deepens the solution space for high ambition pathways, ERL. Data: MESSAGEix-GLOBIOM-GAINS v6.5 via github.com/setupelz/repl_2026_faircoop, CC BY 4.0.`,
-    head.join(",")];
-  for (const r of recs) lines.push(head.map(c => r[c] == null ? "" : `"${String(r[c]).replace(/"/g, '""')}"`).join(","));
+  return out;
+}
+function downloadXlsx(f) {
+  const tables = panelTables(f);
+  const readme = [
+    [{ v: `Figure ${f.number}. ${f.title}`, bold: true }],
+    [f.sub || ""],
+    [],
+    [{ v: "Sheets", bold: true }],
+    ...tables.map(t => [`Panel ${t.key}`, t.title, t.axes]),
+    [],
+    [{ v: "Conventions", bold: true }],
+    ["Transfer corner", "Unlimited transfers (U): finance between regions unlimited, the physical pathway equals the Source. Lowest transfers (L): finance held to the lowest level the model tolerates."],
+    ["Fair-share approach", "ECPC shares the carbon budget by equal cumulative emissions per person; CAPC adjusts for capability; the year is when responsibility starts to count. ECPC 2015* is ECPC 2015 with a ten-year delay before transfers begin."],
+    ["Region groups", "Higher responsibility: NAM, WEU, CHN, EEU, FSU, MEA, RCPA, PAO. Lower responsibility: LAM, PAS, SAS, AFR."],
+    ["Money", "Present values at 2025 of flows from 2026, 5% discount rate, market exchange rates, US$2010."],
+    [],
+    [{ v: "Cite as", bold: true }],
+    [CITE.short],
+    [CITE.bibtex],
+    [],
+    [{ v: "Data", bold: true }],
+    [CITE.data],
+    ["Licence", CITE.licence],
+    ["Generated", P.generated || ""],
+  ];
+  const sheets = [{ name: "README", rows: readme, widths: [22, 120] },
+    ...tables.map(t => ({ name: `Panel ${t.key}`, rows: [t.header, ...t.rows], bold: [0],
+                          widths: t.header.map(h => Math.min(60, Math.max(12, String(h).length * 0.9))) }))];
+  triggerDownload(buildXlsx(sheets), `faircoop-figure-${f.number}.xlsx`);
+}
+function downloadCSV(f) {
+  // long format, one schema for every panel: the common keys get their own
+  // columns, panel-specific keys are folded into "category", one row per value
+  const SLOTS = ["Fair-share approach", "Transfer corner", "Cooperation scope", "Carbon budget", "Region group", "Region", "Year"];
+  const lines = [
+    `# Figure ${f.number}. ${f.title}`,
+    `# ${CITE.short}`,
+    `# Data: ${CITE.data} Licence ${CITE.licence}.`,
+    ["panel", "panel_title", ...SLOTS.map(s => s.toLowerCase().replace(/[^a-z0-9]+/g, "_")), "category", "metric", "value"]
+      .join(","),
+  ];
+  const q = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  for (const t of panelTables(f)) {
+    const catIdx = t.header.map((h, i) => i).filter(i => !isValueHeader(f, t, i));
+    const valIdx = t.header.map((h, i) => i).filter(i => isValueHeader(f, t, i));
+    for (const r of t.rows) {
+      const slots = SLOTS.map(s => { const i = t.header.indexOf(s); return i >= 0 ? r[i] : ""; });
+      const other = catIdx.filter(i => !SLOTS.includes(t.header[i])).map(i => `${t.header[i]}: ${r[i]}`).join("; ");
+      for (const vi of valIdx)
+        lines.push([t.key, t.title, ...slots, other, t.header[vi], r[vi]].map(q).join(","));
+    }
+  }
+  triggerDownload(new Blob([lines.join("\n")], { type: "text/csv" }), `faircoop-figure-${f.number}.csv`);
+}
+function isValueHeader(f, t, i) {
+  const vals = Object.values((VALUES[f.number] || {})[t.key.split(" ")[0]] || {});
+  return vals.includes(t.header[i]);
+}
+function triggerDownload(blob, name) {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
-  a.download = `faircoop-figure-${f.number}.csv`; a.click(); URL.revokeObjectURL(a.href);
+  a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href);
 }
 
 /* line panel with facets: series = [{key, hk, colour, dash, width, pts:[{year, v}], label}] */
