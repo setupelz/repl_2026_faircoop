@@ -426,11 +426,67 @@ function drawCard(doc, series) {
 function buildDataFoot(doc) {
   const div = document.createElement("div"); div.className = "datafoot";
   div.innerHTML = `<span><b>Data:</b> ${META.model}, assembled by the replication archive. ` +
-    `<a>About this figure</a></span><span class="actions"><a>Download data (.csv)</a></span>`;
-  const [learn, dl] = div.querySelectorAll("a");
-  learn.addEventListener("click", () => openModal(doc));
-  dl.addEventListener("click", () => downloadCSV(doc));
+    `<a>About this figure</a></span><span class="actions"><a data-dl="xlsx">Download data (.xlsx)</a> <a data-dl="csv">.csv</a></span>`;
+  div.querySelector("span a").addEventListener("click", () => openModal(doc));
+  div.querySelector('[data-dl="xlsx"]').addEventListener("click", () => downloadXlsx(doc));
+  div.querySelector('[data-dl="csv"]').addEventListener("click", () => downloadCSV(doc));
   return div;
+}
+
+/* Workbook: README (card, selection, panels, conventions, citation), one wide
+   sheet per panel (Year, one column per pathway, the comparison run last), and
+   a Series sheet that maps each column to its scenario set, model and variant. */
+function downloadXlsx(doc) {
+  const series = activeSeries();
+  const budget = META.budgets.find(b => b.id === state.budget) || {};
+  const fams = [...state.families].join(", ");
+  const readme = [
+    [{ v: `${doc.title}: equitable cooperation explorer`, bold: true }],
+    [doc.sub],
+    [],
+    [{ v: "Selection", bold: true }],
+    ["Carbon budget", budget.label || state.budget],
+    ["Region", regionLabel()],
+    ["Transfers", { both: "both corners", U: "unlimited only", L: "lowest only" }[state.transfers] || state.transfers],
+    ["Fair-share variants", fams],
+    ["Comparison run", overlayOn() ? OVERLAY.label : "off"],
+    [],
+    [{ v: "Sheets", bold: true }],
+    ...doc.panels.map(p => [`Panel: ${p.title}`, `${p.indicator} (${p.unit}). ${p.formed}.`]),
+    [],
+    [{ v: "Conventions", bold: true }],
+    ["Pathways", "Cost-optimal source pathway; the same pathway once each region must meet a fair share of the carbon budget with unlimited transfers (U); and again with transfers held to the lowest level the model tolerates (L). Baseline is no new climate policy."],
+    ["Fair-share variants", "ECPC shares the budget by equal cumulative emissions per person; CAPC adjusts for capability; the year is when responsibility starts to count. ECPC 2015* is ECPC 2015 with a ten-year delay before transfers begin."],
+    ["Region groups", "Higher responsibility: NAM, WEU, CHN, EEU, FSU, MEA, RCPA, PAO. Lower responsibility: LAM, PAS, SAS, AFR. Group and World shares are ratios of summed components."],
+    ["Non-CO2", META.gwp_note],
+    ["Transfers", "Present values at 2025 of flows from 2026, 5% discount rate, market exchange rates."],
+    ...(overlayOn() ? [["Comparison run", `${OVERLAY.why} ${OVERLAY.non_co2_note || ""} ${OVERLAY.regional_note || ""} ${OVERLAY.cite}`]] : []),
+    [],
+    [{ v: "Cite as", bold: true }],
+    [`${META.cite_short}, ${META.cite_tail}`],
+    [],
+    [{ v: "Data", bold: true }],
+    [`${META.model}, assembled by the replication archive at https://github.com/setupelz/repl_2026_faircoop.`],
+    ["Licence", META.license],
+    ["Generated", META.generated],
+  ];
+  const sheets = [{ name: "README", rows: readme, widths: [22, 120] }];
+  for (const p of doc.panels) {
+    const data = p.data[state.region] || {};
+    const cols = series.filter(x => data[x.s.id] && data[x.s.id].length).map(x => ({ label: x.label, pts: data[x.s.id] }));
+    if (overlayOn() && overlaySeries(p.key).length) cols.push({ label: OVERLAY.label, pts: overlaySeries(p.key) });
+    const years = [...new Set(cols.flatMap(c => c.pts.map(d => d[0])))].sort((a, b) => a - b);
+    const rows = [[p.kind === "bar" ? "Period" : "Year", ...cols.map(c => c.label)]];
+    for (const y of years) rows.push([p.kind === "bar" ? "2026 to 2100" : y,
+      ...cols.map(c => { const hit = c.pts.find(d => d[0] === y); return hit && hit[1] != null ? hit[1] : ""; })]);
+    rows.splice(1, 0, ["Unit", ...cols.map(() => p.unit)]);
+    sheets.push({ name: p.title, rows, bold: [0], widths: [14, ...cols.map(() => 30)] });
+  }
+  const seriesRows = [["Pathway", "Role", "Fair-share variant", "Scenario set", "Model", "Variant"]];
+  for (const x of series) seriesRows.push([x.label, ROLE[x.s.role].label, x.s.family || "", x.s.scenario_set, x.s.model, x.s.variant]);
+  if (overlayOn()) seriesRows.push([OVERLAY.label, "Comparison run", "", "ScenarioMIP-CMIP7", OVERLAY.model, OVERLAY.scenario]);
+  sheets.push({ name: "Series", rows: seriesRows, bold: [0], widths: [40, 30, 20, 18, 22, 30] });
+  triggerDL(buildXlsx(sheets), `faircoop-${doc.id}-${state.region.replace(/\s+/g, "_")}-${state.budget}.xlsx`);
 }
 
 /* ============ cumulative strip ============ */
