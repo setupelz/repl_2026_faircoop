@@ -373,8 +373,10 @@ function drawYearPanel(svg, p, x0, series) {
   fams.forEach((fam, fi) => {
     const cx = M_L + slot * (fi + 0.5);
     const members = marks.filter(b => famOf(b) === fam).sort((a, b) => (roleOrder[a.x.s.role] ?? 9) - (roleOrder[b.x.s.role] ?? 9));
-    const step = members.length > 1 ? inner / (members.length - 1) : 0;
-    members.forEach((b, i) => place(b, members.length > 1 ? cx - inner / 2 + i * step : cx));
+    // members sit as a tight pair around the slot centre, over the label
+    const step = Math.min(11, inner / Math.max(members.length - 1, 1));
+    const span = step * (members.length - 1);
+    members.forEach((b, i) => place(b, cx - span / 2 + i * step));
     const words = (fam || "reference").split(" ");
     const lines = words.length > 1 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "),
                                       words.slice(Math.ceil(words.length / 2)).join(" ")] : [words[0]];
