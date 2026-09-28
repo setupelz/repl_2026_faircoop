@@ -241,9 +241,16 @@ function legendGroup(host, title) {
 }
 
 /* ============ cards ============ */
+// Setting of each figure in one fixed format; the caption titles stay verbatim with the article.
+const FIG_TAGS = {
+  2: "SSP2 · 2 °C (>67%) · all fair-share variants",
+  3: "SSP2 · 2 °C (>67%) · all fair-share variants",
+  4: "SSP2 · 2 °C (>67%) · ECPC 2015, all-mitigation and novel-CDR-only cooperation",
+  5: "SSP2 · 2 °C (>67%) and 1.5 °C (50%) · ECPC 2015",
+};
 function buildCard(f) {
   const card = document.createElement("div"); card.className = "card figcard"; card.id = f.id;
-  card.innerHTML = `<div class="fhead"><h2>Figure ${f.number}. ${f.title}</h2><div class="flegend"></div></div>
+  card.innerHTML = `<div class="fhead"><h2>Figure ${f.number}. ${f.title}</h2><div class="ftag">${FIG_TAGS[f.number]}</div><div class="flegend"></div></div>
     <div class="sub">${f.sub.replace(/\((?:[a-e])\)/g, m => `<b>${m}</b>`)}</div><div class="figgrid"></div>${f.note ? `<div class="fnote">${f.note}</div>` : ""}`;
   const fig = new Fig(card);
   const host = card.querySelector(".figgrid"), leg = card.querySelector(".flegend");
@@ -543,7 +550,7 @@ function drawFig2(f, fig, host, leg) {
   legendChip(fig, g2, "L", "lowest transfers (L)", shapeSample("L", "#6a6a6a"));
 
   // a. CO2 trajectories, 2 x 3 facets
-  const pa = panel(host, 12, FULL, 400, { l: 44, r: 8, t: 26, b: 22 }, "a  CO₂ trajectories: fair-share variants at lowest transfers, and the Source pathway");
+  const pa = panel(host, 12, FULL, 400, { l: 44, r: 8, t: 26, b: 22 }, "a  Net and gross CO₂ · lowest transfers and Source · % vs 2020");
   const years = d3.range(2030, 2101, 10);
   const grps = ["World", "Higher resp.", "Lower resp."], metrics = ["Net CO₂", "Gross CO₂"];
   const rowH = (pa.b - pa.t) / 2;
@@ -561,13 +568,13 @@ function drawFig2(f, fig, host, leg) {
   const rowsB = f.rows_b;
   const mkRows = (rows, pick, unit) => rowsB.map(lab => ({ label: lab, hk: lab, items: [{ hk: lab, keys: [lab], colour: col[lab], tipLabel: labelOf(lab).replace(", lowest transfers", ""),
     U: pick(rows.find(r => r.lab === lab && r.state.startsWith("U"))), L: pick(rows.find(r => r.lab === lab && r.state.startsWith("L"))) }] }));
-  const pb = panel(host, 6, HALF, 300, { l: 74, r: 10, t: 22, b: 34 }, "b  Fair-share transfers, unlimited to lowest");
+  const pb = panel(host, 6, HALF, 300, { l: 74, r: 10, t: 22, b: 34 }, "b  Financial transfers · unlimited to lowest · NPV 2026–2100");
   dumbbells(fig, pb, mkRows(f.b.rows, r => r && r.coop, "tn"), { xlab: f.b.xlab, unit: "trillion US$ (2025 NPV)" });
-  const pc = panel(host, 6, HALF, 300, { l: 74, r: 10, t: 22, b: 34 }, "c  Global energy investment vs Source");
+  const pc = panel(host, 6, HALF, 300, { l: 74, r: 10, t: 22, b: 34 }, "c  Energy-supply investment, World · vs Source · NPV 2026–2050");
   dumbbells(fig, pc, mkRows(f.c.rows, r => r && r.pct, "%"), { xlab: f.c.xlab, unit: "% vs Source" });
 
   // d. global benchmarks
-  const pd = panel(host, 12, FULL, 230, { l: 44, r: 8, t: 26, b: 22 }, "d  Global benchmarks: fair-share variants at lowest transfers, and the Source pathway");
+  const pd = panel(host, 12, FULL, 230, { l: 44, r: 8, t: 26, b: 22 }, "d  Global benchmarks · lowest transfers and Source · % vs 2020");
   const fs = facets(pd, 5, 26);
   const cellName = { "Coal": "Coal primary energy", "Gas": "Gas primary energy", "Oil": "Oil primary energy", "Solar+Wind": "Solar and wind primary energy", "Elec. %": "Electricity share of final energy" };
   const cells = f.d.carriers.map(car => ({ label: cellName[car], includeY: [0], series: labs.map(lab => ({ key: lab, keys: [lab, lab === "Source" ? "S" : "L"], colour: col[lab], dash: dashOf(lab), width: lab === "Source" ? 2.4 : 1.7, label: labelOf(lab),
@@ -592,7 +599,7 @@ function drawFig3(f, fig, host, leg) {
   legendChip(fig, g3, "Lower resp.", "lower responsibility", shapeSample("L", grpCol["Lower resp."]));
 
   // a. consumption
-  const pa = panel(host, 6, HALF, 330, { l: 74, r: 10, t: 22, b: 34 }, "a  Consumption vs no new policy, NPV 2026 to 2100");
+  const pa = panel(host, 6, HALF, 330, { l: 74, r: 10, t: 22, b: 34 }, "a  Consumption · vs no new policy · NPV 2026–2100");
   const rowsA = f.rows.map(lab => ({ label: lab, hk: lab, items: ["Higher resp.", "World", "Lower resp."].map(grp => {
     const pick = st => (f.a.rows.find(r => r.lab === lab && r.grp === grp && r.state.startsWith(st)) || {}).pct;
     return { hk: lab, keys: [lab, grp], colour: grp === "World" ? worldCol : pc[prinOf(lab)], dy: grp === "Higher resp." ? -0.26 : grp === "Lower resp." ? 0.26 : 0,
@@ -601,7 +608,7 @@ function drawFig3(f, fig, host, leg) {
   dumbbells(fig, pa, rowsA, { xlab: f.a.xlab, unit: "% of consumption", ticks: 5 });
 
   // b. domestic effort vs transfers paid
-  const pb = panel(host, 6, HALF, 330, { l: 56, r: 12, t: 22, b: 34 }, "b  Domestic effort vs transfers paid, higher-responsibility regions");
+  const pb = panel(host, 6, HALF, 330, { l: 56, r: 12, t: 22, b: 34 }, "b  Domestic effort and transfers paid · higher-responsibility regions");
   {
     const g = el("g", {}, pb.svg);
     const x = d3.scaleLinear().domain(extent(f.b.rows.map(r => r.dco2))).range([pb.l + 6, pb.r - 6]);
@@ -623,7 +630,7 @@ function drawFig3(f, fig, host, leg) {
   }
 
   // c. regional carbon price, one facet per approach
-  const pcp = panel(host, 12, FULL, 280, { l: 62, r: 8, t: 26, b: 30 }, "c  Regional carbon price at lowest transfers, as a multiple of the Source price");
+  const pcp = panel(host, 12, FULL, 280, { l: 62, r: 8, t: 26, b: 30 }, "c  Carbon price by region · lowest transfers, multiple of Source");
   {
     const fs = facets(pcp, f.facet_order.length, 16);
     const regions = P.regions.slice().reverse();
@@ -652,7 +659,7 @@ function drawFig3(f, fig, host, leg) {
   }
 
   // d. world investment shift by technology
-  const pd = panel(host, 12, FULL, 260, { l: 74, r: 8, t: 22, b: 34 }, "d  World energy investment at lowest transfers vs Source, by technology, NPV 2026 to 2100");
+  const pd = panel(host, 12, FULL, 260, { l: 74, r: 8, t: 22, b: 34 }, "d  Energy-supply investment by technology, World · lowest transfers vs Source · NPV 2026–2100");
   {
     const g = el("g", {}, pd.svg);
     const yb = bandUp(f.rows, pd.b, pd.t + 6);
@@ -694,7 +701,7 @@ function drawFig4(f, fig, host, leg) {
   const TK = { "Unlimited": "U", "Lowest-f.": "L", "Source": "S" };
 
   // a. slopes ALL -> CDR
-  const pa = panel(host, 6, HALF, 300, { l: 50, r: 10, t: 22, b: 30 }, "a  Cumulative change from Source, 2020 to 2100, lowest transfers");
+  const pa = panel(host, 6, HALF, 300, { l: 50, r: 10, t: 22, b: 30 }, "a  Cumulative change in net CO₂ · lowest transfers vs Source · 2020–2100");
   {
     const g = el("g", {}, pa.svg);
     const cx = { "World": 1, "Higher resp.": 4, "Lower resp.": 7 };
@@ -723,7 +730,7 @@ function drawFig4(f, fig, host, leg) {
   }
 
   // b. how the debt is cleared
-  const pb = panel(host, 6, HALF, 300, { l: 46, r: 10, t: 22, b: 30 }, `b  How the higher-responsibility carbon debt of ${fmt(f.b.debt_gt, "Gt", 0)} is cleared`);
+  const pb = panel(host, 6, HALF, 300, { l: 46, r: 10, t: 22, b: 30 }, `b  Clearing the ${fmt(f.b.debt_gt, "Gt", 0)} carbon debt · higher-responsibility regions`);
   {
     const fs = facets(pb, 2, 40, pb.l, pb.iw - 120);
     const y = d3.scaleLinear().domain([0, 1]).range([pb.b, pb.t + 20]);
@@ -759,7 +766,7 @@ function drawFig4(f, fig, host, leg) {
   }
 
   // c. novel CDR scale-up
-  const pcp = panel(host, 12, FULL, 260, { l: 44, r: 8, t: 26, b: 22 }, "c  Novel carbon removal per year; the faint line adds fossil and industrial CCS, and the injection cap binds that total");
+  const pcp = panel(host, 12, FULL, 260, { l: 44, r: 8, t: 26, b: 22 }, "c  Novel carbon removal per year · faint line adds fossil and industrial CCS");
   {
     const fs = facets(pcp, 3, 30);
     const years = d3.range(2030, 2101, 10);
@@ -778,7 +785,7 @@ function drawFig4(f, fig, host, leg) {
   }
 
   // d. lever mix per region
-  const pd = panel(host, 8, TWO3, 300, { l: 50, r: 8, t: 22, b: 44 }, "d  Components of the lowest-transfer net-emissions change from Source, by region, 2020 to 2100");
+  const pd = panel(host, 8, TWO3, 300, { l: 50, r: 8, t: 22, b: 44 }, "d  Net-emissions change by component and region · lowest transfers vs Source · 2020–2100");
   {
     const groups = P.regions.map(reg => ({ label: regLab(reg), hk: reg, bars: ["ALL", "CDR"].map(sc => {
       const key = sc === "ALL" ? "FS-Lf.Trnsf-ALL" : "FS-Lf.Trnsf-CDR";
@@ -795,7 +802,7 @@ function drawFig4(f, fig, host, leg) {
   }
 
   // e. regime totals
-  const pe = panel(host, 4, ONE3, 300, { l: 96, r: 12, t: 22, b: 30 }, "e  Regime totals");
+  const pe = panel(host, 4, ONE3, 300, { l: 96, r: 12, t: 22, b: 30 }, "e  Transfers and consumption cost · vs Source");
   {
     const rowH = (pe.b - pe.t) / 2;
     f.e.metrics.forEach((met, i) => {
@@ -825,7 +832,7 @@ function drawFig5(f, fig, host, leg) {
   legendChip(fig, g3, "1.5 °C", "net, 1.5 °C", shapeSample("L", "#2a2a2a", "#ffffff"));
 
   // a. reallocation by region
-  const pa = panel(host, 7, TWO3 - 100, 330, { l: 50, r: 8, t: 22, b: 44 }, "a  Components of the lowest-transfer net-emissions change from unlimited transfers, 2020 to 2100");
+  const pa = panel(host, 7, TWO3 - 100, 330, { l: 50, r: 8, t: 22, b: 44 }, "a  Net-emissions change by component and region · lowest vs unlimited transfers · 2020–2100");
   {
     const groups = P.regions.map(reg => ({ label: regLab(reg), hk: reg, bars: f.budgets.map(b => {
       const n = f.a.net.find(n => n.region === reg && n.bud === b);
@@ -837,7 +844,7 @@ function drawFig5(f, fig, host, leg) {
   }
 
   // b. financial transfers by region
-  const pb = panel(host, 5, HALF - 80, 330, { l: 74, r: 10, t: 22, b: 34 }, "b  Financial transfers by region, NPV 2030 to 2100");
+  const pb = panel(host, 5, HALF - 80, 330, { l: 74, r: 10, t: 22, b: 34 }, "b  Financial transfers by region · unlimited and lowest · NPV 2030–2100");
   const regions = P.regions.slice().reverse();
   const mkRegionRows = (rows, pick, tipUnit) => regions.map(reg => ({ label: reg, hk: reg, text: regLab(reg), items: f.budgets.map(b => ({
     hk: b, keys: [b, reg], colour: bc[b], dy: b === "2 °C" ? -0.2 : 0.2, tipLabel: `${regFull(reg)}, ${b}`, alphaU: 0.6,
@@ -845,7 +852,7 @@ function drawFig5(f, fig, host, leg) {
   dumbbells(fig, pb, mkRegionRows(f.b.rows, r => r && r.v), { xlab: f.b.xlab, unit: "$tn NPV; positive receives, negative pays", ticks: 5 });
 
   // c. net CO2 to 2050
-  const pcp = panel(host, 7, TWO3 - 100, 250, { l: 44, r: 8, t: 26, b: 22 }, "c  Net CO₂ vs 2020, Source and lowest transfers, at both budgets");
+  const pcp = panel(host, 7, TWO3 - 100, 250, { l: 44, r: 8, t: 26, b: 22 }, "c  Net CO₂ · lowest transfers and Source · % vs 2020, to 2050");
   {
     const fs = facets(pcp, 3, 30);
     const cells = f.c.groups.map(grp => ({ label: grp === "World" ? "World" : grp.replace(" resp.", "-responsibility regions"), includeY: [0],
@@ -857,7 +864,7 @@ function drawFig5(f, fig, host, leg) {
   }
 
   // d. carbon price per region
-  const pd = panel(host, 5, HALF - 80, 250, { l: 74, r: 10, t: 22, b: 34 }, "d  Regional carbon price at both budgets, vs the 2 °C Source price");
+  const pd = panel(host, 5, HALF - 80, 250, { l: 74, r: 10, t: 22, b: 34 }, "d  Carbon price by region · multiple of 2 °C Source price · both budgets");
   dumbbells(fig, pd, mkRegionRows(f.d.rows, r => r && r.v), { xlab: f.d.xlab, unit: "× 2 °C Source", ticks: 5,
     vlines: f.d.uniform.map(u => ({ x: u.u, colour: bc[u.bud] })) });
 }
