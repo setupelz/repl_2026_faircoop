@@ -367,7 +367,7 @@ function downloadXlsx(f) {
     ...tables.map(t => [`Panel ${t.key}`, t.title, t.axes]),
     [],
     [{ v: "Conventions", bold: true }],
-    ["Transfer corner", "Unlimited transfers (U): finance between regions unlimited, the physical pathway equals the Source. Lowest transfers (L): finance held to the lowest level the model tolerates."],
+    ["Transfer corner", "Unlimited transfers (U): finance between regions unlimited, the physical pathway equals the Source. Lowest transfers (L): finance held to the lowest level at which the model remains feasible."],
     ["Fair-share approach", "ECPC shares the carbon budget by equal cumulative emissions per person; CAPC adjusts for capability; the year is when responsibility starts to count. ECPC 2015* is ECPC 2015 with a ten-year delay before transfers begin."],
     ["Region groups", "Higher responsibility: NAM, WEU, CHN, EEU, FSU, MEA, RCPA, PAO. Lower responsibility: LAM, PAS, SAS, AFR."],
     ["Money", "Present values at 2025 of flows from 2026, 5% discount rate, market exchange rates, US$2010."],
@@ -534,7 +534,7 @@ function drawFig2(f, fig, host, leg) {
   const col = P.colours.approach;
   const dashOf = lab => lab === "ECPC 2015*" ? "6 4" : null;
   const labs = f.approaches.concat(["Source"]);
-  const labelOf = lab => lab === "Source" ? "Source, cost-optimal (and unlimited transfers)" : lab === "ECPC 2015*" ? "ECPC 2015, transfers delayed ten years" : lab + ", lowest transfers";
+  const labelOf = lab => lab === "Source" ? "Source, cost-effective (and unlimited transfers)" : lab === "ECPC 2015*" ? "ECPC 2015, transfers delayed ten years" : lab + ", lowest transfers";
   // legend
   const g1 = legendGroup(leg, "Approach");
   for (const lab of labs) legendChip(fig, g1, lab, lab === "Source" ? "Source (≈ unlimited transfers)" : lab, lineSample(col[lab], dashOf(lab), lab === "Source" ? 2.6 : 2.2));

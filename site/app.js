@@ -7,7 +7,7 @@
 
 const ROLE = {
   baseline: { colour: "#9a9a9a", dash: "5 3", width: 1.4, label: "Baseline, no new climate policy" },
-  source:   { colour: "#000000", dash: null,  width: 4.2, label: "Cost-optimal source pathway" }, // wide, so it shows under U where the two coincide
+  source:   { colour: "#000000", dash: null,  width: 4.2, label: "Cost-effective source pathway" }, // wide, so it shows under U where the two coincide
   U:        { colour: "#E69F00", dash: null,  width: 2.0, label: "Unlimited transfers (U)" },
   L:        { colour: "#0072B2", dash: null,  width: 2.0, label: "Lowest transfers (L)" },
 };
@@ -455,7 +455,7 @@ function downloadXlsx(doc) {
     ...doc.panels.map(p => [`Panel: ${p.title}`, `${p.indicator} (${p.unit}). ${p.formed}.`]),
     [],
     [{ v: "Conventions", bold: true }],
-    ["Pathways", "Cost-optimal source pathway; the same pathway once each region must meet a fair share of the carbon budget with unlimited transfers (U); and again with transfers held to the lowest level the model tolerates (L). Baseline is no new climate policy."],
+    ["Pathways", "Cost-effective source pathway; the same pathway once each region must meet a fair share of the carbon budget with unlimited transfers (U); and again with transfers held to the lowest level at which the model remains feasible (L). Baseline is no new climate policy."],
     ["Fair-share variants", "ECPC shares the budget by equal cumulative emissions per person; CAPC adjusts for capability; the year is when responsibility starts to count. ECPC 2015* is ECPC 2015 with a ten-year delay before transfers begin."],
     ["Region groups", "Higher responsibility: NAM, WEU, CHN, EEU, FSU, MEA, RCPA, PAO. Lower responsibility: LAM, PAS, SAS, AFR. Group and World shares are ratios of summed components."],
     ["Non-CO2", META.gwp_note],
