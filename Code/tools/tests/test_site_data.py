@@ -139,7 +139,7 @@ def test_golden_derived_values_against_csv(built):
 
 @needs_csv
 def test_cumulative_co2_same_within_budget(built):
-    """Every fair-share variant lands within 3% of its own cost-optimal source
+    """Every fair-share variant lands within 3% of its own cost-effective source
     on cumulative World CO2 2020 to 2100. The budget binds covered emissions
     (land use, international shipping and aviation sit outside it), so total
     CO2 moves by a few percent, never by the tens of percent the baseline does."""
