@@ -1,6 +1,6 @@
 # Every target is phony, so every target reruns. The figure scripts are cheap
 # next to the risk of a stale figure reaching a submission.
-.PHONY: all assemble check-data main-figures si-figures site-data site-test serve clean
+.PHONY: all assemble check-data main-figures si-figures site-data site-test sci-export serve clean
 
 all: check-data main-figures si-figures
 
@@ -42,6 +42,16 @@ site-data: check-data
 
 site-test:
 	uv run --with pandas --with pytest python -m pytest Code/tools/tests -q
+
+# Scenario Compass Initiative submission (Data/sci_submission/): the Source, U.
+# and L. runs renamed to the IAMC common-definitions template and validated.
+# MODEL is the registered common-definitions model name. The runs are built on
+# the JUSTMIP_<SSP>_v6.5 baselines, cloned from the ScenarioMIP-generation MESSAGE
+# (SSP tool v6.5), whose ScenarioMIP-CMIP7 submission is registered under this name.
+MODEL ?= MESSAGEix-GLOBIOM-GAINS 2.1-M-R12
+sci-export: check-data
+	uv run --python 3.12 --with pandas --with openpyxl --with pyyaml --with nomenclature-iamc \
+	  --with "sqlalchemy<2.1" python Code/tools/export_sci.py --model "$(MODEL)"
 
 PORT ?= 4782
 serve:

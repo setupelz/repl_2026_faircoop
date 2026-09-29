@@ -54,6 +54,8 @@ OVERLAY = {
 # 2030), flows from 2026 (Code/000_setup.R, period_npv).
 DISCOUNT_RATE = 0.05
 NPV_BASE_YEAR = 2025
+# Flows zero-filled in the years of a cooperation pathway that report no transfer.
+TRANSFER_VARS = ("Transfers|Finance", "Transfers|Mitigation")
 CUM_YEARS = [2020, 2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060, 2070, 2080,
              2090, 2100]
 YEARS = list(CUM_YEARS)  # the cards run to 2100 on the model's own grid
@@ -407,8 +409,8 @@ def tidy(df: pd.DataFrame) -> pd.DataFrame:
     long["year"] = long["year"].astype(int)
     # Transfers are reported only in the years certificates change hands; every
     # other year of a cooperation pathway is a zero flow, not a missing one.
-    tr = long["variable"] == "Transfers|Finance"
-    has_tr = long[tr].dropna(subset=["value"])[["scenario_set", "model", "variant"]].drop_duplicates()
+    tr = long["variable"].isin(TRANSFER_VARS)
+    has_tr = long[tr].dropna(subset=["value"])[["scenario_set", "model", "variant", "variable"]].drop_duplicates()
     keyed = long[tr].merge(has_tr.assign(_coop=True), how="left")
     keyed.loc[keyed["_coop"].eq(True) & keyed["value"].isna(), "value"] = 0.0
     long = pd.concat([long[~tr], keyed.drop(columns="_coop")], ignore_index=True)

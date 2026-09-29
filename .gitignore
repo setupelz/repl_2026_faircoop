@@ -37,3 +37,7 @@ credentials/
 # Temporary files
 *.tmp
 *.bak
+
+# SCI submission export (Code/tools/export_sci.py): pinned template clone and output
+Data/.cache/
+Data/sci_submission/

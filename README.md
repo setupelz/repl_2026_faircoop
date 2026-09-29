@@ -61,6 +61,46 @@ Manuscript/Tables/*
 Scenario labels are parsed from each workbook's own Model and Scenario
 strings, so there are no hand-maintained scenario lists.
 
+## Scenario Compass submission
+
+`make sci-export` writes
+`Data/sci_submission/faircoop_sci_submission.xlsx`: the four Source runs and
+the unlimited (U.) and lowest-feasible (L.) variants at the default 5% discount
+rate, in the IAMC
+[common-definitions](https://github.com/IAMconsortium/common-definitions)
+template (pinned commit in `Code/tools/export_sci.py`), validated with
+`nomenclature-iamc`. Baselines and the 1% discount-rate runs are left out.
+Scenarios are named by carbon budget (Gt CO2), not temperature:
+`FairCoop_<SSP>-<500|800>-<PRINCIPLE><start>[-modifier]_<U|L>` and
+`FairCoop_<SSP>-<500|800>_Source`, e.g. `FairCoop_SSP2-800-ECPC2015_L`. The model is registered as
+`MESSAGEix-GLOBIOM-GAINS 2.1-M-R12`, the ScenarioMIP-CMIP7 release of the
+model generation the `JUSTMIP_<SSP>_v6.5` baselines were built with; pass
+`MODEL="..."` to override.
+
+What the export changes, all logged in `Data/sci_submission/mapping_log.csv`:
+
+- `Transfers|Finance` and `Transfers|Mitigation` go into the template's
+  `Trade|Emissions Allowances [Value]` and `[Volume]`, net per region (received
+  positive), World the regional sum. The volume is the covered Kyoto-gas basket
+  (AR4 GWP100), relabelled from `Mt CO2/yr` to `Mt CO2-equiv/yr`.
+- The `Investment` and `Investment|Energy Supply` aggregates and
+  `Efficiency|Hydrogen|Electricity` (240-560 under a % unit) are dropped.
+- `Emissions|Kyoto Gases` is reported 100x too large from 2020, so it is
+  recomputed from the species with AR4 GWP100, the basis the template prefers:
+  CO2 + 25 x CH4 + 0.298 x N2O (kt) + F-Gases. The recomputed 2015 values match
+  the model's own reporting within 0.2%. World exceeds the regional sum by the
+  international bunkers, as in the species rows it is built from.
+- Legacy names are renamed with common-definitions' own rename lists; unit
+  spellings follow the template (`US$2010` to `USD_2010`, `Mt NOx` to `Mt NO2`),
+  values unchanged; R12 codes become the model's native region names.
+- Variables outside the template are dropped (`dropped_variables.csv`), and
+  carbon-capture negatives above -1e-5 (solver noise) are set to zero.
+
+The `meta` sheet carries the SI Table 1 labels (budget in Gt CO2 in place of the temperature) and the interregional transfers
+of Figure 2b (NPV at 5% to 2025, trillion US$2010, summed over net recipients);
+per-region flows are in the `Trade|Emissions Allowances` series. Vetting against the SCI criteria is a separate step,
+run on the exported file.
+
 ## Scenario naming
 
 | In the data | In the paper | Meaning |
